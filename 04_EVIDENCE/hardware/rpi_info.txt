@@ -1,0 +1,21 @@
+==============================================================================
+INDIVISA INGENIUM 2026 — REGISTRO DE EVIDENCIA DE HARDWARE: RASPBERRY PI 5
+==============================================================================
+ESTADO: PENDIENTE DE EJECUCIÓN EN PLACA FÍSICA
+INSTRUCCIÓN:
+Para generar este reporte en la Raspberry Pi 5 conectada en mesa:
+    cd ~/Signal_Minds/02_PROJECT
+    bash scripts/collect_rpi_info.sh
+
+CAMPOS ESPERADOS AL EJECUTAR EN EL HARDWARE:
+1. /proc/device-tree/model
+2. uname -a (Kernel aarch64)
+3. uname -m (aarch64)
+4. /etc/os-release (Debian 12 Bookworm 64-bit)
+5. free -h (Memoria RAM confirmada)
+6. df -h (Particiones de almacenamiento)
+7. vcgencmd measure_temp (Temperatura de operación del BCM2712)
+8. vcgencmd get_throttled (Estado de regulación térmica y voltaje)
+9. lsusb (Dispositivos periféricos conectados)
+10. Nodos /dev (I2C y UART activos)
+==============================================================================

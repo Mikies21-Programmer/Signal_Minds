@@ -1,0 +1,15 @@
+==============================================================================
+INDIVISA INGENIUM 2026 — REGISTRO DE EVIDENCIA: VISIÓN ARTIFICIAL Y MEDIAPIPE
+==============================================================================
+ESTADO: PENDIENTE DE DETECCIÓN CON MANO FÍSICA FRENTE A LENTE REAL
+INSTRUCCIÓN:
+Con el stream de la cámara activo:
+    cd ~/Signal_Minds/02_PROJECT
+    python scripts/test_vision_real.py --url http://<IP_ESP32_CAM>/stream
+
+CRITERIO DE ACEPTACIÓN:
+- Detección de mano real estable (mínimo 30 fotogramas consecutivos con confianza > 70%).
+- Extracción correcta de 21 landmarks sin inventar puntos.
+- Generación de captura fotográfica anotada en:
+  04_EVIDENCE/hardware/real_hand_detection.jpg
+==============================================================================

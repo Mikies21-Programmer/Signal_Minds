@@ -1,0 +1,30 @@
+==============================================================================
+INDIVISA INGENIUM 2026 — REGISTRO DE EVIDENCIA: INTEGRACIÓN FINAL DE HARDWARE
+==============================================================================
+ESTADO: PENDIENTE DE CONCURRENCIA DE TODOS LOS PERIFÉRICOS FÍSICOS
+CADENA FÍSICA COMPLETA REQUERIDA PARA DECLARAR ÉXITO:
+  ESP32-CAM REAL
+      ↓ (Wi-Fi / MJPEG)
+  Raspberry Pi 5 REAL
+      ↓ (OpenCV VideoCapture buffer=1)
+  MediaPipe REAL (hand_landmarker.task local)
+      ↓ (21 landmarks anatómicos)
+  Sensor Físico REAL Identificado
+      ↓ (SensorBackend UART/I2C verificado)
+  Fusión Sensorial Real
+      ↓ (Delta t <= 200 ms, frescura < 500 ms)
+  Evaluador Morfológico Real (A, B, C, L, Y)
+      ↓
+  Feedback Pedagógico Explicable
+      ↓ (FastAPI / WebSocket)
+  Laptop Browser en tiempo real
+
+ESTADO DE CADA ELEMENTO:
+- ESP32-CAM: PENDIENTE INSPECCIÓN FÍSICA Y FIRMWARE
+- Raspberry Pi 5: PENDIENTE EJECUCIÓN DE SCRIPT EN HARDWARE
+- MediaPipe: SOFTWARE LISTO OFFLINE (hand_landmarker.task verificado)
+- Sensor Físico: PENDIENTE RECEPCIÓN E IDENTIFICACIÓN
+- Fusión Sensorial: SOFTWARE LISTO CON VALIDACIÓN TEMPORAL
+- Evaluador LSM: SOFTWARE LISTO CON REGLAS ANATÓMICAS
+- Frontend Laptop: SOFTWARE LISTO Y PROBADO
+==============================================================================

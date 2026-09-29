@@ -1,0 +1,17 @@
+==============================================================================
+INDIVISA INGENIUM 2026 — REGISTRO DE EVIDENCIA: SENSOR MECATRÓNICO FÍSICO
+==============================================================================
+ESTADO: PENDIENTE DE RECEPCIÓN E IDENTIFICACIÓN DEL COMPONENTE FÍSICO
+INSTRUCCIÓN:
+Una vez que el usuario proporcione el hardware del sensor:
+1. Inspección visual de serigrafía (modelo exacto de IMU / flexión).
+2. Verificación de interfaz física (I2C, SPI o UART) y pines GPIO asignados.
+3. Comprobación de tensión de alimentación (3.3V vs 5V).
+4. Ejecución del diagnóstico de comunicación:
+   - En I2C: i2cdetect -y 1
+   - En UART/Serial: comprobación de nodo /dev/ttyUSB* o /dev/serial*
+
+CRITERIO DE ACEPTACIÓN:
+- Conexión física confirmada sin inventar direcciones de bus ni pines.
+- Lectura de telemetría de flexión y orientación inercial con timestamps reales.
+==============================================================================

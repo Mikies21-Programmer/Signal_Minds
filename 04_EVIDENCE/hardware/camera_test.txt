@@ -1,0 +1,14 @@
+==============================================================================
+INDIVISA INGENIUM 2026 — REGISTRO DE EVIDENCIA: STREAM ESP32-CAM REAL
+==============================================================================
+ESTADO: PENDIENTE DE CONEXIÓN FÍSICA DE CÁMARA
+INSTRUCCIÓN:
+Una vez verificada la placa ESP32-CAM física y cargado el firmware de stream:
+    cd ~/Signal_Minds/02_PROJECT
+    python scripts/test_camera_real.py --url http://<IP_ESP32_CAM>/stream --duration 300
+
+CRITERIO DE ACEPTACIÓN:
+- Mínimo 5 minutos (300 segundos) de transmisión ininterrumpida.
+- Tasa de fotogramas estable (>15 FPS en resolución QVGA/VGA).
+- Registro de resolución real, fotogramas recibidos y conteo de pérdidas.
+==============================================================================
