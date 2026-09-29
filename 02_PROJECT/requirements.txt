@@ -1,0 +1,20 @@
+# INDIVISA INGENIUM 2026 — Dependencias del Proyecto
+# Arquitectura compatible con Raspberry Pi 5 (ARM64) y Laptop (x86_64)
+
+# 1. Dependencias Core para Pruebas y Configuración
+pydantic>=2.0.0
+pytest>=7.0.0
+
+# 2. Visión Artificial y Procesamiento Numérico (Fase Siguiente)
+# numpy>=1.24.0,<2.0.0
+# opencv-python-headless>=4.8.0
+# mediapipe>=0.10.0
+
+# 3. Modelos de Machine Learning e Inferencia (Fase Siguiente)
+# scikit-learn>=1.3.0
+# joblib>=1.3.0
+
+# 4. Servidor de API Local y WebSockets (Fase Siguiente)
+# fastapi>=0.100.0
+# uvicorn>=0.22.0
+# websockets>=11.0

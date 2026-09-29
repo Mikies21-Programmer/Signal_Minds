@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.pyo
+*.pyd
+*.pdb
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# Environment
+.env
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Data and outputs
+*.csv
+*.h5
+*.hdf5
+*.sqlite3
+*.db
+*.log
+*.out
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# OneDrive temp files
+~$*
+
+# Project-specific
+#clips_meta.csv
+#clips_features.csv
+
+# Ignore video files
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Ignore large datasets
+src/MSL-dynamic-signs/
+src/MSL-dynamic-profile-signs/
+
+# Ignore qodo
+.qodo/

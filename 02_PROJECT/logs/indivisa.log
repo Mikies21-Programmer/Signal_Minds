@@ -1,0 +1,66 @@
+2026-09-29 13:44:28 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 13:44:28 [INFO] [boot]: Iniciando arranque de diagnóstico para INDIVISA_INGENIUM_2026 v0.1.0
+2026-09-29 13:44:28 [INFO] [health]: Health Check ejecutado con éxito: INDIVISA_INGENIUM_2026 v0.1.0 en Laptop / Dev Host
+2026-09-29 13:44:28 [INFO] [vision]: VisionPipeline inicializado en modo: MOCK
+2026-09-29 13:44:28 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 13:44:28 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 13:44:28 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 13:44:28 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 13:44:28 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 13:44:28 [INFO] [orchestrator]: Iniciando orquestador del sistema...
+2026-09-29 13:44:28 [INFO] [camera]: CameraConsumer iniciado en modo: MOCK
+2026-09-29 13:44:28 [INFO] [sensors]: SensorManager iniciado.
+2026-09-29 13:44:28 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 13:44:28 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 13:44:28 [INFO] [camera]: CameraConsumer detenido.
+2026-09-29 13:44:28 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 13:44:28 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 13:44:28 [INFO] [boot]: Diagnóstico de arranque completado con éxito total.
+2026-09-29 13:44:44 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 13:44:44 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 13:44:44 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 13:44:44 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 13:44:44 [INFO] [health]: Health Check ejecutado con éxito: INDIVISA_INGENIUM_2026 v0.1.0 en Laptop / Dev Host
+2026-09-29 13:44:44 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 13:44:44 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 13:44:44 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 13:44:44 [INFO] [vision]: VisionPipeline inicializado en modo: MOCK
+2026-09-29 13:44:44 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 13:44:44 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 13:44:44 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 13:44:44 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 13:44:44 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 13:44:44 [INFO] [orchestrator]: Iniciando orquestador del sistema...
+2026-09-29 13:44:44 [INFO] [camera]: CameraConsumer iniciado en modo: MOCK
+2026-09-29 13:44:44 [INFO] [sensors]: SensorManager iniciado.
+2026-09-29 13:44:44 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 13:44:44 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 13:44:44 [INFO] [camera]: CameraConsumer detenido.
+2026-09-29 13:44:44 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 13:44:44 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 13:44:44 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 13:44:44 [INFO] [vision]: VisionPipeline inicializado en modo: MOCK
+2026-09-29 13:44:44 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 13:44:44 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 13:44:44 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 13:44:44 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 13:44:44 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 13:44:44 [INFO] [orchestrator]: Iniciando orquestador del sistema...
+2026-09-29 13:44:44 [INFO] [camera]: CameraConsumer iniciado en modo: MOCK
+2026-09-29 13:44:44 [INFO] [sensors]: SensorManager iniciado.
+2026-09-29 13:44:44 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 13:44:44 [INFO] [orchestrator]: Seña objetivo actualizada a: A
+2026-09-29 13:44:44 [INFO] [orchestrator]: Seña objetivo actualizada a: B
+2026-09-29 13:44:44 [INFO] [orchestrator]: Seña objetivo actualizada a: C
+2026-09-29 13:44:44 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 13:44:44 [INFO] [orchestrator]: Seña objetivo actualizada a: Y
+2026-09-29 13:44:44 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 13:44:44 [INFO] [camera]: CameraConsumer detenido.
+2026-09-29 13:44:44 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 13:44:44 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 13:44:44 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 13:44:44 [INFO] [frontend]: FrontendController inicializado en Laptop. Seña activa: A
+2026-09-29 13:44:44 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'B'
+2026-09-29 13:44:44 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'Y'
+2026-09-29 13:44:44 [INFO] [frontend]: [Teclado Laptop] Estado cambiado a: PAUSADO
+2026-09-29 13:44:44 [INFO] [frontend]: [Teclado Laptop] Solicitud de recalibración recibida.

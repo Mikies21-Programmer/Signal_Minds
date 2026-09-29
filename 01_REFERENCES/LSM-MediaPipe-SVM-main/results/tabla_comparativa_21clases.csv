@@ -1,0 +1,5 @@
+Modelo,Precisión,Tiempo Entrenamiento
+SVM Lineal,97.53%,230.54s
+SVM RBF,99.36%,174.41s
+Red Neuronal,99.63%,327.85s
+k-NN (k=5),99.09%,0.43s

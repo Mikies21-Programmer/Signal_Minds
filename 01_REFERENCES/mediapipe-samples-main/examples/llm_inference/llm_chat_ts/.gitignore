@@ -1,0 +1,13 @@
+dist/
+
+# npm
+node_modules/
+
+# local models
+models/
+
+# emacs
+*~
+\#*\#
+
+venv/
