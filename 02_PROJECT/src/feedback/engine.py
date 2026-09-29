@@ -1,6 +1,8 @@
 """
-Motor de retroalimentación pedagógica en tiempo real.
-Transforma el diagnóstico de los 4 parámetros en instrucciones correctivas directas.
+Motor de retroalimentación pedagógica en tiempo real para LSM.
+Genera instrucciones correctivas específicas y anatómicas basadas en los parámetros
+constitutivos (queirema, orientación, kinema, toponema).
+Prohíbe terminantemente el uso de mensajes genéricos como 'Inténtalo nuevamente'.
 """
 
 from typing import Dict, Any
@@ -10,51 +12,101 @@ logger = get_logger("feedback")
 
 
 class FeedbackEngine:
-    """Generador de instrucciones explicables y correctivas para el usuario."""
+    """Generador de directivas pedagógicas explicables para el usuario."""
 
     def __init__(self, config=None):
         self.config = config
-        logger.info("FeedbackEngine inicializado.")
+        logger.info("FeedbackEngine inicializado con retroalimentación específica.")
 
     def generate_feedback(self, evaluation: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Analiza los parámetros evaluados y produce retroalimentación clara.
+        Analiza detalladamente los 4 parámetros constitutivos y genera
+        instrucciones concretas de corrección anatómica y espacial.
         """
         is_valid = evaluation.get("is_valid", False)
         sign = evaluation.get("sign", "")
         params = evaluation.get("parameters", {})
+        score = evaluation.get("overall_score", 0.0)
 
+        # 1. Éxito: Seña ejecutada correctamente
         if is_valid:
             return {
                 "status": "SUCCESS",
-                "color": "#00FF66",
+                "color": "#00FF88",
                 "primary_message": f"¡Excelente! Seña '{sign}' ejecutada correctamente.",
-                "secondary_message": "Mantén la postura estable.",
-                "correction_hint": ""
+                "secondary_message": "Postura y orientación validadas. Mantén la posición.",
+                "correction_hint": "",
+                "score": score
             }
 
-        # Analizar cuál parámetro falló para dar retroalimentación pedagógica
-        config_stat = params.get("configuration", {}).get("status", "")
-        orient_stat = params.get("orientation", {}).get("status", "")
-        mov_stat = params.get("movement", {}).get("status", "")
+        # 2. Si no hay mano detectada
+        if score == 0.0 and ("Sin mano" in evaluation.get("message", "") or not params.get("configuration", {}).get("reason")):
+            return {
+                "status": "NO_HAND",
+                "color": "#FFAA00",
+                "primary_message": "No se detecta mano en el encuadre.",
+                "secondary_message": "Coloca tu mano frente al lente del ESP32-CAM.",
+                "correction_hint": "Acerca la mano al área de ejecución visual.",
+                "score": 0.0
+            }
 
-        if config_stat == "CORRECT":
-            hint = f"Ajusta la curvatura y separación de los dedos para la seña '{sign}'."
-            primary = "Postura de mano incorrecta."
-        elif orient_stat == "CORRECT":
-            hint = "Gira la muñeca para orientar la palma directamente hacia la cámara."
-            primary = "Orientación de la palma incorrecta."
-        elif mov_stat == "CORRECT":
-            hint = "El movimiento debe ser fluido y con la trayectoria esperada."
-            primary = "Dinámica del signo incorrecta."
-        else:
-            hint = "Coloca tu mano claramente frente a la cámara dentro del encuadre."
-            primary = "Ajusta la posición de tu mano."
+        config_info = params.get("configuration", {})
+        orient_info = params.get("orientation", {})
+        loc_info = params.get("location", {})
+        mov_info = params.get("movement", {})
 
+        # 3. Prioridad 1 de corrección: Toponema (Ubicación espacial fuera de encuadre)
+        if loc_info.get("status") == "CORRECT":
+            return {
+                "status": "NEEDS_CORRECTION",
+                "color": "#FFAA00",
+                "primary_message": "Mano fuera del área de ejecución.",
+                "secondary_message": loc_info.get("reason", "Centra la mano en el encuadre visual."),
+                "correction_hint": "Acerca la mano a la zona central frente a la cámara.",
+                "score": score
+            }
+
+        # 4. Prioridad 2 de corrección: Queirema (Configuración morfológica de los dedos)
+        if config_info.get("status") == "CORRECT" or config_info.get("score", 0.0) < 0.75:
+            reason = config_info.get("reason", f"Ajusta los dedos para la seña '{sign}'.")
+            return {
+                "status": "NEEDS_CORRECTION",
+                "color": "#FF8800",
+                "primary_message": f"Configuración de dedos incorrecta para '{sign}'.",
+                "secondary_message": reason,
+                "correction_hint": reason,
+                "score": score
+            }
+
+        # 5. Prioridad 3 de corrección: Orientación de palma
+        if orient_info.get("status") == "CORRECT" or orient_info.get("score", 0.0) < 0.75:
+            reason = orient_info.get("reason", "Gira la muñeca orientando la palma hacia la cámara.")
+            return {
+                "status": "NEEDS_CORRECTION",
+                "color": "#FF8800",
+                "primary_message": "Orientación de la palma incorrecta.",
+                "secondary_message": reason,
+                "correction_hint": reason,
+                "score": score
+            }
+
+        # 6. Prioridad 4 de corrección: Dinámica / Kinema
+        if mov_info.get("status") == "CORRECT":
+            return {
+                "status": "NEEDS_CORRECTION",
+                "color": "#FFAA00",
+                "primary_message": "Inestabilidad en el gesto.",
+                "secondary_message": "Mantén la mano estática para completar la evaluación de esta seña.",
+                "correction_hint": "No muevas los dedos durante la fijación.",
+                "score": score
+            }
+
+        # Fallback descriptivo si ninguno de los anteriores se activó
         return {
             "status": "NEEDS_CORRECTION",
-            "color": "#FFA500",
-            "primary_message": primary,
-            "secondary_message": hint,
-            "correction_hint": hint
+            "color": "#FFAA00",
+            "primary_message": f"Ajusta la postura de tu mano para la seña '{sign}'.",
+            "secondary_message": "Verifica la separación de los dedos y la orientación hacia la cámara.",
+            "correction_hint": "Revisa la postura en la pantalla de referencia.",
+            "score": score
         }

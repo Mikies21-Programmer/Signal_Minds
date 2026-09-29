@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INDIVISA INGENIUM 2026 — Telemetría LSM en Tiempo Real</title>
+  <style>
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-card: rgba(18, 26, 43, 0.85);
+      --bg-glass: rgba(255, 255, 255, 0.04);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(0, 216, 255, 0.3);
+      --accent-cyan: #00d8ff;
+      --accent-green: #00ff88;
+      --accent-amber: #ffaa00;
+      --accent-red: #ff3366;
+      --text-main: #f0f4f8;
+      --text-muted: #8a9bb3;
+      --font-mono: 'Consolas', 'Courier New', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    header {
+      background: rgba(10, 14, 23, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 14px;
+      height: 14px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--accent-cyan);
+    }
+
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-left: 8px;
+    }
+
+    .header-pills {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .pill {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-amber);
+    }
+
+    .pill-dot.healthy { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+    .pill-dot.error { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
+    .pill-dot.stalled { background: var(--accent-amber); }
+
+    /* Layout principal */
+    main {
+      flex: 1;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 20px;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1024px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Contenedor de Video */
+    .video-viewport {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-viewport img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video-overlay-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      display: flex;
+      gap: 8px;
+    }
+
+    .video-overlay-fps {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-cyan);
+    }
+
+    /* Selector de Señas y Teclado */
+    .keyboard-section {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .keyboard-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .key-btn {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      min-width: 60px;
+    }
+
+    .key-btn small {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      font-weight: normal;
+    }
+
+    .key-btn:hover {
+      background: rgba(0, 216, 255, 0.15);
+      border-color: var(--accent-cyan);
+      transform: translateY(-2px);
+    }
+
+    .key-btn.active {
+      background: var(--accent-cyan);
+      color: #000;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 16px rgba(0, 216, 255, 0.6);
+    }
+
+    .control-keys {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .ctrl-btn:hover {
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Panel de Evaluación */
+    .eval-display {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .target-banner {
+      background: linear-gradient(135deg, rgba(0, 216, 255, 0.1), rgba(0, 255, 136, 0.05));
+      border: 1px solid var(--border-accent);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .target-huge {
+      font-size: 3rem;
+      font-weight: 900;
+      line-height: 1;
+      color: var(--accent-cyan);
+      text-shadow: 0 0 20px rgba(0, 216, 255, 0.5);
+    }
+
+    .verdict-box {
+      text-align: right;
+    }
+
+    .verdict-tag {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .verdict-tag.pass {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--accent-green);
+      border: 1px solid var(--accent-green);
+    }
+
+    .verdict-tag.fail {
+      background: rgba(255, 170, 0, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid var(--accent-amber);
+    }
+
+    .score-meter {
+      width: 100%;
+      height: 10px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .score-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-amber), var(--accent-green));
+      transition: width 0.2s ease, background 0.2s ease;
+    }
+
+    /* Feedback Card */
+    .feedback-card {
+      background: rgba(0, 0, 0, 0.4);
+      border-left: 4px solid var(--accent-cyan);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.2s;
+    }
+
+    .feedback-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-main);
+    }
+
+    .feedback-detail {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Parámetros Constitutivos */
+    .params-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .param-box {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .param-name {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .param-score-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+
+    /* Telemetría Hardware */
+    .hw-status-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .hw-metric {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-align: center;
+    }
+
+    .hw-metric span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      margin-bottom: 2px;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 10px 24px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo"></div>
+      <div>
+        <span class="brand-title">INDIVISA INGENIUM 2026</span>
+        <span class="brand-subtitle">Estación Laptop Desacoplada</span>
+      </div>
+    </div>
+    <div class="header-pills">
+      <div class="pill">
+        <div id="dot-health" class="pill-dot"></div>
+        <span id="label-health">CONECTANDO...</span>
+      </div>
+      <div class="pill">
+        <span style="color:var(--text-muted)">LATENCIA:</span>
+        <span id="label-latency" style="font-family:var(--font-mono); font-weight:700">-- ms</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Columna Izquierda: Video y Teclado -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>VISIÓN EN TIEMPO REAL (ESP32-CAM)</span>
+        </div>
+        <div id="camera-status-pill" class="pill" style="padding: 2px 10px; font-size: 0.7rem;">
+          CAM: INICIANDO
+        </div>
+      </div>
+
+      <div class="video-viewport">
+        <img id="stream-img" src="/video_feed" alt="Transmisión ESP32-CAM" onerror="this.src=''; setTimeout(() => { this.src='/video_feed?t=' + Date.now(); }, 2000);">
+        <div class="video-overlay-badge">
+          <span>MANO:</span>
+          <span id="badge-hand" style="color:var(--accent-amber)">NO DETECTADA</span>
+        </div>
+        <div class="video-overlay-fps">
+          <span id="badge-fps">0.0</span> FPS
+        </div>
+      </div>
+
+      <div class="keyboard-section">
+        <div class="keyboard-row">
+          <button class="key-btn active" data-sign="A" onclick="sendSign('A')">A<small>[A]</small></button>
+          <button class="key-btn" data-sign="B" onclick="sendSign('B')">B<small>[B]</small></button>
+          <button class="key-btn" data-sign="C" onclick="sendSign('C')">C<small>[C]</small></button>
+          <button class="key-btn" data-sign="L" onclick="sendSign('L')">L<small>[L]</small></button>
+          <button class="key-btn" data-sign="Y" onclick="sendSign('Y')">Y<small>[Y]</small></button>
+        </div>
+        <div class="control-keys">
+          <button class="ctrl-btn" onclick="togglePause()">[ESPACIO] Pausar</button>
+          <button class="ctrl-btn" onclick="recalibrate()">[R] Calibrar Sensores</button>
+          <button class="ctrl-btn" onclick="nextSign()">[TAB] Siguiente Seña</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Columna Derecha: Diagnóstico, Evaluación y Sensores -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>EVALUADOR MORFOLÓGICO LSM (NIVEL 1)</span>
+        </div>
+        <div id="pill-pause" style="display:none; color:var(--accent-amber); font-weight:700; font-size:0.8rem;">
+          PAUSADO
+        </div>
+      </div>
+
+      <div class="eval-display">
+        <!-- Banner Seña Objetivo y Score -->
+        <div class="target-banner">
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">SEÑA OBJETIVO</div>
+            <div id="target-sign-text" class="target-huge">A</div>
+          </div>
+          <div class="verdict-box">
+            <div id="verdict-tag" class="verdict-tag fail">EVALUANDO</div>
+            <div style="font-family:var(--font-mono); font-size:1.1rem; font-weight:700;">
+              SCORE: <span id="overall-score-text">0.00</span> / 1.00
+            </div>
+            <div class="score-meter">
+              <div id="score-bar" class="score-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjeta de Feedback Explicable -->
+        <div id="feedback-card" class="feedback-card">
+          <div id="feedback-primary" class="feedback-title">Iniciando sistema...</div>
+          <div id="feedback-secondary" class="feedback-detail">Coloca tu mano frente al ESP32-CAM.</div>
+        </div>
+
+        <!-- 4 Parámetros Constitutivos -->
+        <div class="params-grid">
+          <div class="param-box">
+            <span class="param-name">Queirema (Configuración)</span>
+            <div class="param-score-line">
+              <span id="param-config-status" style="color:var(--text-muted)">--</span>
+              <span id="param-config-score">0.00</span>
+            </div>
+          </div>
+          <div class="param-box">
+            <span class="param-name">Orientación de Palma</span>
+            <div class="param-score-line">
+              <span id="param-orient-status" style="color:var(--text-muted)">--</span>
+              <span id="param-orient-score">0.00</span>
+            </div>
+          </div>
+          <div class="param-box">
+            <span class="param-name">Kinema (Dinámica)</span>
+            <div class="param-score-line">
+              <span id="param-mov-status" style="color:var(--text-muted)">--</span>
+              <span id="param-mov-score">0.00</span>
+            </div>
+          </div>
+          <div class="param-box">
+            <span class="param-name">Toponema (Ubicación)</span>
+            <div class="param-score-line">
+              <span id="param-loc-status" style="color:var(--text-muted)">--</span>
+              <span id="param-loc-score">0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fusión e Instrumentación Mecatrónica -->
+        <div style="margin-top: 10px;">
+          <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--accent-cyan); margin-bottom: 6px;">
+            FUSIÓN TEMPORAL E INSTRUMENTACIÓN MECATRÓNICA
+          </div>
+          <div class="hw-status-row">
+            <div class="hw-metric">
+              <span>FUSIÓN VÁLIDA</span>
+              <strong id="metric-fusion">NO</strong>
+            </div>
+            <div class="hw-metric">
+              <span>SENSOR DRIVER</span>
+              <strong id="metric-sensor-status">INICIANDO</strong>
+            </div>
+            <div class="hw-metric">
+              <span>IMU ROLL / PITCH</span>
+              <strong id="metric-imu">0.0° / 0.0°</strong>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <span>INDIVISA INGENIUM 2026 — Arquitectura Raspberry Pi 5 + ESP32-CAM + Laptop Browser</span>
+    <span id="connection-state-label" style="font-family:var(--font-mono)">WS: Desconectado</span>
+  </footer>
+
+  <script>
+    const signs = ['A', 'B', 'C', 'L', 'Y'];
+    let currentSign = 'A';
+    let isPaused = false;
+    let ws = null;
+
+    function connectWebSocket() {
+      const loc = window.location;
+      const wsProto = loc.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${wsProto}//${loc.host}/ws/telemetry`;
+
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        document.getElementById('connection-state-label').innerText = 'WS: Conectado (En vivo)';
+        document.getElementById('connection-state-label').style.color = 'var(--accent-green)';
+        document.getElementById('dot-health').className = 'pill-dot healthy';
+        document.getElementById('label-health').innerText = 'EN LÍNEA';
+      };
+
+      ws.onclose = () => {
+        document.getElementById('connection-state-label').innerText = 'WS: Reconectando...';
+        document.getElementById('connection-state-label').style.color = 'var(--accent-amber)';
+        document.getElementById('dot-health').className = 'pill-dot stalled';
+        document.getElementById('label-health').innerText = 'DESCONECTADO';
+        setTimeout(connectWebSocket, 1500);
+      };
+
+      ws.onerror = () => {
+        ws.close();
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          updateUI(data);
+        } catch (e) {
+          console.error('Error al procesar telemetría:', e);
+        }
+      };
+    }
+
+    function updateUI(data) {
+      if (!data) return;
+
+      // Seña objetivo y controles
+      if (data.target_sign && data.target_sign !== currentSign) {
+        currentSign = data.target_sign;
+        updateActiveButton(currentSign);
+      }
+      document.getElementById('target-sign-text').innerText = currentSign;
+
+      // Latencia
+      if (data.pipeline_latency_ms !== undefined) {
+        document.getElementById('label-latency').innerText = `${data.pipeline_latency_ms} ms`;
+      }
+
+      // Cámara y FPS
+      document.getElementById('badge-fps').innerText = (data.camera_fps || 0.0).toFixed(1);
+      const camStatus = data.camera_status || 'UNKNOWN';
+      document.getElementById('camera-status-pill').innerText = `CAM: ${camStatus}`;
+
+      // Detección de mano
+      const hasHand = !!data.has_hand;
+      const handBadge = document.getElementById('badge-hand');
+      if (hasHand) {
+        const conf = Math.round((data.confidence || 0) * 100);
+        handBadge.innerText = `DETECTADA (${conf}%)`;
+        handBadge.style.color = 'var(--accent-green)';
+      } else {
+        handBadge.innerText = 'NO DETECTADA';
+        handBadge.style.color = 'var(--accent-amber)';
+      }
+
+      // Pausa
+      isPaused = !!data.is_paused;
+      document.getElementById('pill-pause').style.display = isPaused ? 'block' : 'none';
+
+      // Evaluación
+      const ev = data.evaluation || {};
+      const score = ev.overall_score || 0.0;
+      const isValid = !!ev.is_valid;
+
+      document.getElementById('overall-score-text').innerText = score.toFixed(2);
+      const bar = document.getElementById('score-bar');
+      bar.style.width = `${Math.min(100, Math.max(0, score * 100))}%`;
+
+      const vtag = document.getElementById('verdict-tag');
+      if (isValid) {
+        vtag.className = 'verdict-tag pass';
+        vtag.innerText = 'CORRECTO';
+      } else {
+        vtag.className = 'verdict-tag fail';
+        vtag.innerText = hasHand ? 'CORREGIR' : 'SIN MANO';
+      }
+
+      // Feedback Card
+      const fb = data.feedback || {};
+      const fbCard = document.getElementById('feedback-card');
+      document.getElementById('feedback-primary').innerText = fb.primary_message || 'Esperando ejecución...';
+      document.getElementById('feedback-secondary').innerText = fb.secondary_message || '';
+      fbCard.style.borderLeftColor = fb.color || 'var(--accent-cyan)';
+
+      // 4 Parámetros
+      const params = ev.parameters || {};
+      if (params.configuration) {
+        document.getElementById('param-config-score').innerText = (params.configuration.score || 0).toFixed(2);
+        document.getElementById('param-config-status').innerText = params.configuration.status || '--';
+        document.getElementById('param-config-status').style.color = params.configuration.status === 'PASS' ? 'var(--accent-green)' : 'var(--accent-amber)';
+      }
+      if (params.orientation) {
+        document.getElementById('param-orient-score').innerText = (params.orientation.score || 0).toFixed(2);
+        document.getElementById('param-orient-status').innerText = params.orientation.status || '--';
+        document.getElementById('param-orient-status').style.color = params.orientation.status === 'PASS' ? 'var(--accent-green)' : 'var(--accent-amber)';
+      }
+      if (params.movement) {
+        document.getElementById('param-mov-score').innerText = (params.movement.score || 0).toFixed(2);
+        document.getElementById('param-mov-status').innerText = params.movement.status || '--';
+        document.getElementById('param-mov-status').style.color = params.movement.status === 'PASS' ? 'var(--accent-green)' : 'var(--accent-amber)';
+      }
+      if (params.location) {
+        document.getElementById('param-loc-score').innerText = (params.location.score || 0).toFixed(2);
+        document.getElementById('param-loc-status').innerText = params.location.status || '--';
+        document.getElementById('param-loc-status').style.color = params.location.status === 'PASS' ? 'var(--accent-green)' : 'var(--accent-amber)';
+      }
+
+      // Fusión y sensores
+      const fusion = data.fusion || {};
+      const isFusionValid = !!fusion.valid_fusion;
+      const fMetric = document.getElementById('metric-fusion');
+      fMetric.innerText = isFusionValid ? 'ACTIVA (VIS+SENS)' : (data.has_hand ? 'VISIÓN SOLA' : 'NO');
+      fMetric.style.color = isFusionValid ? 'var(--accent-green)' : (data.has_hand ? 'var(--accent-cyan)' : 'var(--accent-amber)');
+
+      const sensTel = data.sensor_telemetry || {};
+      const sMetric = document.getElementById('metric-sensor-status');
+      sMetric.innerText = sensTel.is_mock ? 'MOCK' : (sensTel.status || 'CONECTADO');
+      sMetric.style.color = sensTel.is_mock ? 'var(--accent-amber)' : 'var(--accent-green)';
+
+      const roll = (sensTel.imu_roll_deg || 0).toFixed(1);
+      const pitch = (sensTel.imu_pitch_deg || 0).toFixed(1);
+      document.getElementById('metric-imu').innerText = `${roll}° / ${pitch}°`;
+    }
+
+    function updateActiveButton(sign) {
+      document.querySelectorAll('.key-btn').forEach(btn => {
+        if (btn.getAttribute('data-sign') === sign) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    function sendSign(sign) {
+      currentSign = sign;
+      updateActiveButton(sign);
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ action: 'SET_SIGN', sign: sign }));
+      }
+    }
+
+    function togglePause() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ action: 'TOGGLE_PAUSE' }));
+      }
+    }
+
+    function recalibrate() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ action: 'RECALIBRATE' }));
+      }
+    }
+
+    function nextSign() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ action: 'NEXT_SIGN' }));
+      }
+    }
+
+    // Manejo de eventos de teclado físico en Laptop
+    window.addEventListener('keydown', (e) => {
+      // Ignorar si el foco está en un input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      const key = e.key.toUpperCase();
+      if (signs.includes(key)) {
+        e.preventDefault();
+        sendSign(key);
+      } else if (e.code === 'Space') {
+        e.preventDefault();
+        togglePause();
+      } else if (key === 'R') {
+        e.preventDefault();
+        recalibrate();
+      } else if (e.code === 'Tab') {
+        e.preventDefault();
+        nextSign();
+      }
+    });
+
+    // Iniciar conexión WebSocket
+    connectWebSocket();
+  </script>
+</body>
+</html>

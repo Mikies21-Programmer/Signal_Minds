@@ -14,9 +14,17 @@ from src.backend.orchestrator import SystemOrchestrator
 from src.frontend.controller import FrontendController
 
 
+def get_mock_test_config():
+    return {
+        "camera": {"mock_mode": True, "target_fps": 20},
+        "vision": {"mock_mode": True},
+        "sensors": {"mock_mode": True},
+        "lsm": {"default_target_sign": "A"}
+    }
+
+
 def test_orchestrator_single_step():
-    config = ConfigLoader()
-    orchestrator = SystemOrchestrator(config)
+    orchestrator = SystemOrchestrator(get_mock_test_config())
     orchestrator.start()
     result = orchestrator.step()
     orchestrator.stop()
@@ -31,8 +39,7 @@ def test_orchestrator_single_step():
 
 
 def test_level_1_signs_evaluation():
-    config = ConfigLoader()
-    orchestrator = SystemOrchestrator(config)
+    orchestrator = SystemOrchestrator(get_mock_test_config())
     orchestrator.start()
 
     level_1 = ["A", "B", "C", "L", "Y"]
@@ -71,3 +78,7 @@ def test_frontend_keyboard_shortcuts():
     # Test recalibración
     res_recal = controller.handle_keyboard_input("r")
     assert res_recal["action"] == "RECALIBRATE"
+
+    # Test tab (siguiente seña)
+    res_tab = controller.handle_keyboard_input("tab")
+    assert res_tab["action"] == "SET_SIGN"

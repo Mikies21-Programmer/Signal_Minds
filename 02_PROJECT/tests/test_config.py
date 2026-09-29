@@ -1,5 +1,6 @@
 """
 Pruebas para el cargador de configuración.
+Valida la carga por defecto en REAL HARDWARE MODE y la existencia de secciones críticas.
 """
 
 import sys
@@ -16,9 +17,10 @@ def test_load_default_config():
     loader = ConfigLoader()
     assert loader.get_app_name() == "INDIVISA_INGENIUM_2026"
     assert loader.get_app_version() == "0.1.0"
-    assert loader.is_camera_mock() is True
-    assert loader.is_sensors_mock() is True
-    assert loader.is_vision_mock() is True
+    # settings.json por defecto opera en REAL HARDWARE MODE (mock_mode = False)
+    assert loader.is_camera_mock() is False
+    assert loader.is_sensors_mock() is False
+    assert loader.is_vision_mock() is False
 
 
 def test_config_sections_exist():

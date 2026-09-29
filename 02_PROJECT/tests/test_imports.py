@@ -55,3 +55,20 @@ def test_import_feedback():
 def test_import_frontend():
     import src.frontend as frontend
     assert hasattr(frontend, "FrontendController")
+
+
+def test_import_external_dependencies():
+    import numpy as np
+    import cv2
+    import mediapipe as mp
+    import fastapi
+    import uvicorn
+    import websockets
+    import serial
+    assert np is not None
+    assert cv2 is not None
+    assert mp is not None
+    assert fastapi is not None
+    assert uvicorn is not None
+    assert websockets is not None
+    assert serial is not None

@@ -1,3 +1,21 @@
-
 # Example containing Google OAuth material
 01_REFERENCES/esp32-cam-ai-thinker-master/examples/google_storage/
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Logs & temporary files
+*.log
+02_PROJECT/logs/*.log
+!02_PROJECT/logs/.gitkeep

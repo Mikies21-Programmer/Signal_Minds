@@ -64,3 +64,832 @@
 2026-09-29 13:44:44 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'Y'
 2026-09-29 13:44:44 [INFO] [frontend]: [Teclado Laptop] Estado cambiado a: PAUSADO
 2026-09-29 13:44:44 [INFO] [frontend]: [Teclado Laptop] Solicitud de recalibración recibida.
+2026-09-29 16:06:18 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:06:18 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:06:18 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:06:18 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:06:18 [INFO] [health]: Health Check ejecutado con éxito: INDIVISA_INGENIUM_2026 v0.1.0 en Laptop / Dev Host
+2026-09-29 16:06:18 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:06:18 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:06:18 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:06:18 [INFO] [vision]: VisionPipeline inicializado en modo: MOCK
+2026-09-29 16:06:18 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:06:18 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:06:18 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:06:18 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:06:18 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:06:18 [INFO] [orchestrator]: Iniciando orquestador del sistema...
+2026-09-29 16:06:18 [INFO] [camera]: CameraConsumer iniciado en modo: MOCK
+2026-09-29 16:06:18 [INFO] [sensors]: SensorManager iniciado.
+2026-09-29 16:06:18 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:06:18 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:06:18 [INFO] [camera]: CameraConsumer detenido.
+2026-09-29 16:06:18 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:06:18 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:06:18 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:06:18 [INFO] [vision]: VisionPipeline inicializado en modo: MOCK
+2026-09-29 16:06:18 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:06:18 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:06:18 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:06:18 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:06:18 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:06:18 [INFO] [orchestrator]: Iniciando orquestador del sistema...
+2026-09-29 16:06:18 [INFO] [camera]: CameraConsumer iniciado en modo: MOCK
+2026-09-29 16:06:18 [INFO] [sensors]: SensorManager iniciado.
+2026-09-29 16:06:18 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:06:18 [INFO] [orchestrator]: Seña objetivo actualizada a: A
+2026-09-29 16:06:18 [INFO] [orchestrator]: Seña objetivo actualizada a: B
+2026-09-29 16:06:18 [INFO] [orchestrator]: Seña objetivo actualizada a: C
+2026-09-29 16:06:18 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:06:18 [INFO] [orchestrator]: Seña objetivo actualizada a: Y
+2026-09-29 16:06:18 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:06:18 [INFO] [camera]: CameraConsumer detenido.
+2026-09-29 16:06:18 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:06:18 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:06:18 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:06:18 [INFO] [frontend]: FrontendController inicializado en Laptop. Seña activa: A
+2026-09-29 16:06:18 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'B'
+2026-09-29 16:06:18 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'Y'
+2026-09-29 16:06:18 [INFO] [frontend]: [Teclado Laptop] Estado cambiado a: PAUSADO
+2026-09-29 16:06:18 [INFO] [frontend]: [Teclado Laptop] Solicitud de recalibración recibida.
+2026-09-29 16:10:03 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:03 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:03 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:03 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:03 [INFO] [health]: Health Check ejecutado con éxito: INDIVISA_INGENIUM_2026 v0.1.0 en Laptop / Dev Host
+2026-09-29 16:10:03 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:03 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:03 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:03 [INFO] [vision]: VisionPipeline inicializado en modo: MOCK
+2026-09-29 16:10:03 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:10:03 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:10:03 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:10:03 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:10:03 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:10:03 [INFO] [orchestrator]: Iniciando orquestador del sistema...
+2026-09-29 16:10:03 [INFO] [camera]: CameraConsumer iniciado en modo: MOCK
+2026-09-29 16:10:03 [INFO] [sensors]: SensorManager iniciado.
+2026-09-29 16:10:03 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:10:03 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:10:03 [INFO] [camera]: CameraConsumer detenido.
+2026-09-29 16:10:03 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:10:03 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:10:03 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:03 [INFO] [vision]: VisionPipeline inicializado en modo: MOCK
+2026-09-29 16:10:03 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:10:03 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:10:03 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:10:03 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:10:03 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:10:03 [INFO] [orchestrator]: Iniciando orquestador del sistema...
+2026-09-29 16:10:03 [INFO] [camera]: CameraConsumer iniciado en modo: MOCK
+2026-09-29 16:10:03 [INFO] [sensors]: SensorManager iniciado.
+2026-09-29 16:10:03 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:10:03 [INFO] [orchestrator]: Seña objetivo actualizada a: A
+2026-09-29 16:10:03 [INFO] [orchestrator]: Seña objetivo actualizada a: B
+2026-09-29 16:10:03 [INFO] [orchestrator]: Seña objetivo actualizada a: C
+2026-09-29 16:10:03 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:10:03 [INFO] [orchestrator]: Seña objetivo actualizada a: Y
+2026-09-29 16:10:03 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:10:03 [INFO] [camera]: CameraConsumer detenido.
+2026-09-29 16:10:03 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:10:03 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:10:03 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:03 [INFO] [frontend]: FrontendController inicializado en Laptop. Seña activa: A
+2026-09-29 16:10:03 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'B'
+2026-09-29 16:10:03 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'Y'
+2026-09-29 16:10:03 [INFO] [frontend]: [Teclado Laptop] Estado cambiado a: PAUSADO
+2026-09-29 16:10:03 [INFO] [frontend]: [Teclado Laptop] Solicitud de recalibración recibida.
+2026-09-29 16:10:15 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:15 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:15 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:15 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:15 [INFO] [health]: Health Check ejecutado con éxito: INDIVISA_INGENIUM_2026 v0.1.0 en Laptop / Dev Host
+2026-09-29 16:10:15 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:15 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:16 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:16 [INFO] [vision]: VisionPipeline inicializado en modo: MOCK
+2026-09-29 16:10:16 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:10:16 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:10:16 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:10:16 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:10:16 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:10:16 [INFO] [orchestrator]: Iniciando orquestador del sistema...
+2026-09-29 16:10:16 [INFO] [camera]: CameraConsumer iniciado en modo: MOCK
+2026-09-29 16:10:16 [INFO] [sensors]: SensorManager iniciado.
+2026-09-29 16:10:16 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:10:16 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:10:16 [INFO] [camera]: CameraConsumer detenido.
+2026-09-29 16:10:16 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:10:16 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:10:16 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:16 [INFO] [vision]: VisionPipeline inicializado en modo: MOCK
+2026-09-29 16:10:16 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:10:16 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:10:16 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:10:16 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:10:16 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:10:16 [INFO] [orchestrator]: Iniciando orquestador del sistema...
+2026-09-29 16:10:16 [INFO] [camera]: CameraConsumer iniciado en modo: MOCK
+2026-09-29 16:10:16 [INFO] [sensors]: SensorManager iniciado.
+2026-09-29 16:10:16 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:10:16 [INFO] [orchestrator]: Seña objetivo actualizada a: A
+2026-09-29 16:10:16 [INFO] [orchestrator]: Seña objetivo actualizada a: B
+2026-09-29 16:10:16 [INFO] [orchestrator]: Seña objetivo actualizada a: C
+2026-09-29 16:10:16 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:10:16 [INFO] [orchestrator]: Seña objetivo actualizada a: Y
+2026-09-29 16:10:16 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:10:16 [INFO] [camera]: CameraConsumer detenido.
+2026-09-29 16:10:16 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:10:16 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:10:16 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:10:16 [INFO] [frontend]: FrontendController inicializado en Laptop. Seña activa: A
+2026-09-29 16:10:16 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'B'
+2026-09-29 16:10:16 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'Y'
+2026-09-29 16:10:16 [INFO] [frontend]: [Teclado Laptop] Estado cambiado a: PAUSADO
+2026-09-29 16:10:16 [INFO] [frontend]: [Teclado Laptop] Solicitud de recalibración recibida.
+2026-09-29 16:10:47 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:10:47 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:10:47 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:10:47 [INFO] [camera]: CameraConsumer iniciado en REAL HARDWARE MODE hacia stream: http://192.0.2.1:9999/nonexistent_stream
+2026-09-29 16:10:47 [INFO] [camera]: Intentando conectar a stream de video: http://192.0.2.1:9999/nonexistent_stream
+2026-09-29 16:10:47 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:10:49 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:11:15 [ERROR] [vision]: ERROR CLARO DE MODELO LOCAL: No se encontró el archivo de modelo MediaPipe en 'C:\Users\migue\Downloads\SALLE\INDIVISA_INGENIUM_2026\02_PROJECT\models\non_existent_model_file.task'. Por política de seguridad y operación offline de la demostración, no se permite la descarga automática desde Internet en tiempo de ejecución. Deposite 'hand_landmarker.task' en el directorio 02_PROJECT/models/.
+2026-09-29 16:11:15 [INFO] [vision]: Cargando modelo local de MediaPipe desde ruta verificada: C:\Users\migue\Downloads\SALLE\INDIVISA_INGENIUM_2026\02_PROJECT\models\hand_landmarker.task
+2026-09-29 16:11:16 [INFO] [vision]: Detector HandLandmarker de MediaPipe cargado exitosamente en modo offline.
+2026-09-29 16:11:16 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:11:16 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:12:38 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:12:38 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:12:38 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:12:38 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:12:38 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:12:38 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:12:38 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:12:38 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:12:38 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:12:38 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:12:38 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:12:38 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:12:38 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:12:38 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:12:38 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:12:38 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:12:38 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:12:38 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:12:38 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:12:38 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:12:38 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:12:39 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:12:39 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:12:39 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:12:39 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:12:39 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:12:39 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:12:39 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:12:39 [INFO] [orchestrator]: Seña objetivo actualizada a: B
+2026-09-29 16:12:39 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:12:39 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:12:39 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:12:39 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:12:39 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:12:39 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:12:39 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:12:39 [INFO] [orchestrator]: Estado de pausa cambiado a: True
+2026-09-29 16:12:39 [INFO] [orchestrator]: Disparando calibración desde orquestador...
+2026-09-29 16:12:39 [INFO] [sensors]: Rutina de calibración mecatrónica completada con éxito.
+2026-09-29 16:12:39 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:12:39 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:12:39 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:12:39 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:12:39 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:12:39 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:12:39 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:12:39 [INFO] [api]: Cliente WebSocket conectado a telemetría.
+2026-09-29 16:12:39 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:12:39 [INFO] [api]: Cliente WebSocket desconectado.
+2026-09-29 16:13:17 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:17 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:17 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:17 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:17 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:17 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:17 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:17 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:17 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:17 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:17 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:17 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:17 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:17 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:17 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:17 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:17 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:17 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:17 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:17 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:17 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:17 [INFO] [health]: Health Check ejecutado: Estado=NOT_READY, Hardware=Laptop / Dev Host
+2026-09-29 16:13:17 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:17 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:17 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:17 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:17 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:17 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:17 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:17 [INFO] [orchestrator]: Seña objetivo actualizada a: B
+2026-09-29 16:13:17 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:17 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:17 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:17 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:17 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:17 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:17 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:17 [INFO] [orchestrator]: Estado de pausa cambiado a: True
+2026-09-29 16:13:17 [INFO] [orchestrator]: Disparando calibración desde orquestador...
+2026-09-29 16:13:17 [INFO] [sensors]: Rutina de calibración mecatrónica completada con éxito.
+2026-09-29 16:13:17 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:17 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:17 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:17 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:17 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:17 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:17 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:17 [INFO] [api]: Cliente WebSocket conectado a telemetría.
+2026-09-29 16:13:17 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:13:17 [INFO] [api]: Cliente WebSocket desconectado.
+2026-09-29 16:13:23 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:23 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:23 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:23 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:23 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:23 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:23 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:23 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:23 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:23 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:23 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:23 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:23 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:23 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:23 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:23 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:23 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:23 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:23 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:23 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:23 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:23 [INFO] [health]: Health Check ejecutado: Estado=NOT_READY, Hardware=Laptop / Dev Host
+2026-09-29 16:13:23 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:23 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:23 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:23 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:23 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:23 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:23 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:23 [INFO] [orchestrator]: Seña objetivo actualizada a: B
+2026-09-29 16:13:23 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:23 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:23 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:23 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:23 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:23 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:23 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:23 [INFO] [orchestrator]: Estado de pausa cambiado a: True
+2026-09-29 16:13:23 [INFO] [orchestrator]: Disparando calibración desde orquestador...
+2026-09-29 16:13:23 [INFO] [sensors]: Rutina de calibración mecatrónica completada con éxito.
+2026-09-29 16:13:23 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:23 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:23 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:23 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:23 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:23 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:23 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:23 [INFO] [api]: Cliente WebSocket conectado a telemetría.
+2026-09-29 16:13:23 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:13:23 [INFO] [api]: Cliente WebSocket desconectado.
+2026-09-29 16:13:23 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:13:23 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:13:23 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:13:23 [INFO] [camera]: CameraConsumer iniciado en REAL HARDWARE MODE hacia stream: http://192.0.2.1:9999/nonexistent_stream
+2026-09-29 16:13:23 [INFO] [camera]: Intentando conectar a stream de video: http://192.0.2.1:9999/nonexistent_stream
+2026-09-29 16:13:23 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:13:25 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:13:25 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:25 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:25 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:25 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:25 [INFO] [health]: Health Check ejecutado: Estado=NOT_READY, Hardware=Laptop / Dev Host
+2026-09-29 16:13:25 [INFO] [health]: Health Check ejecutado: Estado=NOT_READY, Hardware=Laptop / Dev Host
+2026-09-29 16:13:25 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:25 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:26 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:26 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:26 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:26 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:26 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:26 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:26 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:26 [INFO] [orchestrator]: Iniciando orquestador del sistema...
+2026-09-29 16:13:26 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:13:26 [INFO] [sensors]: SensorManager iniciado.
+2026-09-29 16:13:26 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:13:26 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:13:26 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:13:26 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:13:26 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:13:26 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:13:27 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:27 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:27 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:27 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:27 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:27 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:27 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:27 [INFO] [orchestrator]: Iniciando orquestador del sistema...
+2026-09-29 16:13:27 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:13:27 [INFO] [sensors]: SensorManager iniciado.
+2026-09-29 16:13:27 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:13:27 [INFO] [orchestrator]: Seña objetivo actualizada a: A
+2026-09-29 16:13:27 [INFO] [orchestrator]: Seña objetivo actualizada a: B
+2026-09-29 16:13:27 [INFO] [orchestrator]: Seña objetivo actualizada a: C
+2026-09-29 16:13:27 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:13:27 [INFO] [orchestrator]: Seña objetivo actualizada a: Y
+2026-09-29 16:13:27 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:13:27 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:13:27 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:13:27 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:13:27 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:13:27 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:27 [INFO] [frontend]: FrontendController inicializado en Laptop. Seña activa: A
+2026-09-29 16:13:27 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'B'
+2026-09-29 16:13:27 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'Y'
+2026-09-29 16:13:27 [INFO] [frontend]: [Teclado Laptop] Estado cambiado a: PAUSADO
+2026-09-29 16:13:27 [INFO] [frontend]: [Teclado Laptop] Solicitud de recalibración recibida.
+2026-09-29 16:13:27 [ERROR] [vision]: ERROR CLARO DE MODELO LOCAL: No se encontró el archivo de modelo MediaPipe en 'C:\Users\migue\Downloads\SALLE\INDIVISA_INGENIUM_2026\02_PROJECT\models\non_existent_model_file.task'. Por política de seguridad y operación offline de la demostración, no se permite la descarga automática desde Internet en tiempo de ejecución. Deposite 'hand_landmarker.task' en el directorio 02_PROJECT/models/.
+2026-09-29 16:13:27 [INFO] [vision]: Cargando modelo local de MediaPipe desde ruta verificada: C:\Users\migue\Downloads\SALLE\INDIVISA_INGENIUM_2026\02_PROJECT\models\hand_landmarker.task
+2026-09-29 16:13:27 [INFO] [vision]: Detector HandLandmarker de MediaPipe cargado exitosamente en modo offline.
+2026-09-29 16:13:28 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:28 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:52 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:52 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:52 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:52 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:52 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:52 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:52 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:52 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:52 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:52 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:52 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:52 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:52 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:52 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:52 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:52 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:52 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:52 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:52 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:52 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:52 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:52 [INFO] [health]: Health Check ejecutado: Estado=NOT_READY, Hardware=Laptop / Dev Host
+2026-09-29 16:13:52 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:52 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:52 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:52 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:52 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:52 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:52 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:52 [INFO] [orchestrator]: Seña objetivo actualizada a: B
+2026-09-29 16:13:52 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:52 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:52 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:52 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:52 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:52 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:52 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:52 [INFO] [orchestrator]: Estado de pausa cambiado a: True
+2026-09-29 16:13:52 [INFO] [orchestrator]: Disparando calibración desde orquestador...
+2026-09-29 16:13:52 [INFO] [sensors]: Rutina de calibración mecatrónica completada con éxito.
+2026-09-29 16:13:52 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:52 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:52 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:52 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:52 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:52 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:52 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:52 [INFO] [api]: Cliente WebSocket conectado a telemetría.
+2026-09-29 16:13:52 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:13:52 [INFO] [api]: Cliente WebSocket desconectado.
+2026-09-29 16:13:52 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:13:52 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:13:52 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:13:52 [INFO] [camera]: CameraConsumer iniciado en REAL HARDWARE MODE hacia stream: http://192.0.2.1:9999/nonexistent_stream
+2026-09-29 16:13:52 [INFO] [camera]: Intentando conectar a stream de video: http://192.0.2.1:9999/nonexistent_stream
+2026-09-29 16:13:52 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:13:54 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:13:54 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:54 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:54 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:54 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:54 [INFO] [health]: Health Check ejecutado: Estado=NOT_READY, Hardware=Laptop / Dev Host
+2026-09-29 16:13:54 [INFO] [health]: Health Check ejecutado: Estado=NOT_READY, Hardware=Laptop / Dev Host
+2026-09-29 16:13:54 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:54 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:55 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:55 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:55 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:55 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:55 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:55 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:55 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:55 [INFO] [orchestrator]: Iniciando orquestador del sistema (auto_loop=False)...
+2026-09-29 16:13:55 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:13:55 [INFO] [sensors]: SensorManager iniciado.
+2026-09-29 16:13:55 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:13:55 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:13:55 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:13:55 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:13:55 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:13:55 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:13:55 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:55 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:55 [INFO] [sensors]: SensorManager configurado en modo: MOCK
+2026-09-29 16:13:55 [INFO] [fusion]: SensorFusionEngine inicializado.
+2026-09-29 16:13:55 [INFO] [lsm]: LSMEvaluator inicializado. Nivel activo: 1, Seña inicial: 'A'
+2026-09-29 16:13:55 [INFO] [feedback]: FeedbackEngine inicializado.
+2026-09-29 16:13:55 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:13:55 [INFO] [orchestrator]: Iniciando orquestador del sistema (auto_loop=False)...
+2026-09-29 16:13:55 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:13:55 [INFO] [sensors]: SensorManager iniciado.
+2026-09-29 16:13:55 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:13:55 [INFO] [orchestrator]: Seña objetivo actualizada a: A
+2026-09-29 16:13:55 [INFO] [orchestrator]: Seña objetivo actualizada a: B
+2026-09-29 16:13:55 [INFO] [orchestrator]: Seña objetivo actualizada a: C
+2026-09-29 16:13:55 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:13:55 [INFO] [orchestrator]: Seña objetivo actualizada a: Y
+2026-09-29 16:13:55 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:13:55 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:13:55 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:13:55 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:13:55 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:13:55 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:13:55 [INFO] [frontend]: FrontendController inicializado en Laptop. Seña activa: A
+2026-09-29 16:13:55 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'B'
+2026-09-29 16:13:55 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'Y'
+2026-09-29 16:13:55 [INFO] [frontend]: [Teclado Laptop] Estado cambiado a: PAUSADO
+2026-09-29 16:13:55 [INFO] [frontend]: [Teclado Laptop] Solicitud de recalibración recibida.
+2026-09-29 16:13:55 [ERROR] [vision]: ERROR CLARO DE MODELO LOCAL: No se encontró el archivo de modelo MediaPipe en 'C:\Users\migue\Downloads\SALLE\INDIVISA_INGENIUM_2026\02_PROJECT\models\non_existent_model_file.task'. Por política de seguridad y operación offline de la demostración, no se permite la descarga automática desde Internet en tiempo de ejecución. Deposite 'hand_landmarker.task' en el directorio 02_PROJECT/models/.
+2026-09-29 16:13:55 [INFO] [vision]: Cargando modelo local de MediaPipe desde ruta verificada: C:\Users\migue\Downloads\SALLE\INDIVISA_INGENIUM_2026\02_PROJECT\models\hand_landmarker.task
+2026-09-29 16:13:55 [INFO] [vision]: Detector HandLandmarker de MediaPipe cargado exitosamente en modo offline.
+2026-09-29 16:13:56 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:13:56 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:16:21 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:16:21 [INFO] [sensors]: SensorManager iniciado. Estado backend: CONNECTED
+2026-09-29 16:16:21 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:16:21 [INFO] [sensors]: SensorManager inicializado en REAL HARDWARE MODE con backend desacoplado.
+2026-09-29 16:16:21 [INFO] [sensors]: Detectando interfaz de comunicación física para sensores...
+2026-09-29 16:16:21 [INFO] [sensors]: Intentando abrir puerto serie mecatrónico: COM_NON_EXISTENT_PORT_99
+2026-09-29 16:16:21 [WARNING] [sensors]: No fue posible conectar con hardware físico en puerto COM_NON_EXISTENT_PORT_99: could not open port 'COM_NON_EXISTENT_PORT_99': FileNotFoundError(2, 'El sistema no puede encontrar el archivo especificado.', None, 2)
+2026-09-29 16:16:21 [INFO] [sensors]: SensorManager iniciado. Estado backend: DISCONNECTED
+2026-09-29 16:16:21 [INFO] [sensors]: Backend de sensor físico desconectado.
+2026-09-29 16:16:21 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:16:21 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:16:21 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:21 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=300.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:21 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:21 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:21 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:21 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:21 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:21 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:30 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:30 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:16:30 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:16:30 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:30 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:30 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:30 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:16:30 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:16:30 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:16:30 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:30 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:30 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:30 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:16:30 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:30 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:16:30 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:16:30 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:30 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:30 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:30 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:16:30 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:30 [INFO] [health]: Health Check ejecutado: Estado=NOT_READY, Hardware=Laptop / Dev Host
+2026-09-29 16:16:30 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:16:30 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:16:30 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:30 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:30 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:30 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:16:30 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:30 [INFO] [orchestrator]: Seña objetivo actualizada a: B
+2026-09-29 16:16:30 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:16:30 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:16:30 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:30 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:30 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:30 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:16:30 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:30 [INFO] [orchestrator]: Estado de pausa cambiado a: True
+2026-09-29 16:16:30 [INFO] [orchestrator]: Disparando calibración desde orquestador...
+2026-09-29 16:16:30 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:16:30 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:16:30 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:30 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:30 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:30 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:16:30 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:30 [INFO] [api]: Cliente WebSocket conectado a telemetría.
+2026-09-29 16:16:30 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:16:30 [INFO] [api]: Cliente WebSocket desconectado.
+2026-09-29 16:16:30 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:16:31 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:16:31 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:16:31 [INFO] [camera]: CameraConsumer iniciado en REAL HARDWARE MODE hacia stream: http://192.0.2.1:9999/nonexistent_stream
+2026-09-29 16:16:31 [INFO] [camera]: Intentando conectar a stream de video: http://192.0.2.1:9999/nonexistent_stream
+2026-09-29 16:16:31 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:16:33 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:16:33 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:33 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:33 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:33 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:33 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:33 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:33 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:33 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=300.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:33 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:33 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:33 [INFO] [health]: Health Check ejecutado: Estado=NOT_READY, Hardware=Laptop / Dev Host
+2026-09-29 16:16:33 [INFO] [health]: Health Check ejecutado: Estado=NOT_READY, Hardware=Laptop / Dev Host
+2026-09-29 16:16:33 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:33 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:33 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:33 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:33 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:33 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:16:33 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:16:33 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:33 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:33 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:33 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:16:33 [INFO] [orchestrator]: Iniciando orquestador del sistema (auto_loop=False)...
+2026-09-29 16:16:33 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:16:33 [INFO] [sensors]: SensorManager iniciado. Estado backend: CONNECTED
+2026-09-29 16:16:33 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:16:33 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:16:33 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:16:33 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:16:33 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:16:33 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:16:33 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:33 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:16:33 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:16:33 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:33 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:33 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:33 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:16:33 [INFO] [orchestrator]: Iniciando orquestador del sistema (auto_loop=False)...
+2026-09-29 16:16:33 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:16:33 [INFO] [sensors]: SensorManager iniciado. Estado backend: CONNECTED
+2026-09-29 16:16:33 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:16:33 [INFO] [orchestrator]: Seña objetivo actualizada a: A
+2026-09-29 16:16:33 [INFO] [orchestrator]: Seña objetivo actualizada a: B
+2026-09-29 16:16:33 [INFO] [orchestrator]: Seña objetivo actualizada a: C
+2026-09-29 16:16:33 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:16:33 [INFO] [orchestrator]: Seña objetivo actualizada a: Y
+2026-09-29 16:16:33 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:16:33 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:16:33 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:16:33 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:16:33 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:16:33 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:33 [INFO] [frontend]: FrontendController inicializado en Laptop. Seña activa: A
+2026-09-29 16:16:33 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'B'
+2026-09-29 16:16:33 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'Y'
+2026-09-29 16:16:33 [INFO] [frontend]: [Teclado Laptop] Estado cambiado a: PAUSADO
+2026-09-29 16:16:33 [INFO] [frontend]: [Teclado Laptop] Solicitud de recalibración recibida.
+2026-09-29 16:16:33 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:16:33 [INFO] [sensors]: SensorManager iniciado. Estado backend: CONNECTED
+2026-09-29 16:16:33 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:16:33 [INFO] [sensors]: SensorManager inicializado en REAL HARDWARE MODE con backend desacoplado.
+2026-09-29 16:16:33 [INFO] [sensors]: Detectando interfaz de comunicación física para sensores...
+2026-09-29 16:16:33 [INFO] [sensors]: Intentando abrir puerto serie mecatrónico: COM_NON_EXISTENT_PORT_99
+2026-09-29 16:16:33 [WARNING] [sensors]: No fue posible conectar con hardware físico en puerto COM_NON_EXISTENT_PORT_99: could not open port 'COM_NON_EXISTENT_PORT_99': FileNotFoundError(2, 'El sistema no puede encontrar el archivo especificado.', None, 2)
+2026-09-29 16:16:33 [INFO] [sensors]: SensorManager iniciado. Estado backend: DISCONNECTED
+2026-09-29 16:16:33 [INFO] [sensors]: Backend de sensor físico desconectado.
+2026-09-29 16:16:33 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:16:33 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:16:33 [ERROR] [vision]: ERROR CLARO DE MODELO LOCAL: No se encontró el archivo de modelo MediaPipe en 'C:\Users\migue\Downloads\SALLE\INDIVISA_INGENIUM_2026\02_PROJECT\models\non_existent_model_file.task'. Por política de seguridad y operación offline de la demostración, no se permite la descarga automática desde Internet en tiempo de ejecución. Deposite 'hand_landmarker.task' en el directorio 02_PROJECT/models/.
+2026-09-29 16:16:33 [INFO] [vision]: Cargando modelo local de MediaPipe desde ruta verificada: C:\Users\migue\Downloads\SALLE\INDIVISA_INGENIUM_2026\02_PROJECT\models\hand_landmarker.task
+2026-09-29 16:16:33 [INFO] [vision]: Detector HandLandmarker de MediaPipe cargado exitosamente en modo offline.
+2026-09-29 16:16:34 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:16:34 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:16:48 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:48 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:16:48 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:16:48 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:48 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:48 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:48 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:16:48 [INFO] [vision]: Cargando modelo local de MediaPipe desde ruta verificada: C:\Users\migue\Downloads\SALLE\INDIVISA_INGENIUM_2026\02_PROJECT\models\hand_landmarker.task
+2026-09-29 16:16:49 [INFO] [vision]: Detector HandLandmarker de MediaPipe cargado exitosamente en modo offline.
+2026-09-29 16:16:49 [INFO] [sensors]: SensorManager inicializado en REAL HARDWARE MODE con backend desacoplado.
+2026-09-29 16:16:49 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:49 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:49 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:49 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:16:49 [INFO] [orchestrator]: Iniciando orquestador del sistema (auto_loop=False)...
+2026-09-29 16:16:49 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:16:49 [INFO] [sensors]: Detectando interfaz de comunicación física para sensores...
+2026-09-29 16:16:49 [WARNING] [sensors]: No se detectaron puertos serie conectados. El hardware mecatrónico permanece en estado DISCONNECTED (UNKNOWN).
+2026-09-29 16:16:49 [INFO] [sensors]: SensorManager iniciado. Estado backend: DISCONNECTED
+2026-09-29 16:16:49 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:16:49 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:16:49 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:16:49 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:16:49 [INFO] [sensors]: Backend de sensor físico desconectado.
+2026-09-29 16:16:49 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:16:49 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:16:49 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:16:49 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:16:49 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:16:49 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:16:49 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:16:49 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:16:49 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:16:49 [INFO] [api]: Cliente WebSocket conectado a telemetría.
+2026-09-29 16:16:49 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:16:49 [INFO] [orchestrator]: Disparando calibración desde orquestador...
+2026-09-29 16:16:49 [INFO] [api]: Cliente WebSocket desconectado.
+2026-09-29 16:17:56 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:17:56 [INFO] [vision]: Cargando modelo local de MediaPipe desde ruta verificada: C:\Users\migue\Downloads\SALLE\INDIVISA_INGENIUM_2026\02_PROJECT\models\hand_landmarker.task
+2026-09-29 16:17:57 [INFO] [vision]: Detector HandLandmarker de MediaPipe cargado exitosamente en modo offline.
+2026-09-29 16:17:57 [INFO] [sensors]: SensorManager inicializado en REAL HARDWARE MODE con backend desacoplado.
+2026-09-29 16:17:57 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:17:57 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:17:57 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:17:57 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:17:57 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:17:57 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:17:57 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:17:57 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:17:57 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:17:57 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:17:57 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:17:57 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:17:57 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:17:57 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:17:57 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:17:57 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:17:57 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:17:57 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:17:57 [INFO] [health]: Health Check ejecutado: Estado=NOT_READY, Hardware=Laptop / Dev Host
+2026-09-29 16:17:57 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:17:57 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:17:57 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:17:57 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:17:57 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:17:57 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:17:57 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:17:57 [INFO] [orchestrator]: Seña objetivo actualizada a: B
+2026-09-29 16:17:57 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:17:57 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:17:57 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:17:57 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:17:57 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:17:57 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:17:57 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:17:57 [INFO] [orchestrator]: Estado de pausa cambiado a: True
+2026-09-29 16:17:57 [INFO] [orchestrator]: Disparando calibración desde orquestador...
+2026-09-29 16:17:57 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:17:57 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:17:57 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:17:57 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:17:57 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:17:57 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:17:57 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:17:57 [INFO] [api]: Cliente WebSocket conectado a telemetría.
+2026-09-29 16:17:57 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:17:57 [INFO] [api]: Cliente WebSocket desconectado.
+2026-09-29 16:17:57 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:17:57 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:17:57 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:17:57 [INFO] [camera]: CameraConsumer iniciado en REAL HARDWARE MODE hacia stream: http://192.0.2.1:9999/nonexistent_stream
+2026-09-29 16:17:57 [INFO] [camera]: Intentando conectar a stream de video: http://192.0.2.1:9999/nonexistent_stream
+2026-09-29 16:17:57 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:17:59 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:17:59 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:17:59 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:17:59 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:17:59 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:17:59 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:17:59 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:17:59 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:17:59 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=300.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:17:59 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:17:59 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:17:59 [INFO] [health]: Health Check ejecutado: Estado=NOT_READY, Hardware=Laptop / Dev Host
+2026-09-29 16:17:59 [INFO] [health]: Health Check ejecutado: Estado=NOT_READY, Hardware=Laptop / Dev Host
+2026-09-29 16:17:59 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:17:59 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:17:59 [INFO] [vision]: Cargando modelo local de MediaPipe desde ruta verificada: C:\Users\migue\Downloads\SALLE\INDIVISA_INGENIUM_2026\02_PROJECT\models\hand_landmarker.task
+2026-09-29 16:17:59 [INFO] [vision]: Detector HandLandmarker de MediaPipe cargado exitosamente en modo offline.
+2026-09-29 16:17:59 [INFO] [sensors]: SensorManager inicializado en REAL HARDWARE MODE con backend desacoplado.
+2026-09-29 16:17:59 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:17:59 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:17:59 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:17:59 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:17:59 [INFO] [orchestrator]: Iniciando orquestador del sistema (auto_loop=False)...
+2026-09-29 16:17:59 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:17:59 [INFO] [sensors]: Detectando interfaz de comunicación física para sensores...
+2026-09-29 16:17:59 [WARNING] [sensors]: No se detectaron puertos serie conectados. El hardware mecatrónico permanece en estado DISCONNECTED (UNKNOWN).
+2026-09-29 16:17:59 [INFO] [sensors]: SensorManager iniciado. Estado backend: DISCONNECTED
+2026-09-29 16:17:59 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:17:59 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:17:59 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:17:59 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:17:59 [INFO] [sensors]: Backend de sensor físico desconectado.
+2026-09-29 16:17:59 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:17:59 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:17:59 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:17:59 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:17:59 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:17:59 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:17:59 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:17:59 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:17:59 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:17:59 [INFO] [api]: Cliente WebSocket conectado a telemetría.
+2026-09-29 16:17:59 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:17:59 [INFO] [orchestrator]: Disparando calibración desde orquestador...
+2026-09-29 16:17:59 [INFO] [api]: Cliente WebSocket desconectado.
+2026-09-29 16:17:59 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:17:59 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:17:59 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:17:59 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:17:59 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:17:59 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:17:59 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:17:59 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:17:59 [INFO] [orchestrator]: Iniciando orquestador del sistema (auto_loop=False)...
+2026-09-29 16:17:59 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:17:59 [INFO] [sensors]: SensorManager iniciado. Estado backend: CONNECTED
+2026-09-29 16:17:59 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:18:00 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:18:00 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:18:00 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:18:00 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:18:00 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:18:00 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:18:00 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:18:00 [INFO] [fusion]: SensorFusionEngine inicializado (max_staleness=500.0ms, max_sync_delta=200.0ms).
+2026-09-29 16:18:00 [INFO] [lsm]: LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: 'A'.
+2026-09-29 16:18:00 [INFO] [feedback]: FeedbackEngine inicializado con retroalimentación específica.
+2026-09-29 16:18:00 [INFO] [orchestrator]: Todos los subsistemas inicializados correctamente.
+2026-09-29 16:18:00 [INFO] [orchestrator]: Iniciando orquestador del sistema (auto_loop=False)...
+2026-09-29 16:18:00 [INFO] [camera]: CameraConsumer iniciado en MOCK MODE (simulado para tests).
+2026-09-29 16:18:00 [INFO] [sensors]: SensorManager iniciado. Estado backend: CONNECTED
+2026-09-29 16:18:00 [INFO] [orchestrator]: Orquestador en ejecución activa.
+2026-09-29 16:18:00 [INFO] [orchestrator]: Seña objetivo actualizada a: A
+2026-09-29 16:18:00 [INFO] [orchestrator]: Seña objetivo actualizada a: B
+2026-09-29 16:18:00 [INFO] [orchestrator]: Seña objetivo actualizada a: C
+2026-09-29 16:18:00 [INFO] [orchestrator]: Seña objetivo actualizada a: L
+2026-09-29 16:18:00 [INFO] [orchestrator]: Seña objetivo actualizada a: Y
+2026-09-29 16:18:00 [INFO] [orchestrator]: Deteniendo orquestador...
+2026-09-29 16:18:00 [INFO] [camera]: Deteniendo CameraConsumer...
+2026-09-29 16:18:00 [INFO] [camera]: CameraConsumer detenido y recursos liberados.
+2026-09-29 16:18:00 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:18:00 [INFO] [orchestrator]: Orquestador detenido exitosamente.
+2026-09-29 16:18:00 [INFO] [config]: Configuración cargada exitosamente desde: settings.json
+2026-09-29 16:18:00 [INFO] [frontend]: FrontendController inicializado en Laptop. Seña activa: A
+2026-09-29 16:18:00 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'B'
+2026-09-29 16:18:00 [INFO] [frontend]: [Teclado Laptop] Seña seleccionada: 'Y'
+2026-09-29 16:18:00 [INFO] [frontend]: [Teclado Laptop] Estado cambiado a: PAUSADO
+2026-09-29 16:18:00 [INFO] [frontend]: [Teclado Laptop] Solicitud de recalibración recibida.
+2026-09-29 16:18:00 [INFO] [frontend]: [Teclado Laptop] Seña avanzada a: 'A'
+2026-09-29 16:18:00 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:18:00 [INFO] [sensors]: SensorManager iniciado. Estado backend: CONNECTED
+2026-09-29 16:18:00 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:18:00 [INFO] [sensors]: SensorManager inicializado en REAL HARDWARE MODE con backend desacoplado.
+2026-09-29 16:18:00 [INFO] [sensors]: Detectando interfaz de comunicación física para sensores...
+2026-09-29 16:18:00 [INFO] [sensors]: Intentando abrir puerto serie mecatrónico: COM_NON_EXISTENT_PORT_99
+2026-09-29 16:18:00 [WARNING] [sensors]: No fue posible conectar con hardware físico en puerto COM_NON_EXISTENT_PORT_99: could not open port 'COM_NON_EXISTENT_PORT_99': FileNotFoundError(2, 'El sistema no puede encontrar el archivo especificado.', None, 2)
+2026-09-29 16:18:00 [INFO] [sensors]: SensorManager iniciado. Estado backend: DISCONNECTED
+2026-09-29 16:18:00 [INFO] [sensors]: Backend de sensor físico desconectado.
+2026-09-29 16:18:00 [INFO] [sensors]: SensorManager detenido.
+2026-09-29 16:18:00 [INFO] [sensors]: SensorManager inicializado en MOCK MODE (simulado solo para tests).
+2026-09-29 16:18:00 [ERROR] [vision]: ERROR CLARO DE MODELO LOCAL: No se encontró el archivo de modelo MediaPipe en 'C:\Users\migue\Downloads\SALLE\INDIVISA_INGENIUM_2026\02_PROJECT\models\non_existent_model_file.task'. Por política de seguridad y operación offline de la demostración, no se permite la descarga automática desde Internet en tiempo de ejecución. Deposite 'hand_landmarker.task' en el directorio 02_PROJECT/models/.
+2026-09-29 16:18:00 [INFO] [vision]: Cargando modelo local de MediaPipe desde ruta verificada: C:\Users\migue\Downloads\SALLE\INDIVISA_INGENIUM_2026\02_PROJECT\models\hand_landmarker.task
+2026-09-29 16:18:00 [INFO] [vision]: Detector HandLandmarker de MediaPipe cargado exitosamente en modo offline.
+2026-09-29 16:18:00 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).
+2026-09-29 16:18:00 [INFO] [vision]: VisionPipeline inicializado en MOCK MODE (landmarks sintéticos solo para tests).

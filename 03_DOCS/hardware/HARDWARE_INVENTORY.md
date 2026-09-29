@@ -92,3 +92,28 @@
 | Teclado               | 100% VERIFICADO     | Listo para interacción y control            |
 +-----------------------+---------------------+---------------------------------------------+
 ```
+
+---
+
+## 7. PENDING HARDWARE VERIFICATION
+
+La siguiente lista contiene los elementos que permanecen como **UNKNOWN** y que están estrictamente prohibidos de inventar o simular como hardware comprobado:
+
+1. **ESP32-CAM:**
+   - [ ] Fabricante y revisión exacta de serigrafía de la placa (AI-Thinker vs clon).
+   - [ ] Modelo exacto del sensor óptico (OV2640, OV7670 o lente gran angular).
+   - [ ] Presencia y capacidad del chip PSRAM externo (ESP32-CAM sin PSRAM se limita a QVGA).
+   - [ ] Pinout de asignación de cámara y bus de control (prohibido asumir pinout sin inspección física).
+   - [ ] Dirección IP asignada en la red local de prueba (configurable mediante `settings.json`, no hardcodeada).
+
+2. **Instrumentación Mecatrónica (Sensores):**
+   - [ ] Modelo de la Unidad de Medición Inercial (IMU): MPU6050, LSM6DS3, MPU9250 u otro (**UNKNOWN**).
+   - [ ] Dirección I2C del sensor inercial (**UNKNOWN**; por ejemplo, 0x68 o 0x69 según pin AD0).
+   - [ ] Pines GPIO y bus físico de enlace con Raspberry Pi 5 (**UNKNOWN**).
+   - [ ] Tecnología de sensores de flexión (galgas extensométricas resistivas, hilo resistivo o sensores ópticos flex).
+   - [ ] Microcontrolador secundario dedicado para adquisición (si aplica: RP2040, Arduino Nano, ESP32 o ADC directo).
+
+3. **Raspberry Pi 5:**
+   - [ ] Memoria RAM física (2 GB, 4 GB, 8 GB o 16 GB).
+   - [ ] Medio de almacenamiento de arranque (MicroSD clase A2 vs SSD NVMe M.2).
+   - [ ] Sistema de refrigeración instalado (Active Cooler oficial vs pasivo).
