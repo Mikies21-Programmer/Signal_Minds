@@ -77,6 +77,18 @@ def create_app(orchestrator: Optional[SystemOrchestrator] = None) -> FastAPI:
         app_orchestrator.set_target_sign(clean_sign, switch_to_manual=True)
         return {"status": "SUCCESS", "target_sign": clean_sign, "mode": app_orchestrator.mode}
 
+    @app.post("/api/level/{level}")
+    async def set_level(level: int):
+        """Cambia el nivel de señas activo (1 o 2)."""
+        if level not in [1, 2]:
+            raise HTTPException(status_code=400, detail="Nivel no válido. Use 1 o 2.")
+        app_orchestrator.set_level(level)
+        return {
+            "status": "SUCCESS",
+            "level": app_orchestrator.active_level,
+            "target_sign": app_orchestrator.target_sign
+        }
+
     @app.post("/api/mode/{mode}")
     async def set_mode(mode: str):
         """Cambia el modo de operación entre 'AUTO' (clasificación automática) y 'MANUAL'."""
@@ -137,6 +149,10 @@ def create_app(orchestrator: Optional[SystemOrchestrator] = None) -> FastAPI:
                     elif action == "SET_MODE":
                         new_mode = data.get("mode", "AUTO").upper()
                         app_orchestrator.set_mode(new_mode)
+                    elif action == "SET_LEVEL":
+                        new_level = int(data.get("level", 1))
+                        if new_level in [1, 2]:
+                            app_orchestrator.set_level(new_level)
                     elif action == "TOGGLE_PAUSE":
                         app_orchestrator.toggle_pause()
                     elif action == "RECALIBRATE":

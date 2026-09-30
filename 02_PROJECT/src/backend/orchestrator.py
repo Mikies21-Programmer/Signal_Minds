@@ -40,6 +40,7 @@ class SystemOrchestrator:
 
         lsm_conf = self.config.get("lsm", {}) if hasattr(self.config, "get") else {}
         self.target_sign = lsm_conf.get("default_target_sign", "A")
+        self.active_level = int(lsm_conf.get("active_level", 1))
 
         self.latest_payload: Dict[str, Any] = {}
         self.latest_jpeg_frame: Optional[bytes] = None
@@ -118,17 +119,44 @@ class SystemOrchestrator:
                     self.latest_payload["mode"] = self.mode
             logger.info(f"Modo de orquestador cambiado a: {self.mode}")
 
+    def set_level(self, level: int) -> None:
+        """Establece el nivel activo (1 o 2)."""
+        if level in [1, 2]:
+            self.active_level = level
+            self.classifier.set_active_level(level)
+            self.lsm.active_level = level
+            if level == 1 and self.target_sign not in self.classifier.LEVEL_1_SIGNS:
+                self.target_sign = "A"
+                self.lsm.set_target_sign("A")
+            elif level == 2 and self.target_sign not in self.classifier.LEVEL_2_SIGNS:
+                self.target_sign = "J"
+                self.lsm.set_target_sign("J")
+            with self._lock:
+                if self.latest_payload:
+                    self.latest_payload["level"] = self.active_level
+                    self.latest_payload["target_sign"] = self.target_sign
+            logger.info(f"Nivel activo cambiado a: Nivel {self.active_level}")
+
     def set_target_sign(self, sign: str, switch_to_manual: bool = True) -> None:
         """Actualiza la seña objetivo que se está evaluando."""
         self.target_sign = sign.upper()
         if switch_to_manual:
             self.mode = "MANUAL"
+        if self.target_sign in self.classifier.LEVEL_1_SIGNS:
+            self.active_level = 1
+            self.classifier.set_active_level(1)
+            self.lsm.active_level = 1
+        elif self.target_sign in self.classifier.LEVEL_2_SIGNS:
+            self.active_level = 2
+            self.classifier.set_active_level(2)
+            self.lsm.active_level = 2
         self.lsm.set_target_sign(self.target_sign)
         with self._lock:
             if self.latest_payload:
                 self.latest_payload["target_sign"] = self.target_sign
                 self.latest_payload["mode"] = self.mode
-        logger.info(f"Seña objetivo actualizada a: {self.target_sign} (modo={self.mode})")
+                self.latest_payload["level"] = self.active_level
+        logger.info(f"Seña objetivo actualizada a: {self.target_sign} (modo={self.mode}, nivel={self.active_level})")
 
     def toggle_pause(self) -> bool:
         """Alterna el estado de pausa de evaluación."""
@@ -231,7 +259,9 @@ class SystemOrchestrator:
 
         # 5. Clasificación automática LSM Nivel 1 / Nivel 2
         active_target = self.target_sign if self.mode == "MANUAL" else None
-        classification = self.classifier.classify(fused_state, target_sign=active_target)
+        classification = self.classifier.classify(
+            fused_state, target_sign=active_target, level=self.active_level
+        )
 
         # Si estamos en modo AUTO y hay una seña estable reconocida, actualizar seña activa
         if self.mode == "AUTO":
@@ -284,7 +314,14 @@ class SystemOrchestrator:
             "confidence": classification.get("confidence", 0.0),
             "predicted_sign": classification.get("predicted_sign"),
             "stable_sign": classification.get("stable_sign"),
-            "detected": classification.get("detected", False)
+            "detected": classification.get("detected", False),
+            "level": self.active_level,
+            "best_candidate": classification.get("best_candidate"),
+            "second_candidate": classification.get("second_candidate"),
+            "candidate_scores": classification.get("candidate_scores", {}),
+            "stable_count": classification.get("stable_count", 0),
+            "finger_states": classification.get("diagnostics", {}).get("finger_states", {}),
+            "a_details": classification.get("diagnostics", {}).get("a_details")
         }
 
         # Extraer diagnósticos morfológicos
@@ -296,7 +333,7 @@ class SystemOrchestrator:
             c_d = diag_data.get("c", {})
             y_d = diag_data.get("y", {})
             logger.info(
-                f"[DIAG LSM] Candidatos={classification.get('candidate_scores')} | "
+                f"[DIAG LSM N{self.active_level}] Candidatos={classification.get('candidate_scores')} | "
                 f"B(fold={b_d.get('thumb_fold', 0)}%, add={b_d.get('adduction', 0)}%) | "
                 f"C(curv={c_d.get('curvature', 0)}%, open={c_d.get('opening', 0)}%) | "
                 f"Y(th={y_d.get('thumb', 0)}%, pk={y_d.get('pinky', 0)}%, cflx={y_d.get('center_flex', 0)}%)"
@@ -306,6 +343,7 @@ class SystemOrchestrator:
             "frame_id": self.frame_count,
             "timestamp": time.time(),
             "mode": self.mode,
+            "level": self.active_level,
             "target_sign": self.target_sign,
             "auto_classification": auto_info,
             "candidate_scores": classification.get("candidate_scores", {}),

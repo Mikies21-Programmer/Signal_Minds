@@ -75,8 +75,14 @@ class DynamicGestureTracker:
             return
 
         # Evitar muestras duplicadas dentro del mismo frame
-        if self._samples and abs(self._samples[-1]["timestamp"] - now) < 1e-4:
-            return
+        if self._samples:
+            last = self._samples[-1]
+            if abs(last["timestamp"] - now) < 1e-4 or (
+                abs(last["timestamp"] - now) < 0.01 and
+                abs(last["wrist"][0] - raw_landmarks[0]["x"]) < 1e-5 and
+                abs(last["wrist"][1] - raw_landmarks[0]["y"]) < 1e-5
+            ):
+                return
 
         imu_data = sensor_telemetry or {}
         roll = float(imu_data.get("imu_roll_deg", 0.0))

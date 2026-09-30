@@ -547,8 +547,8 @@
           <button class="btn-auto active" id="btn-auto" onclick="toggleAutoMode()">Modo Automático: ACTIVO</button>
         </div>
 
-        <div class="level-block">
-          <div class="level-label">NIVEL 1 — ESTÁTICO</div>
+        <div class="level-block" id="block-level-1">
+          <div class="level-label" style="cursor: pointer;" onclick="selectLevel(1)" title="Clic para activar Nivel 1">NIVEL 1 — ESTÁTICO</div>
           <div class="sign-buttons-row">
             <button class="btn-sign active" data-sign="A" onclick="selectSign('A')">A</button>
             <button class="btn-sign" data-sign="B" onclick="selectSign('B')">B</button>
@@ -558,8 +558,8 @@
           </div>
         </div>
 
-        <div class="level-block">
-          <div class="level-label">NIVEL 2 — DINÁMICO</div>
+        <div class="level-block" id="block-level-2">
+          <div class="level-label" style="cursor: pointer;" onclick="selectLevel(2)" title="Clic para activar Nivel 2">NIVEL 2 — DINÁMICO</div>
           <div class="sign-buttons-row">
             <button class="btn-sign" data-sign="J" onclick="selectSign('J')">J</button>
             <button class="btn-sign" data-sign="Ñ" onclick="selectSign('Ñ')">Ñ</button>
@@ -629,13 +629,9 @@
         <h4>Sensores & IMU</h4>
         <div id="debug-imu">MPU6050: -- | Tilt Error: --</div>
       </div>
-      <div class="debug-box">
-        <h4>Morfometría Nivel 1</h4>
+      <div class="debug-box" style="grid-column: span 2;">
+        <h4>Diagnóstico Nivel 1 & Auditoría A</h4>
         <div id="debug-l1">--</div>
-      </div>
-      <div class="debug-box">
-        <h4>Dinámica Nivel 2</h4>
-        <div id="debug-l2">--</div>
       </div>
     </div>
   </div>
@@ -661,9 +657,22 @@
     function selectSign(sign) {
       activeSign = sign.toUpperCase();
       isAutoMode = false;
+      const meta = SIGN_METADATA[activeSign];
+      if (meta && meta.level) {
+        sendWsAction('SET_LEVEL', { level: meta.level });
+      }
       updateSelectorUI();
       updateTargetCard();
       sendWsAction('SET_SIGN', { sign: activeSign });
+    }
+
+    function selectLevel(lvl) {
+      sendWsAction('SET_LEVEL', { level: lvl });
+      if (lvl === 1 && (!SIGN_METADATA[activeSign] || SIGN_METADATA[activeSign].level !== 1)) {
+        selectSign('A');
+      } else if (lvl === 2 && (!SIGN_METADATA[activeSign] || SIGN_METADATA[activeSign].level !== 2)) {
+        selectSign('J');
+      }
     }
 
     function toggleAutoMode() {
@@ -864,14 +873,23 @@
       }
 
       const diag = data.diagnostics || {};
+      const auto = data.auto_classification || {};
       const l1Elem = document.getElementById('debug-l1');
       if (l1Elem) {
-        l1Elem.innerText = `B(fold:${diag.b?.thumb_fold || 0}%, add:${diag.b?.adduction || 0}%) | C(curv:${diag.c?.curvature || 0}%)`;
-      }
+        const best = auto.best_candidate || data.best_candidate || '--';
+        const bestSc = auto.score || auto.confidence || 0;
+        const second = auto.second_candidate || data.second_candidate || '--';
+        const margin = auto.margin !== undefined ? auto.margin : (data.margin || 0);
+        const stable = auto.stable_count !== undefined ? auto.stable_count : '--';
+        const fingers = auto.finger_states || diag.finger_states || {};
+        const fStr = Object.entries(fingers).map(([k, v]) => `${k}:${v ? 'EXT' : 'FLEX'}`).join(', ');
 
-      const l2Elem = document.getElementById('debug-l2');
-      if (l2Elem && diag.level_2) {
-        l2Elem.innerText = `J:${diag.level_2.j_base}% | N:${diag.level_2.n_base}% | Q:${diag.level_2.q_base}% | X:${diag.level_2.x_hook}% | Z:${diag.level_2.z_base}%`;
+        let aText = '';
+        const aInfo = auto.a_details || diag.a_details;
+        if (aInfo) {
+          aText = `<br><span style="color:var(--cyan)">A: config=${aInfo.config_score}, orient=${aInfo.orientation_score}, total=${aInfo.overall_score}, válida=${aInfo.is_valid}</span><br><span style="color:var(--amber)">"${aInfo.reason}"</span>`;
+        }
+        l1Elem.innerHTML = `<strong>Best:</strong> ${best} (${(bestSc*100).toFixed(0)}%) | <strong>2nd:</strong> ${second} | <strong>Margen:</strong> ${(margin*100).toFixed(1)}% | <strong>Estable:</strong> ${stable}<br><strong>Dedos:</strong> ${fStr || '--'}${aText}`;
       }
     }
 
