@@ -6,6 +6,7 @@ Diseñado para la robustez en pruebas humanas reales de A, B, C, L, Y en Nivel 1
 """
 
 import math
+from collections import deque
 from typing import Dict, Any, List, Tuple, Optional
 
 
@@ -584,3 +585,142 @@ class HandGeometryFeatures:
 
         score = 0.55 * idx_score + 0.45 * other_curled
         return clamp(score)
+
+    def get_hand_orientation_visual(self, orientation_invert: bool = False) -> Dict[str, Any]:
+        """
+        Calcula la orientación visual de la palma (PALM, BACK, SIDE, UNKNOWN)
+        utilizando la heurística experimental de producto cruzado 2D.
+        """
+        return get_hand_orientation_visual(
+            self.raw_landmarks,
+            handedness=self.handedness,
+            orientation_invert=orientation_invert
+        )
+
+
+# =============================================================================
+# ESTIMADOR EXPERIMENTAL DE ORIENTACIÓN VISUAL (PALM / BACK / SIDE / UNKNOWN)
+# =============================================================================
+
+class OrientationEstimator:
+    """
+    Estimador de orientación visual de la palma (PALM, BACK, SIDE, UNKNOWN).
+    Implementa una heurística visual geométrica propia basada en el producto cruzado
+    2D entre el vector longitudinal de la palma (Muñeca [0] -> MCP Medio [9]) y el
+    vector transversal (MCP Índice [5] -> MCP Meñique [17]), correlacionado con la
+    lateralidad anatómica (Handedness).
+
+    NOTA METODOLÓGICA EXPLICITA:
+    Esta es una heurística experimental propia validada físicamente, NO una capacidad
+    oficial de MediaPipe. MediaPipe no provee clasificación nativa de palma/dorso.
+    """
+
+    def __init__(self, orientation_invert: bool = False, history_len: int = 5):
+        self.orientation_invert = orientation_invert
+        self.history: deque = deque(maxlen=history_len)
+
+    def estimate(
+        self,
+        raw_landmarks: List[Dict[str, Any]],
+        handedness: str = "Right",
+        orientation_invert: Optional[bool] = None
+    ) -> Dict[str, Any]:
+        invert = self.orientation_invert if orientation_invert is None else orientation_invert
+        res = get_hand_orientation_visual(raw_landmarks, handedness=handedness, orientation_invert=invert)
+        self.history.append(res["orientation"])
+        return res
+
+
+def get_hand_orientation_visual(
+    raw_landmarks: List[Dict[str, Any]],
+    handedness: str = "Right",
+    orientation_invert: bool = False
+) -> Dict[str, Any]:
+    """
+    Heurística visual propia experimental para determinar la orientación de la mano.
+    Estados posibles: PALM, BACK, SIDE, UNKNOWN.
+
+    NOTA: Heurística propia validada físicamente, NO oficial de MediaPipe.
+    """
+    if not raw_landmarks or len(raw_landmarks) < 21:
+        return {
+            "orientation": "UNKNOWN",
+            "confidence": 0.0,
+            "signed_cross": 0.0,
+            "aspect_ratio": 0.0,
+            "heuristic": "EXPERIMENTAL_VISUAL_CROSS_PRODUCT"
+        }
+
+    pts = {int(p.get("id", idx)): p for idx, p in enumerate(raw_landmarks)}
+
+    # Puntos anatómicos clave:
+    # 0: Muñeca (wrist)
+    # 5: MCP Índice
+    # 9: MCP Medio
+    # 17: MCP Meñique
+    w = pts[0]
+    m_idx = pts[5]
+    m_mid = pts[9]
+    m_pk = pts[17]
+
+    # Vector longitudinal: Muñeca -> MCP Medio
+    ux = m_mid["x"] - w["x"]
+    uy = m_mid["y"] - w["y"]
+
+    # Vector transversal: MCP Índice -> MCP Meñique
+    vx = m_pk["x"] - m_idx["x"]
+    vy = m_pk["y"] - m_idx["y"]
+
+    palm_len = math.sqrt(ux * ux + uy * uy)
+    palm_width = math.sqrt(vx * vx + vy * vy)
+
+    if palm_len < 1e-4 or palm_width < 1e-4:
+        return {
+            "orientation": "UNKNOWN",
+            "confidence": 0.0,
+            "signed_cross": 0.0,
+            "aspect_ratio": 0.0,
+            "heuristic": "EXPERIMENTAL_VISUAL_CROSS_PRODUCT"
+        }
+
+    # Relación de aspecto del dorso/palma (ancho / largo)
+    aspect_ratio = palm_width / palm_len
+
+    # Detección de mano vista de perfil (SIDE):
+    # Cuando la mano se ve de lado, el ancho transversal entre MCP 5 y MCP 17 se comprime drásticamente
+    if aspect_ratio < 0.28:
+        return {
+            "orientation": "SIDE",
+            "confidence": round(1.0 - (aspect_ratio / 0.28) * 0.4, 3),
+            "signed_cross": 0.0,
+            "aspect_ratio": round(aspect_ratio, 3),
+            "heuristic": "EXPERIMENTAL_VISUAL_CROSS_PRODUCT"
+        }
+
+    # Producto cruzado 2D: ux * vy - uy * vx
+    cross_2d = (ux * vy) - (uy * vx)
+
+    # Lateralidad (Right vs Left):
+    # Para mano derecha estándar, cross_2d positivo indica palma visible
+    # Para mano izquierda, la relación geométrica relativa se invierte
+    is_right = (handedness.lower() != "left")
+    signed_cross = cross_2d if is_right else -cross_2d
+
+    # Normalizar confianza según magnitud relativa
+    norm_mag = abs(cross_2d) / (palm_len * palm_width)
+    confidence = clamp(norm_mag * 1.5, 0.40, 1.0)
+
+    if signed_cross > 0.002:
+        state = "PALM" if not orientation_invert else "BACK"
+    elif signed_cross < -0.002:
+        state = "BACK" if not orientation_invert else "PALM"
+    else:
+        state = "SIDE"
+
+    return {
+        "orientation": state,
+        "confidence": round(confidence, 3),
+        "signed_cross": round(signed_cross, 5),
+        "aspect_ratio": round(aspect_ratio, 3),
+        "heuristic": "EXPERIMENTAL_VISUAL_CROSS_PRODUCT"
+    }

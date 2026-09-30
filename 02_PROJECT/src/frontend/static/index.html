@@ -626,8 +626,13 @@
         <div id="debug-candidates">--</div>
       </div>
       <div class="debug-box">
-        <h4>Sensores & IMU</h4>
-        <div id="debug-imu">MPU6050: -- | Tilt Error: --</div>
+        <h4>Sensores & Orientación</h4>
+        <div id="debug-sensors-hud" style="line-height: 1.5; font-family: monospace; font-size: 0.8rem;">
+          <div>ULTRASÓNICO: <span id="hud-ultrasonic" style="color:var(--cyan)">-- cm</span></div>
+          <div>ORIENTACIÓN: <span id="hud-orientation" style="color:var(--amber)">UNKNOWN</span></div>
+          <div>MANO: <span id="hud-hand">NO DETECTADA</span></div>
+          <div>MOVIMIENTO: <span id="hud-movement">--</span></div>
+        </div>
       </div>
       <div class="debug-box" style="grid-column: span 2;">
         <h4>Diagnóstico Nivel 1 & Auditoría A</h4>
@@ -867,10 +872,24 @@
       }
 
       const sens = data.sensor_telemetry || {};
-      const imuElem = document.getElementById('debug-imu');
-      if (imuElem) {
-        imuElem.innerText = `Roll: ${sens.imu_roll_deg || 0}° | Pitch: ${sens.imu_pitch_deg || 0}° | Δ Tilt: ${sens.tilt_error_deg || 0}°`;
-      }
+      const diag = data.diagnostics || {};
+      const evalParams = (data.evaluation && data.evaluation.parameters) || {};
+
+      const dist = (data.distance_cm !== undefined && data.distance_cm !== null) ? data.distance_cm : (sens.distance_cm !== undefined ? sens.distance_cm : null);
+      const distStr = (dist !== null && dist !== undefined) ? `${Number(dist).toFixed(1)} cm` : '-- cm';
+      const orientStr = data.orientation || (evalParams.orientation && evalParams.orientation.orientation_state) || (diag.visual_orientation && diag.visual_orientation.orientation) || 'UNKNOWN';
+      const handStr = (data.has_hand || (data.fusion && data.fusion.vision_present)) ? 'DETECTADA' : 'NO DETECTADA';
+      const movSt = evalParams.movement && evalParams.movement.status;
+      const movStr = (movSt === 'PASS' || (data.movement && data.movement.status === 'OK')) ? 'OK' : '--';
+
+      const uEl = document.getElementById('hud-ultrasonic');
+      if (uEl) uEl.innerText = distStr;
+      const oEl = document.getElementById('hud-orientation');
+      if (oEl) oEl.innerText = orientStr;
+      const hEl = document.getElementById('hud-hand');
+      if (hEl) hEl.innerText = handStr;
+      const mEl = document.getElementById('hud-movement');
+      if (mEl) mEl.innerText = movStr;
 
       const diag = data.diagnostics || {};
       const auto = data.auto_classification || {};

@@ -12,6 +12,7 @@ NOTA: Estas trayectorias sintéticas evalúan exclusivamente la lógica algorít
 
 import pytest
 import time
+import math
 from typing import List, Dict, Any
 from src.lsm.dynamic import DynamicGestureTracker
 from src.lsm.evaluator import LSMEvaluator
@@ -258,30 +259,30 @@ def test_dynamic_nn_static_rejects():
 # =========================================================================
 
 def test_dynamic_q_with_rotation():
-    """Q con postura de índice/pulgar hacia abajo y rotación angular de muñeca -> RECOGNIZED."""
+    """Q con postura de índice/pulgar hacia abajo y rotación visual angular -> RECOGNIZED."""
     evaluator = LSMEvaluator()
     evaluator.set_target_sign("Q")
     t0 = 1000.0
 
-    # Rotación en MPU (roll incrementa 15-20 grados)
     res = None
     for i in range(14):
-        roll_val = 5.0 + 1.2 * i
-        lms = make_landmarks_q_base()
+        # Rotación visual angular: rotar landmarks de Q alrededor de la muñeca
+        angle_rad = math.radians(i * 1.5)  # 0 a ~20 grados de rotación
+        base_lms = make_landmarks_q_base()
+        rotated_lms = []
+        wx, wy = base_lms[0]["x"], base_lms[0]["y"]
+        for p in base_lms:
+            dx = p["x"] - wx
+            dy = p["y"] - wy
+            rx = wx + dx * math.cos(angle_rad) - dy * math.sin(angle_rad)
+            ry = wy + dx * math.sin(angle_rad) + dy * math.cos(angle_rad)
+            rotated_lms.append({"id": p["id"], "x": rx, "y": ry, "z": p["z"]})
+
         state = {
             "vision_present": True,
-            "raw_landmarks": lms,
-            "valid_fusion": True,
-            "sensor_connected": True,
-            "sensors_present": True,
-            "timestamp": t0 + i * 0.05,
-            "hand_orientation": {"imu_present": True, "sensor_type": "MPU6050", "tilt_error": 5.0},
-            "sensor_telemetry": {
-                "is_connected": True,
-                "imu_roll_deg": roll_val,
-                "imu_pitch_deg": 10.0,
-                "tilt_error_deg": 5.0
-            }
+            "raw_landmarks": rotated_lms,
+            "handedness": "Right",
+            "timestamp": t0 + i * 0.05
         }
         res = evaluator.evaluate(state, target_sign="Q")
 
@@ -302,23 +303,14 @@ def test_dynamic_q_no_rotation_rejects():
         state = {
             "vision_present": True,
             "raw_landmarks": lms,
-            "valid_fusion": True,
-            "sensor_connected": True,
-            "sensors_present": True,
-            "timestamp": t0 + i * 0.05,
-            "hand_orientation": {"imu_present": True, "sensor_type": "MPU6050", "tilt_error": 5.0},
-            "sensor_telemetry": {
-                "is_connected": True,
-                "imu_roll_deg": 5.0,
-                "imu_pitch_deg": 10.0,
-                "tilt_error_deg": 5.0
-            }
+            "handedness": "Right",
+            "timestamp": t0 + i * 0.05
         }
         res = evaluator.evaluate(state, target_sign="Q")
 
     assert res is not None
     assert res["is_valid"] is False
-    assert "giro" in res["message"].lower() or "muñeca" in res["message"].lower()
+    assert "giro" in res["message"].lower() or "muñeca" in res["message"].lower() or "rotación" in res["message"].lower()
 
 
 # =========================================================================
@@ -498,38 +490,21 @@ def test_resilience_no_hand():
     assert "Sin mano" in res["message"]
 
 
-def test_resilience_stale_sensor():
-    """Evaluar con sensor MPU6050 obsoleto (stale) rechaza validación estricta."""
+def test_resilience_ultrasonic_absent_allows_level_1_pass():
+    """La ausencia de sensor ultrasónico da score neutro y NO destruye una letra correcta."""
     evaluator = LSMEvaluator()
     state = {
         "vision_present": True,
         "raw_landmarks": make_landmarks_fist_a(),
-        "valid_fusion": True,
-        "sensor_connected": True,
-        "sensors_present": True,
-        "staleness": {"sensor_stale": True},
-        "hand_orientation": {"imu_present": True, "sensor_type": "MPU6050", "tilt_error": 5.0}
+        "handedness": "Right",
+        "distance_valid": False,
+        "distance_cm": None,
+        "sensor_connected": False
     }
     res = evaluator.evaluate(state, target_sign="A")
-    assert res["is_valid"] is False
-    assert res["parameters"]["orientation"]["status"] == "UNAVAILABLE"
-
-
-def test_resilience_imu_unavailable():
-    """Evaluar con IMU ausente/desconectado rechaza validación."""
-    evaluator = LSMEvaluator()
-    state = {
-        "vision_present": True,
-        "raw_landmarks": make_landmarks_fist_a(),
-        "valid_fusion": False,
-        "sensor_connected": False,
-        "sensors_present": False,
-        "hand_orientation": {"imu_present": False, "sensor_type": "NONE"}
-    }
-    res = evaluator.evaluate(state, target_sign="A")
-    assert res["is_valid"] is False
-    assert res["parameters"]["orientation"]["status"] == "UNAVAILABLE"
-    assert "no disponible" in res["message"].lower()
+    assert res["is_valid"] is True
+    assert res["parameters"]["location"]["status"] == "NEUTRAL"
+    assert res["parameters"]["location"]["distance_valid"] is False
 
 
 def test_resilience_camera_disconnected():
@@ -538,57 +513,32 @@ def test_resilience_camera_disconnected():
     state = {
         "vision_present": False,
         "raw_landmarks": None,
-        "valid_fusion": False,
-        "sensor_connected": True,
-        "sensors_present": True,
-        "hand_orientation": {"imu_present": True, "sensor_type": "MPU6050", "tilt_error": 2.0}
+        "distance_valid": True,
+        "distance_cm": 40.0,
+        "sensor_connected": True
     }
     res = evaluator.evaluate(state, target_sign="B")
     assert res["is_valid"] is False
     assert res["parameters"]["configuration"]["score"] == 0.0
 
 
-def test_resilience_invalid_fusion():
-    """Fusión inválida nunca produce veredicto positivo."""
-    evaluator = LSMEvaluator()
-    state = {
-        "vision_present": True,
-        "raw_landmarks": make_landmarks_fist_a(),
-        "valid_fusion": False,
-        "sensor_connected": False,
-        "sensors_present": True,
-        "hand_orientation": {"imu_present": False, "sensor_type": "MPU6050", "tilt_error": 2.0}
-    }
-    res = evaluator.evaluate(state, target_sign="A")
-    assert res["is_valid"] is False
-
-
-def test_resilience_sensor_recovery():
-    """El sistema se recupera de desconexión previa cuando el sensor vuelve a emitir datos válidos."""
+def test_resilience_camera_recovery():
+    """El sistema se recupera de desconexión de cámara cuando vuelve a detectar landmarks válidos."""
     evaluator = LSMEvaluator()
 
-    # 1. Muestra con desconexión
-    disconnected_state = {
-        "vision_present": True,
-        "raw_landmarks": make_landmarks_fist_a(),
-        "valid_fusion": False,
-        "sensor_connected": False,
-        "sensors_present": False,
-        "hand_orientation": {"imu_present": False, "sensor_type": "NONE"}
+    # 1. Sin cámara / sin landmarks
+    bad_state = {
+        "vision_present": False,
+        "raw_landmarks": None
     }
-    res_bad = evaluator.evaluate(disconnected_state, target_sign="A")
+    res_bad = evaluator.evaluate(bad_state, target_sign="A")
     assert res_bad["is_valid"] is False
-    assert res_bad["parameters"]["orientation"]["status"] == "UNAVAILABLE"
 
-    # 2. Sensor se recupera y envía telemetría válida
-    recovered_state = {
+    # 2. Cámara se recupera y envía landmarks de A válidos
+    good_state = {
         "vision_present": True,
         "raw_landmarks": make_landmarks_fist_a(),
-        "valid_fusion": True,
-        "sensor_connected": True,
-        "sensors_present": True,
-        "hand_orientation": {"imu_present": True, "sensor_type": "MPU6050", "tilt_error": 3.0}
+        "handedness": "Right"
     }
-    res_good = evaluator.evaluate(recovered_state, target_sign="A")
+    res_good = evaluator.evaluate(good_state, target_sign="A")
     assert res_good["is_valid"] is True
-    assert res_good["parameters"]["orientation"]["status"] == "PASS"

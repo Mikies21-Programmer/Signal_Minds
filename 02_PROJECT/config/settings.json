@@ -16,26 +16,18 @@
     "gainceiling": 2,
     "target_fps": 25,
     "timeout_sec": 3.0,
+    "mirrored_input": true,
+    "orientation_invert": false,
     "mock_mode": false
   },
   "sensors": {
-    "sensor_type": "MPU6050",
-    "protocol": "IMU_SERIAL",
-    "port": "COM7",
+    "sensor_type": "ULTRASONIC",
+    "protocol": "ULTRASONIC_SERIAL",
+    "port": "AUTO",
     "baudrate": 115200,
-    "sda_gpio": 4,
-    "scl_gpio": 5,
-    "i2c_address": "AUTO",
-    "sampling_rate_hz": 50,
-    "yaw_valid": false,
-    "orientation": {
-      "frontal_ok_deg": 12,
-      "frontal_adjust_deg": 20,
-      "y_ok_deg": 20,
-      "y_adjust_deg": 30,
-      "hysteresis_deg": 2
-    },
-    "timeout_ms": 20,
+    "distance_min_cm": 20,
+    "distance_max_cm": 100,
+    "timeout_ms": 50,
     "mock_mode": false
   },
   "vision": {

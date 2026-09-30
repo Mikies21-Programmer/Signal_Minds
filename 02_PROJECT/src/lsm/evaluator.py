@@ -1,14 +1,16 @@
 """
 Evaluador morfológico y lingüístico de Lengua de Señas Mexicana (LSM).
-Aplica análisis geométrico explicable para las 5 señas de Nivel 1: A, B, C, L, Y.
+Aplica análisis geométrico explicable para las 5 señas de Nivel 1: A, B, C, L, Y
+y señas dinámicas de Nivel 2: J, Ñ, Q, X, Z.
 Trazable a 03_DOCS/lsm/LSM_LEVEL_1_SPECIFICATION.md.
 NUNCA afirma 'seña correcta' únicamente por la presencia de una mano.
 Incluye calibración discriminativa de alta precisión para rechazar manos abiertas y posturas ambiguas.
+Utiliza estimación de orientación visual (heurística física landmarks+handedness) y ubicación ultrasónica.
 """
 
 import time
 from typing import Dict, Any, Optional, List
-from .geometry import HandGeometryFeatures, euclidean_distance_3d, clamp
+from .geometry import HandGeometryFeatures, euclidean_distance_3d, clamp, get_hand_orientation_visual
 from .dynamic import DynamicGestureTracker
 from ..backend.logger import get_logger
 
@@ -26,24 +28,21 @@ class LSMEvaluator:
         self.dynamic_tracker = DynamicGestureTracker()
 
         if config:
-            lsm_conf = config.get("lsm", {}) if hasattr(config, "get") else {}
+            lsm_conf = config.get("lsm", {}) if hasattr(config, "get") else (config.get("lsm", {}) if isinstance(config, dict) else {})
             self.active_level = int(lsm_conf.get("active_level", 1))
             self.target_sign = lsm_conf.get("default_target_sign", "A").upper()
             self.threshold = float(lsm_conf.get("confidence_threshold", 0.78))
 
-            sens_conf = config.get("sensors", {}) if hasattr(config, "get") else {}
-            orient_conf = sens_conf.get("orientation", {})
-            self.frontal_ok_deg = float(orient_conf.get("frontal_ok_deg", 12.0))
-            self.frontal_adjust_deg = float(orient_conf.get("frontal_adjust_deg", 20.0))
-            self.y_ok_deg = float(orient_conf.get("y_ok_deg", 20.0))
-            self.y_adjust_deg = float(orient_conf.get("y_adjust_deg", 30.0))
-            self.hysteresis_deg = float(orient_conf.get("hysteresis_deg", 2.0))
+            sens_conf = config.get("sensors", {}) if hasattr(config, "get") else (config.get("sensors", {}) if isinstance(config, dict) else {})
+            self.distance_min_cm = float(sens_conf.get("distance_min_cm", 20.0))
+            self.distance_max_cm = float(sens_conf.get("distance_max_cm", 100.0))
+
+            cam_conf = config.get("camera", {}) if hasattr(config, "get") else (config.get("camera", {}) if isinstance(config, dict) else {})
+            self.orientation_invert = bool(cam_conf.get("orientation_invert", False))
         else:
-            self.frontal_ok_deg = 12.0
-            self.frontal_adjust_deg = 20.0
-            self.y_ok_deg = 20.0
-            self.y_adjust_deg = 30.0
-            self.hysteresis_deg = 2.0
+            self.distance_min_cm = 20.0
+            self.distance_max_cm = 100.0
+            self.orientation_invert = False
 
         if self.target_sign in DynamicGestureTracker.LEVEL_2_SIGNS:
             self.active_level = 2
@@ -60,156 +59,171 @@ class LSMEvaluator:
 
     def evaluate_orientation(self, sign: str, fused: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Evalúa la orientación tridimensional de la mano a partir de la telemetría real del MPU6050.
-        Aplica tolerancias geométricas e histéresis diferenciadas por seña.
-        Si el sensor está desconectado, ausente o la muestra es obsoleta, retorna ORIENTATION_UNAVAILABLE.
+        Evalúa la orientación visual de la mano mediante estimación geométrica
+        (palma vs dorso vs perfil lateral vs desconocido).
+        Estados: PALM, BACK, SIDE, UNKNOWN.
+        UNKNOWN proporciona score neutro (0.75).
+        NO efectúa regla dura de bloqueo automático.
         """
-        # 1. Determinar disponibilidad de telemetría IMU real
-        is_unavailable = False
-
         if not fused or not isinstance(fused, dict):
-            is_unavailable = True
-        elif "hand_orientation" in fused or "valid_fusion" in fused:
-            orient_data = fused.get("hand_orientation", {})
-            valid_fusion = fused.get("valid_fusion", False)
-            sensor_connected = fused.get("sensor_connected", False)
-            sensors_present = fused.get("sensors_present", False)
-            staleness = fused.get("staleness", {})
-            sensor_stale = staleness.get("sensor_stale", False) if isinstance(staleness, dict) else False
-            imu_present = orient_data.get("imu_present", False) if isinstance(orient_data, dict) else False
-
-            if (not valid_fusion
-                or not sensor_connected
-                or not sensors_present
-                or sensor_stale
-                or not imu_present
-                or orient_data.get("sensor_type") in ["NONE", "UNKNOWN", ""]
-                or "tilt_error" not in orient_data
-                or orient_data.get("tilt_error") is None):
-                is_unavailable = True
-        else:
-            orient_data = fused
-            if (orient_data.get("is_connected") is False
-                or orient_data.get("imu_present") is False
-                or orient_data.get("sensor_stale") is True
-                or orient_data.get("valid_fusion") is False
-                or orient_data.get("status") in ["DISCONNECTED", "UNAVAILABLE", "ERROR"]
-                or orient_data.get("sensor_type") in ["NONE", "UNKNOWN", ""]
-                or "tilt_error" not in orient_data
-                or orient_data.get("tilt_error") is None):
-                is_unavailable = True
-
-        if is_unavailable:
             return {
-                "score": 0.0,
-                "status": "UNAVAILABLE",
-                "orientation_state": "ORIENTATION_UNAVAILABLE",
-                "tilt_error": None,
-                "reason": "Sensor de orientación MPU6050 no disponible, desconectado u obsoleto"
+                "score": 0.75,
+                "status": "NEUTRAL",
+                "orientation_state": "UNKNOWN",
+                "confidence": 0.0,
+                "reason": "Orientación visual no disponible (score neutro)"
             }
 
-        tilt_error = float(orient_data.get("tilt_error", 0.0))
+        orient_state = fused.get("orientation")
+        conf = float(fused.get("orientation_confidence", 0.0))
+
+        if not orient_state or orient_state == "UNKNOWN":
+            raw_landmarks = fused.get("raw_landmarks", [])
+            if raw_landmarks and len(raw_landmarks) >= 21:
+                handedness = fused.get("handedness", "Right")
+                vis = get_hand_orientation_visual(
+                    raw_landmarks,
+                    handedness=handedness,
+                    orientation_invert=self.orientation_invert
+                )
+                orient_state = vis.get("orientation", "UNKNOWN")
+                conf = float(vis.get("confidence", 0.0))
+            else:
+                orient_state = "UNKNOWN"
+
+        if orient_state == "UNKNOWN":
+            return {
+                "score": 0.75,
+                "status": "NEUTRAL",
+                "orientation_state": "UNKNOWN",
+                "confidence": conf,
+                "reason": "Orientación visual neutra (score neutro)"
+            }
 
         if sign == "C":
-            # Para C: el IMU valida estabilidad global de inclinación sin asumir yaw de perfil lateral
-            if tilt_error <= 25.0:
+            # Para C en LSM: la mano típicamente se muestra de perfil (SIDE) o semi-frontal (PALM)
+            if orient_state in ["SIDE", "PALM"]:
                 return {
-                    "score": 0.95,
+                    "score": 1.0,
                     "status": "PASS",
-                    "orientation_state": "IMU_TILT_OK",
-                    "tilt_error": round(tilt_error, 2),
-                    "reason": "INCLINACIÓN ESTABLE. La orientación lateral se verifica visualmente."
+                    "orientation_state": orient_state,
+                    "confidence": conf,
+                    "reason": f"Orientación adecuada para C ({orient_state})"
                 }
-            elif tilt_error <= 35.0:
+            else:  # BACK
                 return {
-                    "score": 0.72,
-                    "status": "CORRECT",
-                    "orientation_state": "IMU_TILT_ADJUST",
-                    "tilt_error": round(tilt_error, 2),
-                    "reason": "Reduce ligeramente la inclinación de la mano para la seña C."
-                }
-            else:
-                return {
-                    "score": 0.40,
+                    "score": 0.45,
                     "status": "FAIL",
-                    "orientation_state": "IMU_TILT_FAIL",
-                    "tilt_error": round(tilt_error, 2),
-                    "reason": "Inclinación de la mano excesiva. Estabiliza el dorso."
+                    "orientation_state": orient_state,
+                    "confidence": conf,
+                    "reason": "Orienta la mano de perfil para formar la letra C"
                 }
 
-        elif sign == "Y":
-            ok_limit = self.y_ok_deg
-            adjust_limit = self.y_adjust_deg
+        if sign == "Q":
+            # Para Q en LSM: la mano apunta hacia abajo con rotación; BACK, SIDE o PALM son posturas válidas durante el giro
+            if orient_state in ["BACK", "SIDE", "PALM"]:
+                return {
+                    "score": 1.0,
+                    "status": "PASS",
+                    "orientation_state": orient_state,
+                    "confidence": conf,
+                    "reason": f"Orientación adecuada para Q ({orient_state})"
+                }
+
+        # Para A, B, L, Y (y señas frontales estándar en LSM): se espera PALM
+        if orient_state == "PALM":
+            return {
+                "score": 1.0,
+                "status": "PASS",
+                "orientation_state": "PALM",
+                "confidence": conf,
+                "reason": "Orientación frontal (palma) correcta"
+            }
+        elif orient_state == "SIDE":
+            return {
+                "score": 0.55,
+                "status": "CORRECT",
+                "orientation_state": "SIDE",
+                "confidence": conf,
+                "reason": "Gira la palma hacia el frente"
+            }
+        elif orient_state == "BACK":
+            return {
+                "score": 0.35,
+                "status": "FAIL",
+                "orientation_state": "BACK",
+                "confidence": conf,
+                "reason": "Muestra la palma hacia la cámara, no el dorso"
+            }
         else:
-            # A, B, L
-            ok_limit = self.frontal_ok_deg       # 12.0
-            adjust_limit = self.frontal_adjust_deg # 20.0
+            return {
+                "score": 0.75,
+                "status": "NEUTRAL",
+                "orientation_state": "UNKNOWN",
+                "confidence": conf,
+                "reason": "Orientación neutra"
+            }
 
-        h = self.hysteresis_deg                  # 2.0
-        prev_state = getattr(self, f"_prev_orient_state_{sign}", None)
+    def evaluate_ultrasonic(self, fused: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Evalúa la ubicación de la mano mediante el sensor de distancia ultrasónico.
+        Si el sensor está ausente, desconectado o la lectura es inválida, devuelve score neutro (0.85).
+        NO bloquea automáticamente una letra correcta.
+        """
+        if not fused or not isinstance(fused, dict):
+            return {
+                "score": 0.85,
+                "status": "NEUTRAL",
+                "distance_cm": None,
+                "distance_valid": False,
+                "reason": "Ultrasonido ausente (score neutro)"
+            }
 
-        if prev_state is None:
-            # Evaluación inicial o sin estado previo
-            if tilt_error <= ok_limit:
-                new_state = "ORIENTATION_OK"
-            elif tilt_error <= adjust_limit:
-                new_state = "ORIENTATION_ADJUST"
-            else:
-                new_state = "ORIENTATION_FAIL"
-        elif prev_state == "ORIENTATION_OK":
-            # OK -> ADJUST únicamente cuando TILT > (ok_limit + h) [ej. > 14°]
-            # OK -> FAIL cuando TILT > (adjust_limit + h) [ej. > 22°]
-            if tilt_error > (adjust_limit + h):
-                new_state = "ORIENTATION_FAIL"
-            elif tilt_error > (ok_limit + h):
-                new_state = "ORIENTATION_ADJUST"
-            else:
-                new_state = "ORIENTATION_OK"
-        elif prev_state == "ORIENTATION_ADJUST":
-            # ADJUST -> OK cuando TILT <= ok_limit [ej. <= 12°]
-            # ADJUST -> FAIL cuando TILT > (adjust_limit + h) [ej. > 22°]
-            if tilt_error <= ok_limit:
-                new_state = "ORIENTATION_OK"
-            elif tilt_error > (adjust_limit + h):
-                new_state = "ORIENTATION_FAIL"
-            else:
-                new_state = "ORIENTATION_ADJUST"
-        else:  # FAIL
-            # FAIL -> OK cuando TILT <= ok_limit [ej. <= 12°]
-            # FAIL -> ADJUST cuando TILT < (adjust_limit - h) [ej. < 18°]
-            if tilt_error <= ok_limit:
-                new_state = "ORIENTATION_OK"
-            elif tilt_error < (adjust_limit - h):
-                new_state = "ORIENTATION_ADJUST"
-            else:
-                new_state = "ORIENTATION_FAIL"
+        dist_valid = bool(fused.get("distance_valid", False))
+        dist_cm = fused.get("distance_cm")
 
-        setattr(self, f"_prev_orient_state_{sign}", new_state)
+        if not dist_valid or dist_cm is None:
+            return {
+                "score": 0.85,
+                "status": "NEUTRAL",
+                "distance_cm": None,
+                "distance_valid": False,
+                "reason": "Ultrasonido ausente o lectura no disponible (score neutro)"
+            }
 
-        if new_state == "ORIENTATION_OK":
-            score = max(0.85, 1.0 - (tilt_error / max(1.0, ok_limit)) * 0.15)
-            status = "PASS"
-            reason = "Orientación correcta. Mantén la mano estable."
-        elif new_state == "ORIENTATION_ADJUST":
-            score = 0.72 - ((tilt_error - ok_limit) / max(1.0, adjust_limit - ok_limit)) * 0.12
-            status = "CORRECT"
-            reason = "Ajusta la orientación de la mano. Reduce ligeramente la inclinación."
+        # Si hay distancia válida, evaluar dentro del rango objetivo
+        if self.distance_min_cm <= dist_cm <= self.distance_max_cm:
+            return {
+                "score": 1.0,
+                "status": "PASS",
+                "distance_cm": round(dist_cm, 1),
+                "distance_valid": True,
+                "reason": f"Ubicación ultrasónica óptima ({dist_cm:.1f} cm)"
+            }
+        elif dist_cm < self.distance_min_cm:
+            return {
+                "score": 0.60,
+                "status": "CORRECT",
+                "distance_cm": round(dist_cm, 1),
+                "distance_valid": True,
+                "reason": f"Mano demasiado próxima al sensor ({dist_cm:.1f} cm)"
+            }
         else:
-            score = max(0.10, 0.45 - ((tilt_error - adjust_limit) / 30.0) * 0.25)
-            status = "FAIL"
-            reason = "Orientación incorrecta. Corrige la inclinación de la mano."
-
-        return {
-            "score": round(score, 3),
-            "status": status,
-            "orientation_state": new_state,
-            "tilt_error": round(tilt_error, 2),
-            "reason": reason
-        }
+            return {
+                "score": 0.60,
+                "status": "CORRECT",
+                "distance_cm": round(dist_cm, 1),
+                "distance_valid": True,
+                "reason": f"Mano demasiado lejana al sensor ({dist_cm:.1f} cm)"
+            }
 
     def evaluate(self, fused_state: Dict[str, Any], target_sign: Optional[str] = None) -> Dict[str, Any]:
         """
         Evalúa el estado sensorial contra la seña objetivo mediante cinemática explicable.
+        Para Nivel 1:
+          75% configuración geométrica (Queirema)
+          15% orientación visual (heurística)
+          10% ubicación ultrasónica
         Retorna veredicto global, desglose por los 4 parámetros constitutivos y telemetría diagnóstica.
         """
         sign = (target_sign or self.target_sign).upper()
@@ -220,6 +234,7 @@ class LSMEvaluator:
 
         if not has_vision or not raw_landmarks or len(raw_landmarks) < 21:
             orient_eval = self.evaluate_orientation(sign, fused_state)
+            us_eval = self.evaluate_ultrasonic(fused_state)
             return {
                 "sign": sign,
                 "level": self.active_level,
@@ -233,12 +248,18 @@ class LSMEvaluator:
                         "score": orient_eval["score"],
                         "status": orient_eval["status"],
                         "orientation_state": orient_eval["orientation_state"],
-                        "tilt_error": orient_eval["tilt_error"],
-                        "param_name": "Orientación de palma (IMU MPU6050)",
+                        "param_name": "Orientación visual de palma",
                         "reason": orient_eval["reason"]
                     },
                     "movement": {"score": 0.0, "status": "FAIL", "reason": "No se detecta mano."},
-                    "location": {"score": 0.0, "status": "FAIL", "reason": "No se detecta mano."}
+                    "location": {
+                        "score": us_eval["score"],
+                        "status": us_eval["status"],
+                        "distance_cm": us_eval.get("distance_cm"),
+                        "distance_valid": us_eval.get("distance_valid", False),
+                        "param_name": "Toponema (Ubicación ultrasónica)",
+                        "reason": us_eval["reason"]
+                    }
                 },
                 "diagnostics": {
                     "b": {"thumb_fold": 0.0, "adduction": 0.0},
@@ -247,8 +268,8 @@ class LSMEvaluator:
                 }
             }
 
-        # 2. Registrar muestra en el DynamicGestureTracker con telemetría real
-        sensor_data = fused_state.get("sensor_telemetry") or fused_state.get("hand_orientation")
+        # 2. Registrar muestra en el DynamicGestureTracker
+        sensor_data = fused_state.get("sensor_telemetry")
         ts = fused_state.get("timestamp_vision") or fused_state.get("timestamp") or time.time()
         self.dynamic_tracker.add_sample(raw_landmarks, sensor_telemetry=sensor_data, timestamp=ts)
 
@@ -256,37 +277,29 @@ class LSMEvaluator:
         handedness = fused_state.get("handedness", "Right")
         geom = HandGeometryFeatures(raw_landmarks, handedness=handedness)
         ext = geom.get_finger_extension_states()
-        cx, cy = geom.get_hand_center()
-
-        # Ubicación espacial (Toponema): centrado en el encuadre
-        in_bounds = (0.12 <= cx <= 0.88) and (0.12 <= cy <= 0.88)
-        loc_score = 0.95 if in_bounds else 0.40
-        loc_status = "PASS" if in_bounds else "CORRECT"
-        loc_reason = "Mano en zona neutra adecuada" if in_bounds else "Centra tu mano en el encuadre"
 
         # EVALUACIÓN DE SEÑAS DINÁMICAS (NIVEL 2: J, Ñ, Q, X, Z)
         if sign in DynamicGestureTracker.LEVEL_2_SIGNS:
             self.active_level = 2
             dyn_eval = self.dynamic_tracker.evaluate_sign(sign, geom)
             orient_eval = self.evaluate_orientation(sign, fused_state)
-            orient_status = orient_eval.get("status", "UNAVAILABLE")
+            us_eval = self.evaluate_ultrasonic(fused_state)
 
             dyn_status = dyn_eval.get("status", "EVALUATING")
             is_dyn_valid = dyn_eval.get("is_valid", False)
 
-            if orient_status == "UNAVAILABLE":
-                is_valid = False
-                message = "Orientación no disponible"
-                overall = dyn_eval.get("score", 0.0) * 0.75
+            dyn_score = dyn_eval.get("score", 0.0)
+            overall = (dyn_score * 0.75) + (orient_eval["score"] * 0.15) + (us_eval["score"] * 0.10)
+            is_valid = is_dyn_valid and (overall >= self.threshold) and (orient_eval["score"] >= 0.50)
+
+            if is_valid:
+                message = "Seña correcta"
+            elif not is_dyn_valid:
+                message = dyn_eval.get("message", "Completa el movimiento dinámico.")
+            elif orient_eval["score"] < 0.50:
+                message = orient_eval["reason"]
             else:
-                is_valid = is_dyn_valid and (orient_eval["score"] >= 0.65)
-                overall = dyn_eval.get("score", 0.0) * 0.75 + orient_eval["score"] * 0.25
-                if is_valid:
-                    message = "Seña correcta"
-                elif orient_eval["score"] < 0.65:
-                    message = orient_eval["reason"]
-                else:
-                    message = dyn_eval.get("message", "Completa el movimiento dinámico.")
+                message = dyn_eval.get("message", "Perfecciona el movimiento.")
 
             return {
                 "sign": sign,
@@ -305,10 +318,9 @@ class LSMEvaluator:
                     },
                     "orientation": {
                         "score": round(orient_eval["score"], 3),
-                        "status": orient_status,
+                        "status": orient_eval["status"],
                         "orientation_state": orient_eval["orientation_state"],
-                        "tilt_error": orient_eval["tilt_error"],
-                        "param_name": "Orientación de palma (IMU MPU6050)",
+                        "param_name": "Orientación visual de palma",
                         "reason": orient_eval["reason"]
                     },
                     "movement": {
@@ -318,10 +330,12 @@ class LSMEvaluator:
                         "reason": dyn_eval.get("message", "Movimiento dinámico")
                     },
                     "location": {
-                        "score": round(loc_score, 3),
-                        "status": loc_status,
-                        "param_name": "Toponema (Ubicación espacial)",
-                        "reason": loc_reason
+                        "score": round(us_eval["score"], 3),
+                        "status": us_eval["status"],
+                        "distance_cm": us_eval.get("distance_cm"),
+                        "distance_valid": us_eval.get("distance_valid", False),
+                        "param_name": "Toponema (Ubicación ultrasónica)",
+                        "reason": us_eval["reason"]
                     }
                 },
                 "diagnostics": geom.get_diagnostics(),
@@ -348,35 +362,38 @@ class LSMEvaluator:
                 "orient_score": orient_eval["score"],
                 "orient_reason": orient_eval["reason"],
                 "orient_status": orient_eval["status"],
-                "orientation_state": orient_eval["orientation_state"],
-                "tilt_error": orient_eval["tilt_error"]
+                "orientation_state": orient_eval["orientation_state"]
             }
 
-        # Dinámica (Kinema): para señas estáticas de Nivel 1 el kinema es 1.0 si es estable
-        mov_score = 1.0
-        mov_status = "PASS"
-        mov_reason = "Postura estática correcta"
+        orient_eval = self.evaluate_orientation(sign, fused_state)
+        us_eval = self.evaluate_ultrasonic(fused_state)
 
         c_score = eval_dict["config_score"]
-        o_score = eval_dict["orient_score"]
-        orient_status = eval_dict.get("orient_status", "UNAVAILABLE")
+        o_score = orient_eval["score"]
+        u_score = us_eval["score"]
 
-        if orient_status == "UNAVAILABLE":
-            # Política estricta Fase 3: si orientación es UNAVAILABLE, sensor desconectado, stale o fusión inválida:
-            # is_valid = False, message = "Orientación no disponible". Nunca aceptar únicamente por visión.
-            overall = (c_score * 0.50) + (0.0 * 0.25) + (mov_score * 0.15) + (loc_score * 0.10)
-            is_valid = False
-            message = "Orientación no disponible"
+        # Ponderación Nivel 1:
+        # 75% configuración geométrica
+        # 15% orientación visual
+        # 10% ubicación ultrasónica
+        overall = (c_score * 0.75) + (o_score * 0.15) + (u_score * 0.10)
+
+        # Regla de validez:
+        # - Configuración morfológica mínima requerida: 0.70
+        # - Umbral global: 0.78
+        # - UNKNOWN orientation (score 0.70) y ultrasonido ausente (score 0.70)
+        #   producen score neutro y NO destruyen una letra correcta.
+        is_valid = (overall >= self.threshold) and (c_score >= 0.70)
+        if is_valid:
+            message = "Seña correcta"
+        elif c_score < 0.70:
+            message = eval_dict["config_reason"]
+        elif o_score < 0.50:
+            message = orient_eval["reason"]
+        elif u_score < 0.70:
+            message = us_eval["reason"]
         else:
-            # Ponderación completa multimodal: 50% configuración, 25% orientación, 15% kinema, 10% toponema
-            overall = (c_score * 0.50) + (o_score * 0.25) + (mov_score * 0.15) + (loc_score * 0.10)
-            is_valid = (overall >= self.threshold) and (c_score >= 0.70) and (o_score >= 0.65)
-            if is_valid:
-                message = "Seña correcta"
-            elif o_score < 0.65:
-                message = eval_dict["orient_reason"]
-            else:
-                message = eval_dict["config_reason"]
+            message = eval_dict["config_reason"]
 
         return {
             "sign": sign,
@@ -393,31 +410,32 @@ class LSMEvaluator:
                     "reason": eval_dict["config_reason"]
                 },
                 "orientation": {
-                    "score": round(o_score, 3) if o_score is not None else 0.0,
-                    "status": orient_status,
-                    "orientation_state": eval_dict.get("orientation_state", "ORIENTATION_UNAVAILABLE"),
-                    "tilt_error": eval_dict.get("tilt_error"),
-                    "param_name": "Orientación de palma (IMU MPU6050)",
-                    "reason": eval_dict["orient_reason"]
+                    "score": round(o_score, 3),
+                    "status": orient_eval["status"],
+                    "orientation_state": orient_eval.get("orientation_state", "UNKNOWN"),
+                    "param_name": "Orientación visual de palma",
+                    "reason": orient_eval["reason"]
                 },
                 "movement": {
-                    "score": round(mov_score, 3),
-                    "status": mov_status,
+                    "score": 1.0,
+                    "status": "PASS",
                     "param_name": "Kinema (Dinámica)",
-                    "reason": mov_reason
+                    "reason": "Postura estática correcta"
                 },
                 "location": {
-                    "score": round(loc_score, 3),
-                    "status": loc_status,
-                    "param_name": "Toponema (Ubicación espacial)",
-                    "reason": loc_reason
+                    "score": round(u_score, 3),
+                    "status": us_eval["status"],
+                    "distance_cm": us_eval.get("distance_cm"),
+                    "distance_valid": us_eval.get("distance_valid", False),
+                    "param_name": "Toponema (Ubicación ultrasónica)",
+                    "reason": us_eval["reason"]
                 }
             },
             "diagnostics": geom.get_diagnostics()
         }
 
     # =========================================================================
-    # EVALUADORES INDIVIDUALES DE QUEIREMA
+    # EVALUADORES INDIVIDUALES DE QUEIREMA (A, B, C, L, Y)
     # =========================================================================
 
     def _evaluate_sign_a(self, geom: HandGeometryFeatures, ext: Dict[str, bool], fused: Dict[str, Any]) -> Dict[str, Any]:
@@ -434,7 +452,6 @@ class LSMEvaluator:
 
         # Pulgar debe estar al costado del índice
         scale = geom.get_palm_scale()
-        from .geometry import euclidean_distance_3d
         d_th_mcp5 = euclidean_distance_3d(geom.pts[4], geom.pts[5]) / scale
         if d_th_mcp5 > 0.65:
             c_score -= 0.20
@@ -447,7 +464,6 @@ class LSMEvaluator:
         c_score = max(0.0, c_score)
         reason = errors[0] if errors else "Puño cerrado con pulgar al costado correcto"
 
-        # Orientación con IMU MPU6050
         orient_eval = self.evaluate_orientation("A", fused)
         return {
             "config_score": round(c_score, 3),
@@ -455,8 +471,7 @@ class LSMEvaluator:
             "orient_score": orient_eval["score"],
             "orient_reason": orient_eval["reason"],
             "orient_status": orient_eval["status"],
-            "orientation_state": orient_eval["orientation_state"],
-            "tilt_error": orient_eval["tilt_error"]
+            "orientation_state": orient_eval["orientation_state"]
         }
 
     def _evaluate_sign_b(self, geom: HandGeometryFeatures, ext: Dict[str, bool], fused: Dict[str, Any]) -> Dict[str, Any]:
@@ -473,7 +488,6 @@ class LSMEvaluator:
             if not ext[f]:
                 errors.append(f"Extiende el dedo {finger_names_es[f]}.")
 
-        # Características discriminativas estrictas
         thumb_fold = geom.get_thumb_fold_score()
         adduction = geom.get_finger_adduction_score()
 
@@ -483,7 +497,6 @@ class LSMEvaluator:
         if adduction < 0.55:
             errors.append("Junta los cuatro dedos.")
 
-        # Fórmula ponderada para B
         c_score = 0.40 * ext_ratio + 0.35 * thumb_fold + 0.25 * adduction
 
         # REGLA ESTRICTA DE RECHAZO: Mano abierta (pulgar no doblado o dedos splay) NO puede pasar
@@ -504,8 +517,7 @@ class LSMEvaluator:
             "orient_score": orient_eval["score"],
             "orient_reason": orient_eval["reason"],
             "orient_status": orient_eval["status"],
-            "orientation_state": orient_eval["orientation_state"],
-            "tilt_error": orient_eval["tilt_error"]
+            "orientation_state": orient_eval["orientation_state"]
         }
 
     def _evaluate_sign_c(self, geom: HandGeometryFeatures, ext: Dict[str, bool], fused: Dict[str, Any]) -> Dict[str, Any]:
@@ -528,12 +540,10 @@ class LSMEvaluator:
         mean_pip = sum(geom.get_finger_pip_angle(f) for f in ["index", "middle", "ring", "pinky"]) / 4.0
         errors = []
 
-        # Si los dedos están completamente rectos (mano abierta), penalizar
         if mean_pip > 165.0 or c_curv < 0.40:
             c_score = min(c_score, 0.30)
             errors.append("Curva los cuatro dedos en arco.")
 
-        # Si está en puño cerrado con puntas en la palma, penalizar
         if thumb_fold > 0.55 or d_idx_mcp < 0.30:
             c_score = min(c_score, 0.30)
             errors.append("Abre la mano y forma un arco con los dedos.")
@@ -554,8 +564,7 @@ class LSMEvaluator:
             "orient_score": orient_eval["score"],
             "orient_reason": orient_eval["reason"],
             "orient_status": orient_eval["status"],
-            "orientation_state": orient_eval["orientation_state"],
-            "tilt_error": orient_eval["tilt_error"]
+            "orientation_state": orient_eval["orientation_state"]
         }
 
     def _evaluate_sign_l(self, geom: HandGeometryFeatures, ext: Dict[str, bool], fused: Dict[str, Any]) -> Dict[str, Any]:
@@ -578,7 +587,6 @@ class LSMEvaluator:
                 c_score = min(c_score, 0.35)
                 errors.append(f"Flexiona el dedo {finger_names_es[f]}.")
 
-        # Ángulo pulgar-índice
         ang = geom.get_thumb_index_angle_deg()
         if not (50.0 <= ang <= 135.0):
             c_score = min(c_score, 0.40)
@@ -594,8 +602,7 @@ class LSMEvaluator:
             "orient_score": orient_eval["score"],
             "orient_reason": orient_eval["reason"],
             "orient_status": orient_eval["status"],
-            "orientation_state": orient_eval["orientation_state"],
-            "tilt_error": orient_eval["tilt_error"]
+            "orientation_state": orient_eval["orientation_state"]
         }
 
     def _evaluate_sign_y(self, geom: HandGeometryFeatures, ext: Dict[str, bool], fused: Dict[str, Any]) -> Dict[str, Any]:
@@ -617,7 +624,6 @@ class LSMEvaluator:
 
         for f in ["index", "middle", "ring"]:
             if ext[f]:
-                c_score = min(c_score, 0.35) if 'c_score' in locals() else 0.35
                 errors.append(f"Flexiona el dedo {finger_names_es[f]}.")
 
         if lat_y < 0.50:
@@ -625,10 +631,6 @@ class LSMEvaluator:
 
         c_score = geom.get_y_composite_score()
 
-        # REGLA ESTRICTA DE RECHAZO:
-        # Mano abierta (dedos centrales extendidos) -> RECHAZAR
-        # L (índice extendido, meñique doblado) -> RECHAZAR
-        # A (meñique doblado) -> RECHAZAR
         if ext["index"] or ext["middle"] or ext["ring"]:
             c_score = min(c_score, 0.35)
 
@@ -645,6 +647,5 @@ class LSMEvaluator:
             "orient_score": orient_eval["score"],
             "orient_reason": orient_eval["reason"],
             "orient_status": orient_eval["status"],
-            "orientation_state": orient_eval["orientation_state"],
-            "tilt_error": orient_eval["tilt_error"]
+            "orientation_state": orient_eval["orientation_state"]
         }

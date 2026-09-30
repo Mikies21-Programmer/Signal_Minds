@@ -2,7 +2,7 @@
 Módulo de procesamiento y evaluación temporal dinámica para Lengua de Señas Mexicana (LSM) Nivel 2.
 Gestiona el seguimiento temporal de trayectorias (DynamicGestureTracker) para J, Ñ, Q, X, Z.
 Aplica ventanas temporales reales (1.0 - 2.0 s), análisis cinemático explicable (desplazamiento,
-longitud de trayectoria, cambios de dirección, rotación angular IMU) y máquinas de estados
+longitud de trayectoria, cambios de dirección, rotación angular visual) y máquinas de estados
 para garantizar que ninguna seña de Nivel 2 se evalúe de forma puramente estática.
 """
 
@@ -19,7 +19,7 @@ logger = get_logger("dynamic_lsm")
 
 class DynamicGestureTracker:
     """
-    Rastreador temporal de trayectorias anatómicas y cinemática mecatrónica para señas dinámicas.
+    Rastreador temporal de trayectorias anatómicas y cinemática visual para señas dinámicas.
     Mantiene una ventana deslizante de muestras con timestamps reales y descarta datos obsoletos.
     """
 
@@ -35,7 +35,7 @@ class DynamicGestureTracker:
         self.min_frames = int(min_frames)
         self.max_samples = int(max_samples)
 
-        # Cola de muestras temporales: cada elemento es un dict con ts, landmarks, imu, etc.
+        # Cola de muestras temporales: cada elemento es un dict con ts, landmarks, etc.
         self._samples: deque = deque(maxlen=self.max_samples)
 
         # Estado del tracker
@@ -84,12 +84,6 @@ class DynamicGestureTracker:
             ):
                 return
 
-        imu_data = sensor_telemetry or {}
-        roll = float(imu_data.get("imu_roll_deg", 0.0))
-        pitch = float(imu_data.get("imu_pitch_deg", 0.0))
-        tilt = float(imu_data.get("tilt_error_deg", 0.0))
-        imu_conn = bool(imu_data.get("is_connected", False))
-
         pts = {int(p.get("id", idx)): p for idx, p in enumerate(raw_landmarks)}
         scale = euclidean_distance_3d(pts[0], pts[9])
         scale = scale if scale > 1e-4 else 1.0
@@ -100,6 +94,7 @@ class DynamicGestureTracker:
             "pts": pts,
             "scale": scale,
             "wrist": (pts[0]["x"], pts[0]["y"], pts[0].get("z", 0.0)),
+            "middle_mcp": (pts[9]["x"], pts[9]["y"], pts[9].get("z", 0.0)),
             "index_tip": (pts[8]["x"], pts[8]["y"], pts[8].get("z", 0.0)),
             "index_pip": (pts[6]["x"], pts[6]["y"], pts[6].get("z", 0.0)),
             "middle_tip": (pts[12]["x"], pts[12]["y"], pts[12].get("z", 0.0)),
@@ -108,12 +103,7 @@ class DynamicGestureTracker:
                 sum(p["x"] for p in pts.values()) / 21.0,
                 sum(p["y"] for p in pts.values()) / 21.0
             ),
-            "imu": {
-                "roll": roll,
-                "pitch": pitch,
-                "tilt": tilt,
-                "connected": imu_conn
-            }
+            "sensor_distance_cm": (sensor_telemetry or {}).get("distance_cm")
         }
 
         self._samples.append(sample)
@@ -136,7 +126,8 @@ class DynamicGestureTracker:
         - mean_speed: velocidad media normalizada por segundo
         - peak_speed: velocidad punta instantánea
         - direction_changes: cambios de dirección significativos (ángulos > 50°)
-        - angular_change: variación angular IMU (roll/pitch)
+        - visual_rotation_change_deg: variación angular temporal de la mano
+          calculada visualmente entre Muñeca y MCP Medio con wrap a [-180, 180]
         """
         n = len(self._samples)
         if n < 2:
@@ -147,7 +138,7 @@ class DynamicGestureTracker:
                 "mean_speed": 0.0,
                 "peak_speed": 0.0,
                 "direction_changes": 0.0,
-                "angular_change": 0.0
+                "visual_rotation_change_deg": 0.0
             }
 
         t_start = self._samples[0]["timestamp"]
@@ -199,15 +190,21 @@ class DynamicGestureTracker:
                 if ang_deg >= 50.0:
                     dir_changes += 1
 
-        # 4. Variación angular en IMU
-        rolls = [s["imu"]["roll"] for s in self._samples if s["imu"]["connected"]]
-        pitches = [s["imu"]["pitch"] for s in self._samples if s["imu"]["connected"]]
-        if rolls and pitches:
-            delta_roll = max(rolls) - min(rolls)
-            delta_pitch = max(pitches) - min(pitches)
-            angular_change = math.sqrt(delta_roll**2 + delta_pitch**2)
-        else:
-            angular_change = 0.0
+        # 4. Variación angular puramente visual (Muñeca -> MCP Medio con wrap a [-180, 180])
+        angles = []
+        for s in self._samples:
+            w = s["wrist"]
+            m = s["middle_mcp"]
+            ang = math.degrees(math.atan2(m[1] - w[1], m[0] - w[0]))
+            angles.append(ang)
+
+        visual_rotation_change_deg = 0.0
+        if len(angles) >= 2:
+            unwrapped = [angles[0]]
+            for i in range(1, len(angles)):
+                diff = (angles[i] - angles[i - 1] + 180.0) % 360.0 - 180.0
+                unwrapped.append(unwrapped[-1] + diff)
+            visual_rotation_change_deg = max(unwrapped) - min(unwrapped)
 
         return {
             "displacement": round(displacement, 3),
@@ -216,7 +213,7 @@ class DynamicGestureTracker:
             "mean_speed": round(mean_speed, 3),
             "peak_speed": round(peak_speed, 3),
             "direction_changes": float(dir_changes),
-            "angular_change": round(angular_change, 2)
+            "visual_rotation_change_deg": round(visual_rotation_change_deg, 2)
         }
 
     # =========================================================================
@@ -359,8 +356,8 @@ class DynamicGestureTracker:
 
     def evaluate_sign_q(self, geom: HandGeometryFeatures) -> Dict[str, Any]:
         """
-        Seña 'Q': Configuración con índice y pulgar hacia abajo + giro/oscilación de muñeca.
-        Integra MPU6050 para detectar cambio angular real de roll/pitch (sin inventar yaw).
+        Seña 'Q': Configuración con índice y pulgar hacia abajo + giro/oscilación visual de muñeca.
+        Evalúa visual_rotation_change_deg obtenido visualmente de los landmarks de la mano (Muñeca -> MCP Medio).
         """
         q_config = geom.get_q_configuration_score()
 
@@ -385,11 +382,11 @@ class DynamicGestureTracker:
             }
 
         metrics = self.compute_trajectory_metrics(landmark_key="wrist")
-        ang_change = metrics["angular_change"]
+        vis_rot = metrics["visual_rotation_change_deg"]
         p_len = metrics["path_length"]
 
-        # Giro excesivo (> 60°) o giro nulo (< 7° y sin desplazamiento)
-        if ang_change > 65.0:
+        # Giro excesivo (> 80°) o giro nulo (< 7° y sin desplazamiento)
+        if vis_rot > 85.0:
             return {
                 "sign": "Q",
                 "is_valid": False,
@@ -399,20 +396,21 @@ class DynamicGestureTracker:
                 "message": "Reduce el giro excesivo de la muñeca para Q."
             }
 
-        # Exigir cambio angular o movimiento de oscilación en muñeca
-        has_rotation = (7.0 <= ang_change <= 60.0) or (p_len >= 0.20)
+        # Exigir cambio angular visual o movimiento de oscilación en muñeca
+        has_rotation = (7.0 <= vis_rot <= 80.0) or (p_len >= 0.20)
 
         if not has_rotation:
             return {
                 "sign": "Q",
                 "is_valid": False,
-                "score": round(0.48 + min(0.20, ang_change / 30.0), 3),
+                "score": round(0.48 + min(0.20, vis_rot / 30.0), 3),
                 "status": "MOVING",
                 "param_status": {"config": "PASS", "mov": "CORRECT"},
-                "message": "Realiza el giro/oscilación de la muñeca."
+                "message": "Realiza el giro/oscilación de la muñeca.",
+                "metrics": metrics
             }
 
-        rot_score = clamp(ang_change / 15.0) if ang_change >= 7.0 else clamp(p_len / 0.22)
+        rot_score = clamp(vis_rot / 20.0) if vis_rot >= 7.0 else clamp(p_len / 0.22)
         overall = 0.45 * q_config + 0.55 * rot_score
         is_valid = (overall >= 0.70) and has_rotation
 
