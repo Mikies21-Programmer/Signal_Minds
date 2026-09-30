@@ -30,17 +30,17 @@ class LSMEvaluator:
 
             sens_conf = config.get("sensors", {}) if hasattr(config, "get") else {}
             orient_conf = sens_conf.get("orientation", {})
-            self.frontal_ok_deg = float(orient_conf.get("frontal_ok_deg", 15.0))
-            self.frontal_adjust_deg = float(orient_conf.get("frontal_adjust_deg", 25.0))
+            self.frontal_ok_deg = float(orient_conf.get("frontal_ok_deg", 12.0))
+            self.frontal_adjust_deg = float(orient_conf.get("frontal_adjust_deg", 20.0))
             self.y_ok_deg = float(orient_conf.get("y_ok_deg", 20.0))
             self.y_adjust_deg = float(orient_conf.get("y_adjust_deg", 30.0))
-            self.hysteresis_deg = float(orient_conf.get("hysteresis_deg", 3.0))
+            self.hysteresis_deg = float(orient_conf.get("hysteresis_deg", 2.0))
         else:
-            self.frontal_ok_deg = 15.0
-            self.frontal_adjust_deg = 25.0
+            self.frontal_ok_deg = 12.0
+            self.frontal_adjust_deg = 20.0
             self.y_ok_deg = 20.0
             self.y_adjust_deg = 30.0
-            self.hysteresis_deg = 3.0
+            self.hysteresis_deg = 2.0
 
         logger.info(f"LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: '{self.target_sign}'.")
 
@@ -51,20 +51,51 @@ class LSMEvaluator:
         """
         Evalúa la orientación tridimensional de la mano a partir de la telemetría real del MPU6050.
         Aplica tolerancias geométricas e histéresis diferenciadas por seña.
+        Si el sensor está desconectado, ausente o la muestra es obsoleta, retorna ORIENTATION_UNAVAILABLE.
         """
-        if "hand_orientation" in fused:
+        # 1. Determinar disponibilidad de telemetría IMU real
+        is_unavailable = False
+
+        if not fused or not isinstance(fused, dict):
+            is_unavailable = True
+        elif "hand_orientation" in fused or "valid_fusion" in fused:
             orient_data = fused.get("hand_orientation", {})
-            imu_present = orient_data.get("imu_present", False) or fused.get("sensors_present", False)
-            if not imu_present or orient_data.get("sensor_type") in ["NONE", "UNKNOWN", ""]:
-                return {
-                    "score": 0.90,
-                    "status": "PASS",
-                    "orientation_state": "ORIENTATION_OK",
-                    "tilt_error": 0.0,
-                    "reason": "Orientación visual neutra (IMU en espera de telemetría)"
-                }
+            valid_fusion = fused.get("valid_fusion", False)
+            sensor_connected = fused.get("sensor_connected", False)
+            sensors_present = fused.get("sensors_present", False)
+            staleness = fused.get("staleness", {})
+            sensor_stale = staleness.get("sensor_stale", True) if isinstance(staleness, dict) else True
+            imu_present = orient_data.get("imu_present", False) if isinstance(orient_data, dict) else False
+
+            if (not valid_fusion
+                or not sensor_connected
+                or not sensors_present
+                or sensor_stale
+                or not imu_present
+                or orient_data.get("sensor_type") in ["NONE", "UNKNOWN", ""]
+                or "tilt_error" not in orient_data
+                or orient_data.get("tilt_error") is None):
+                is_unavailable = True
         else:
             orient_data = fused
+            if (orient_data.get("is_connected") is False
+                or orient_data.get("imu_present") is False
+                or orient_data.get("sensor_stale") is True
+                or orient_data.get("valid_fusion") is False
+                or orient_data.get("status") in ["DISCONNECTED", "UNAVAILABLE", "ERROR"]
+                or orient_data.get("sensor_type") in ["NONE", "UNKNOWN", ""]
+                or "tilt_error" not in orient_data
+                or orient_data.get("tilt_error") is None):
+                is_unavailable = True
+
+        if is_unavailable:
+            return {
+                "score": 0.0,
+                "status": "UNAVAILABLE",
+                "orientation_state": "ORIENTATION_UNAVAILABLE",
+                "tilt_error": None,
+                "reason": "Sensor de orientación MPU6050 no disponible, desconectado u obsoleto"
+            }
 
         tilt_error = float(orient_data.get("tilt_error", 0.0))
 
@@ -100,18 +131,32 @@ class LSMEvaluator:
             adjust_limit = self.y_adjust_deg
         else:
             # A, B, L
-            ok_limit = self.frontal_ok_deg
-            adjust_limit = self.frontal_adjust_deg
+            ok_limit = self.frontal_ok_deg       # 12.0
+            adjust_limit = self.frontal_adjust_deg # 20.0
 
-        h = self.hysteresis_deg
-        prev_state = getattr(self, f"_prev_orient_state_{sign}", "ORIENTATION_OK")
+        h = self.hysteresis_deg                  # 2.0
+        prev_state = getattr(self, f"_prev_orient_state_{sign}", None)
 
-        if prev_state == "ORIENTATION_OK":
-            if tilt_error > (ok_limit + h):
-                new_state = "ORIENTATION_FAIL" if tilt_error > adjust_limit else "ORIENTATION_ADJUST"
+        if prev_state is None:
+            # Evaluación inicial o sin estado previo
+            if tilt_error <= ok_limit:
+                new_state = "ORIENTATION_OK"
+            elif tilt_error <= adjust_limit:
+                new_state = "ORIENTATION_ADJUST"
+            else:
+                new_state = "ORIENTATION_FAIL"
+        elif prev_state == "ORIENTATION_OK":
+            # OK -> ADJUST únicamente cuando TILT > (ok_limit + h) [ej. > 14°]
+            # OK -> FAIL cuando TILT > (adjust_limit + h) [ej. > 22°]
+            if tilt_error > (adjust_limit + h):
+                new_state = "ORIENTATION_FAIL"
+            elif tilt_error > (ok_limit + h):
+                new_state = "ORIENTATION_ADJUST"
             else:
                 new_state = "ORIENTATION_OK"
         elif prev_state == "ORIENTATION_ADJUST":
+            # ADJUST -> OK cuando TILT <= ok_limit [ej. <= 12°]
+            # ADJUST -> FAIL cuando TILT > (adjust_limit + h) [ej. > 22°]
             if tilt_error <= ok_limit:
                 new_state = "ORIENTATION_OK"
             elif tilt_error > (adjust_limit + h):
@@ -119,9 +164,11 @@ class LSMEvaluator:
             else:
                 new_state = "ORIENTATION_ADJUST"
         else:  # FAIL
+            # FAIL -> OK cuando TILT <= ok_limit [ej. <= 12°]
+            # FAIL -> ADJUST cuando TILT < (adjust_limit - h) [ej. < 18°]
             if tilt_error <= ok_limit:
                 new_state = "ORIENTATION_OK"
-            elif tilt_error <= (adjust_limit - h):
+            elif tilt_error < (adjust_limit - h):
                 new_state = "ORIENTATION_ADJUST"
             else:
                 new_state = "ORIENTATION_FAIL"
@@ -129,7 +176,7 @@ class LSMEvaluator:
         setattr(self, f"_prev_orient_state_{sign}", new_state)
 
         if new_state == "ORIENTATION_OK":
-            score = max(0.85, 1.0 - (tilt_error / ok_limit) * 0.15)
+            score = max(0.85, 1.0 - (tilt_error / max(1.0, ok_limit)) * 0.15)
             status = "PASS"
             reason = "Orientación correcta. Mantén la mano estable."
         elif new_state == "ORIENTATION_ADJUST":
@@ -161,6 +208,7 @@ class LSMEvaluator:
         raw_landmarks = fused_state.get("raw_landmarks", [])
 
         if not has_vision or not raw_landmarks or len(raw_landmarks) < 21:
+            orient_eval = self.evaluate_orientation(sign, fused_state)
             return {
                 "sign": sign,
                 "level": self.active_level,
@@ -170,7 +218,14 @@ class LSMEvaluator:
                 "message": "Sin mano detectada en el encuadre",
                 "parameters": {
                     "configuration": {"score": 0.0, "status": "FAIL", "reason": "No se detecta mano."},
-                    "orientation": {"score": 0.0, "status": "FAIL", "orientation_state": "ORIENTATION_FAIL", "tilt_error": 0.0, "reason": "No se detecta mano."},
+                    "orientation": {
+                        "score": orient_eval["score"],
+                        "status": orient_eval["status"],
+                        "orientation_state": orient_eval["orientation_state"],
+                        "tilt_error": orient_eval["tilt_error"],
+                        "param_name": "Orientación de palma (IMU MPU6050)",
+                        "reason": orient_eval["reason"]
+                    },
                     "movement": {"score": 0.0, "status": "FAIL", "reason": "No se detecta mano."},
                     "location": {"score": 0.0, "status": "FAIL", "reason": "No se detecta mano."}
                 },
@@ -199,14 +254,15 @@ class LSMEvaluator:
         elif sign == "Y":
             eval_dict = self._evaluate_sign_y(geom, ext, fused_state)
         else:
+            orient_eval = self.evaluate_orientation(sign, fused_state)
             eval_dict = {
                 "config_score": 0.0,
                 "config_reason": f"Seña '{sign}' no implementada en Nivel 1",
-                "orient_score": 0.0,
-                "orient_reason": "Seña desconocida",
-                "orient_status": "FAIL",
-                "orientation_state": "ORIENTATION_FAIL",
-                "tilt_error": 0.0,
+                "orient_score": orient_eval["score"],
+                "orient_reason": orient_eval["reason"],
+                "orient_status": orient_eval["status"],
+                "orientation_state": orient_eval["orientation_state"],
+                "tilt_error": orient_eval["tilt_error"],
                 "mov_score": 0.0,
                 "loc_score": 0.0
             }
@@ -224,10 +280,17 @@ class LSMEvaluator:
 
         c_score = eval_dict["config_score"]
         o_score = eval_dict["orient_score"]
+        orient_status = eval_dict.get("orient_status", "UNAVAILABLE")
 
-        # Ponderación morfológica: 50% configuración, 25% orientación, 15% kinema, 10% toponema
-        overall = (c_score * 0.50) + (o_score * 0.25) + (mov_score * 0.15) + (loc_score * 0.10)
-        is_valid = (overall >= self.threshold) and (c_score >= 0.70) and (o_score >= 0.65)
+        if orient_status == "UNAVAILABLE":
+            # Si el sensor de orientación no está disponible, evaluar con las modalidades activas
+            # Ponderación morfológica sobre pesos disponibles: Configuración (50/75), Kinema (15/75), Toponema (10/75)
+            overall = ((c_score * 0.50) + (mov_score * 0.15) + (loc_score * 0.10)) / 0.75
+            is_valid = (overall >= self.threshold) and (c_score >= 0.70)
+        else:
+            # Ponderación completa multimodal: 50% configuración, 25% orientación, 15% kinema, 10% toponema
+            overall = (c_score * 0.50) + (o_score * 0.25) + (mov_score * 0.15) + (loc_score * 0.10)
+            is_valid = (overall >= self.threshold) and (c_score >= 0.70) and (o_score >= 0.65)
 
         return {
             "sign": sign,
@@ -244,10 +307,10 @@ class LSMEvaluator:
                     "reason": eval_dict["config_reason"]
                 },
                 "orientation": {
-                    "score": round(o_score, 3),
-                    "status": eval_dict.get("orient_status", "PASS" if o_score >= 0.75 else "CORRECT"),
-                    "orientation_state": eval_dict.get("orientation_state", "ORIENTATION_OK"),
-                    "tilt_error": eval_dict.get("tilt_error", 0.0),
+                    "score": round(o_score, 3) if o_score is not None else 0.0,
+                    "status": orient_status,
+                    "orientation_state": eval_dict.get("orientation_state", "ORIENTATION_UNAVAILABLE"),
+                    "tilt_error": eval_dict.get("tilt_error"),
                     "param_name": "Orientación de palma (IMU MPU6050)",
                     "reason": eval_dict["orient_reason"]
                 },

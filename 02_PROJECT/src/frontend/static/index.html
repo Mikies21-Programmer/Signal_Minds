@@ -1201,6 +1201,9 @@
         if (!sensTel.is_connected && !data.subsystems_mock?.sensors) {
           oMetric.innerText = 'DESCONECTADO';
           oMetric.style.color = 'var(--text-muted)';
+        } else if (orientState === 'ORIENTATION_UNAVAILABLE') {
+          oMetric.innerText = '⚠️ NO DISPONIBLE';
+          oMetric.style.color = 'var(--text-muted)';
         } else if (orientState === 'ORIENTATION_OK' || orientState === 'IMU_TILT_OK') {
           oMetric.innerText = '✅ CORRECTA';
           oMetric.style.color = 'var(--accent-green)';
@@ -1211,17 +1214,26 @@
           oMetric.innerText = '❌ INCORRECTA';
           oMetric.style.color = 'var(--accent-red)';
         } else {
-          oMetric.innerText = '✅ CORRECTA';
-          oMetric.style.color = 'var(--accent-green)';
+          oMetric.innerText = '--';
+          oMetric.style.color = 'var(--text-muted)';
         }
       }
 
       const roll = (sensTel.imu_roll_deg || 0).toFixed(1);
       const pitch = (sensTel.imu_pitch_deg || 0).toFixed(1);
-      const tiltErr = (sensTel.tilt_error_deg !== undefined ? sensTel.tilt_error_deg : (orientInfo.tilt_error || 0)).toFixed(1);
+      let tiltErrStr = 'N/A';
+      if (orientInfo.tilt_error !== null && orientInfo.tilt_error !== undefined) {
+        tiltErrStr = `${Number(orientInfo.tilt_error).toFixed(1)}°`;
+      } else if (sensTel.tilt_error_deg !== null && sensTel.tilt_error_deg !== undefined && sensTel.is_connected) {
+        tiltErrStr = `${Number(sensTel.tilt_error_deg).toFixed(1)}°`;
+      }
       const imuElem = document.getElementById('metric-imu');
       if (imuElem) {
-        imuElem.innerText = `${roll}° / ${pitch}° (Δ ${tiltErr}°)`;
+        if (!sensTel.is_connected && !data.subsystems_mock?.sensors) {
+          imuElem.innerText = 'N/A (DESCONECTADO)';
+        } else {
+          imuElem.innerText = `${roll}° / ${pitch}° (Δ ${tiltErrStr})`;
+        }
       }
       const yawElem = document.getElementById('metric-yaw');
       if (yawElem) {

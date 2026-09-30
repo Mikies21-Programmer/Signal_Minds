@@ -108,95 +108,229 @@ def test_tilt_error_calculation():
 
 
 # ==============================================================================
-# 6. Frontera de 15° para A, B, L (0-15°: ORIENTATION_OK)
+# 6. Umbrales de orientación para A, B, L (0-12°: OK, 12-20°: ADJUST, >20°: FAIL)
 # ==============================================================================
-def test_15_deg_boundary_frontal():
-    """Valida que para A, B, L una inclinación <= 15° resulte en ORIENTATION_OK."""
+def test_orientation_thresholds_frontal_baseline():
+    """
+    Valida los umbrales de orientación experimentales para A, B, L:
+    0° -> OK
+    10° -> OK
+    12° -> OK
+    15° -> ADJUST
+    20° -> ADJUST
+    21° -> FAIL
+    """
     evaluator = LSMEvaluator()
 
     for sign in ["A", "B", "L"]:
-        res_0 = evaluator.evaluate_orientation(sign, {"tilt_error": 0.0})
-        assert res_0["orientation_state"] == "ORIENTATION_OK"
-        assert res_0["status"] == "PASS"
+        # 0° -> OK
+        evaluator._prev_orient_state_A = None
+        evaluator._prev_orient_state_B = None
+        evaluator._prev_orient_state_L = None
+        r0 = evaluator.evaluate_orientation(sign, {"tilt_error": 0.0})
+        assert r0["orientation_state"] == "ORIENTATION_OK"
+        assert r0["status"] == "PASS"
 
-        res_14 = evaluator.evaluate_orientation(sign, {"tilt_error": 14.5})
-        assert res_14["orientation_state"] == "ORIENTATION_OK"
-        assert res_14["status"] == "PASS"
+        # 10° -> OK
+        evaluator._prev_orient_state_A = None
+        evaluator._prev_orient_state_B = None
+        evaluator._prev_orient_state_L = None
+        r10 = evaluator.evaluate_orientation(sign, {"tilt_error": 10.0})
+        assert r10["orientation_state"] == "ORIENTATION_OK"
+        assert r10["status"] == "PASS"
 
-        res_15 = evaluator.evaluate_orientation(sign, {"tilt_error": 15.0})
-        assert res_15["orientation_state"] == "ORIENTATION_OK"
-        assert res_15["status"] == "PASS"
+        # 12° -> OK
+        evaluator._prev_orient_state_A = None
+        evaluator._prev_orient_state_B = None
+        evaluator._prev_orient_state_L = None
+        r12 = evaluator.evaluate_orientation(sign, {"tilt_error": 12.0})
+        assert r12["orientation_state"] == "ORIENTATION_OK"
+        assert r12["status"] == "PASS"
+
+        # 15° -> ADJUST
+        evaluator._prev_orient_state_A = None
+        evaluator._prev_orient_state_B = None
+        evaluator._prev_orient_state_L = None
+        r15 = evaluator.evaluate_orientation(sign, {"tilt_error": 15.0})
+        assert r15["orientation_state"] == "ORIENTATION_ADJUST"
+        assert r15["status"] == "CORRECT"
+
+        # 20° -> ADJUST
+        evaluator._prev_orient_state_A = None
+        evaluator._prev_orient_state_B = None
+        evaluator._prev_orient_state_L = None
+        r20 = evaluator.evaluate_orientation(sign, {"tilt_error": 20.0})
+        assert r20["orientation_state"] == "ORIENTATION_ADJUST"
+        assert r20["status"] == "CORRECT"
+
+        # 21° -> FAIL
+        evaluator._prev_orient_state_A = None
+        evaluator._prev_orient_state_B = None
+        evaluator._prev_orient_state_L = None
+        r21 = evaluator.evaluate_orientation(sign, {"tilt_error": 21.0})
+        assert r21["orientation_state"] == "ORIENTATION_FAIL"
+        assert r21["status"] == "FAIL"
 
 
 # ==============================================================================
-# 7. Frontera de 25° para A, B, L (>15-25°: ADJUST, >25°: FAIL)
+# 7. Histéresis coherente de 2° para A, B, L
 # ==============================================================================
-def test_25_deg_boundary_frontal():
-    """Valida la transición a ORIENTATION_FAIL al superar 25° de inclinación en A, B, L."""
+def test_orientation_hysteresis_2_deg():
+    """
+    Valida la histéresis coherente de 2°:
+    OK -> ADJUST únicamente cuando TILT > 14°
+    ADJUST -> OK cuando TILT <= 12°
+    ADJUST -> FAIL cuando TILT > 22°
+    FAIL -> ADJUST cuando TILT < 18°
+    FAIL -> OK cuando TILT <= 12°
+    """
     evaluator = LSMEvaluator()
 
-    # Iniciar en ADJUST
-    evaluator._prev_orient_state_A = "ORIENTATION_ADJUST"
-    res_20 = evaluator.evaluate_orientation("A", {"tilt_error": 20.0})
-    assert res_20["orientation_state"] == "ORIENTATION_ADJUST"
-    assert res_20["status"] == "CORRECT"
-
-    # Superar 25° + histéresis entra a FAIL
-    res_29 = evaluator.evaluate_orientation("A", {"tilt_error": 29.0})
-    assert res_29["orientation_state"] == "ORIENTATION_FAIL"
-    assert res_29["status"] == "FAIL"
-
-
-# ==============================================================================
-# 8. Fronteras de 20° y 30° para seña Y (mayor tolerancia)
-# ==============================================================================
-def test_y_sign_20_and_30_deg_boundaries():
-    """Valida las tolerancias ampliadas de la seña Y (0-20° OK, 20-30° ADJUST, >30° FAIL)."""
-    evaluator = LSMEvaluator()
-
-    # 18° en Y está dentro de OK (en A/B/L estaría en ajuste)
-    res_18 = evaluator.evaluate_orientation("Y", {"tilt_error": 18.0})
-    assert res_18["orientation_state"] == "ORIENTATION_OK"
-    assert res_18["status"] == "PASS"
-
-    # 25° en Y es ADJUST (en A/B/L sería FAIL o límite superior)
-    evaluator._prev_orient_state_Y = "ORIENTATION_ADJUST"
-    res_25 = evaluator.evaluate_orientation("Y", {"tilt_error": 25.0})
-    assert res_25["orientation_state"] == "ORIENTATION_ADJUST"
-    assert res_25["status"] == "CORRECT"
-
-    # > 33° en Y es FAIL (30° + 3° histéresis)
-    res_34 = evaluator.evaluate_orientation("Y", {"tilt_error": 34.0})
-    assert res_34["orientation_state"] == "ORIENTATION_FAIL"
-    assert res_34["status"] == "FAIL"
-
-
-# ==============================================================================
-# 9. Histéresis anti-flicker (banda de 3°)
-# ==============================================================================
-def test_hysteresis_transitions():
-    """Valida que la histéresis de 3° evite oscilaciones espurias en las fronteras angulares."""
-    evaluator = LSMEvaluator()
-
-    # Arranca en OK (tilt = 10°)
+    # Arranca en OK (10°)
     res = evaluator.evaluate_orientation("A", {"tilt_error": 10.0})
     assert res["orientation_state"] == "ORIENTATION_OK"
 
-    # Sube a 16° (entre 15° y 18° = 15 + 3): NO cambia a ADJUST todavía por histéresis
-    res = evaluator.evaluate_orientation("A", {"tilt_error": 16.5})
+    # Sube a 13° (entre 12° y 14° = 12 + 2): Permanece en OK por histéresis
+    res = evaluator.evaluate_orientation("A", {"tilt_error": 13.0})
     assert res["orientation_state"] == "ORIENTATION_OK"
 
-    # Sube a 19° (> 18°): cambia a ORIENTATION_ADJUST
-    res = evaluator.evaluate_orientation("A", {"tilt_error": 19.0})
-    assert res["orientation_state"] == "ORIENTATION_ADJUST"
-
-    # Baja a 16°: Permanece en ADJUST hasta cruzar el límite ok_limit (<= 15°)
-    res = evaluator.evaluate_orientation("A", {"tilt_error": 16.0})
-    assert res["orientation_state"] == "ORIENTATION_ADJUST"
-
-    # Baja a 14° (<= 15°): regresa a OK
+    # Sube a 14.0°: Permanece en OK (<= 14°)
     res = evaluator.evaluate_orientation("A", {"tilt_error": 14.0})
     assert res["orientation_state"] == "ORIENTATION_OK"
+
+    # Sube a 14.5° (> 14°): Cambia a ORIENTATION_ADJUST
+    res = evaluator.evaluate_orientation("A", {"tilt_error": 14.5})
+    assert res["orientation_state"] == "ORIENTATION_ADJUST"
+
+    # Baja a 13.0°: Permanece en ADJUST (> 12°)
+    res = evaluator.evaluate_orientation("A", {"tilt_error": 13.0})
+    assert res["orientation_state"] == "ORIENTATION_ADJUST"
+
+    # Baja a 12.0° (<= 12°): Regresa a ORIENTATION_OK
+    res = evaluator.evaluate_orientation("A", {"tilt_error": 12.0})
+    assert res["orientation_state"] == "ORIENTATION_OK"
+
+    # Transición a ADJUST (15° > 14°)
+    res = evaluator.evaluate_orientation("A", {"tilt_error": 15.0})
+    assert res["orientation_state"] == "ORIENTATION_ADJUST"
+
+    # Sube a 21.0° (entre 20° y 22° = 20 + 2): Permanece en ADJUST
+    res = evaluator.evaluate_orientation("A", {"tilt_error": 21.0})
+    assert res["orientation_state"] == "ORIENTATION_ADJUST"
+
+    # Sube a 22.5° (> 22°): Cambia a ORIENTATION_FAIL
+    res = evaluator.evaluate_orientation("A", {"tilt_error": 22.5})
+    assert res["orientation_state"] == "ORIENTATION_FAIL"
+
+    # Baja a 19.0°: Permanece en FAIL (>= 18°)
+    res = evaluator.evaluate_orientation("A", {"tilt_error": 19.0})
+    assert res["orientation_state"] == "ORIENTATION_FAIL"
+
+    # Baja a 17.5° (< 18°): Regresa a ORIENTATION_ADJUST
+    res = evaluator.evaluate_orientation("A", {"tilt_error": 17.5})
+    assert res["orientation_state"] == "ORIENTATION_ADJUST"
+
+    # Desde FAIL salta directamente a OK si baja a <= 12°
+    evaluator._prev_orient_state_A = "ORIENTATION_FAIL"
+    res = evaluator.evaluate_orientation("A", {"tilt_error": 11.0})
+    assert res["orientation_state"] == "ORIENTATION_OK"
+
+
+# ==============================================================================
+# 8. Sensor ausente / desconectado / sin fusión válida -> ORIENTATION_UNAVAILABLE
+# ==============================================================================
+def test_sensor_ausente_orientation_unavailable():
+    """
+    Elimina cualquier comportamiento que marque orientación como PASS/OK cuando no existe telemetría real.
+    Verifica que sensor ausente, desconectado o sin fusión válida retorne ORIENTATION_UNAVAILABLE.
+    """
+    evaluator = LSMEvaluator()
+
+    # 1. Sensor desconectado explícito
+    res_disc = evaluator.evaluate_orientation("A", {"is_connected": False})
+    assert res_disc["orientation_state"] == "ORIENTATION_UNAVAILABLE"
+    assert res_disc["status"] == "UNAVAILABLE"
+    assert res_disc["tilt_error"] is None
+    assert res_disc["score"] == 0.0
+
+    # 2. Sin IMU presente
+    res_no_imu = evaluator.evaluate_orientation("A", {"imu_present": False})
+    assert res_no_imu["orientation_state"] == "ORIENTATION_UNAVAILABLE"
+    assert res_no_imu["status"] == "UNAVAILABLE"
+    assert res_no_imu["tilt_error"] is None
+    assert res_no_imu["score"] == 0.0
+
+    # 3. Sin fusión válida
+    res_no_fusion = evaluator.evaluate_orientation("A", {"valid_fusion": False, "sensors_present": False})
+    assert res_no_fusion["orientation_state"] == "ORIENTATION_UNAVAILABLE"
+    assert res_no_fusion["status"] == "UNAVAILABLE"
+    assert res_no_fusion["tilt_error"] is None
+    assert res_no_fusion["score"] == 0.0
+
+    # 4. Diccionario vacío
+    res_empty = evaluator.evaluate_orientation("A", {})
+    assert res_empty["orientation_state"] == "ORIENTATION_UNAVAILABLE"
+    assert res_empty["status"] == "UNAVAILABLE"
+    assert res_empty["tilt_error"] is None
+    assert res_empty["score"] == 0.0
+
+
+# ==============================================================================
+# 9. Muestra obsoleta (sensor stale) -> ORIENTATION_UNAVAILABLE
+# ==============================================================================
+def test_sensor_stale_orientation_unavailable():
+    """Verifica que muestras obsoletas resulten en ORIENTATION_UNAVAILABLE sin fabricar tilt_error."""
+    evaluator = LSMEvaluator()
+
+    # Muestra marcada como stale
+    res_stale = evaluator.evaluate_orientation("A", {"tilt_error": 10.0, "sensor_stale": True})
+    assert res_stale["orientation_state"] == "ORIENTATION_UNAVAILABLE"
+    assert res_stale["status"] == "UNAVAILABLE"
+    assert res_stale["tilt_error"] is None
+    assert res_stale["score"] == 0.0
+
+    # Paquete multimodal con sensor obsoleto
+    fused_stale = {
+        "valid_fusion": False,
+        "sensor_connected": True,
+        "sensors_present": True,
+        "staleness": {"sensor_stale": True, "vision_stale": False},
+        "hand_orientation": {"tilt_error": 8.5, "imu_present": True, "sensor_type": "MPU6050"}
+    }
+    res_fused_stale = evaluator.evaluate_orientation("A", fused_stale)
+    assert res_fused_stale["orientation_state"] == "ORIENTATION_UNAVAILABLE"
+    assert res_fused_stale["status"] == "UNAVAILABLE"
+    assert res_fused_stale["tilt_error"] is None
+    assert res_fused_stale["score"] == 0.0
+
+
+def test_full_evaluation_imu_unavailable_parameters():
+    """
+    Verifica que si el sensor MPU6050 está ausente o desconectado en un paquete multimodal,
+    el parámetro de orientación sea estrictamente ORIENTATION_UNAVAILABLE, status UNAVAILABLE,
+    tilt_error=None y score=0.0 sin fabricar datos ni marcar orientación correcta.
+    """
+    evaluator = LSMEvaluator()
+    from tests.test_lsm_geometric import make_landmarks_fist_a
+    landmarks_a = make_landmarks_fist_a()
+
+    # Estado con visión válida pero sensor desconectado
+    fused_disconnected = {
+        "vision_present": True,
+        "raw_landmarks": landmarks_a,
+        "handedness": "Right",
+        "valid_fusion": False,
+        "sensors_present": False,
+        "sensor_connected": False,
+        "hand_orientation": {"imu_present": False, "sensor_type": "NONE"}
+    }
+
+    res = evaluator.evaluate(fused_disconnected, target_sign="A")
+    orient_param = res["parameters"]["orientation"]
+    assert orient_param["orientation_state"] == "ORIENTATION_UNAVAILABLE"
+    assert orient_param["status"] == "UNAVAILABLE"
+    assert orient_param["tilt_error"] is None
+    assert orient_param["score"] == 0.0
 
 
 # ==============================================================================
@@ -264,6 +398,13 @@ def test_disconnected_sensor_no_fabrication():
     assert sample["imu_roll_deg"] == 0.0
     assert sample["imu_pitch_deg"] == 0.0
 
+    evaluator = LSMEvaluator()
+    res_orient = evaluator.evaluate_orientation("A", sample)
+    assert res_orient["orientation_state"] == "ORIENTATION_UNAVAILABLE"
+    assert res_orient["status"] == "UNAVAILABLE"
+    assert res_orient["tilt_error"] is None
+    assert res_orient["score"] == 0.0
+
 
 # ==============================================================================
 # 13. Telemetría obsoleta (stale sensor)
@@ -294,6 +435,13 @@ def test_stale_sensor_fusion():
     fused = fusion.fuse(fresh_vision, stale_sensor)
     assert fused["valid_fusion"] is False
     assert fused["staleness"]["sensor_stale"] is True or (fused["sync_delta_ms"] and fused["sync_delta_ms"] > 200)
+
+    evaluator = LSMEvaluator()
+    res_orient = evaluator.evaluate_orientation("A", fused)
+    assert res_orient["orientation_state"] == "ORIENTATION_UNAVAILABLE"
+    assert res_orient["status"] == "UNAVAILABLE"
+    assert res_orient["tilt_error"] is None
+    assert res_orient["score"] == 0.0
 
 
 # ==============================================================================

@@ -89,6 +89,16 @@ class FeedbackEngine:
 
         # 5. Prioridad 3 de corrección: Orientación de palma (IMU MPU6050)
         orient_state = orient_info.get("orientation_state", "")
+        if orient_state == "ORIENTATION_UNAVAILABLE" or orient_info.get("status") == "UNAVAILABLE":
+            return {
+                "status": "NEEDS_CORRECTION",
+                "color": "#94A3B8",
+                "primary_message": "Orientación no disponible.",
+                "secondary_message": "Verifica la conexión del sensor MPU6050 en el dorso de la mano.",
+                "correction_hint": "Conecta el sensor de orientación para validar la seña.",
+                "score": score
+            }
+
         if orient_info.get("status") in ["CORRECT", "FAIL"] or orient_info.get("score", 0.0) < 0.75 or orient_state in ["ORIENTATION_FAIL", "ORIENTATION_ADJUST", "IMU_TILT_FAIL", "IMU_TILT_ADJUST"]:
             reason = orient_info.get("reason", "Ajusta la orientación de la mano.")
             primary = "Inclinación de la mano incorrecta." if "FAIL" in orient_state else "Ajusta la orientación de la mano."

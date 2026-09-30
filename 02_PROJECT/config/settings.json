@@ -29,11 +29,11 @@
     "sampling_rate_hz": 50,
     "yaw_valid": false,
     "orientation": {
-      "frontal_ok_deg": 15,
-      "frontal_adjust_deg": 25,
+      "frontal_ok_deg": 12,
+      "frontal_adjust_deg": 20,
       "y_ok_deg": 20,
       "y_adjust_deg": 30,
-      "hysteresis_deg": 3
+      "hysteresis_deg": 2
     },
     "timeout_ms": 20,
     "mock_mode": false

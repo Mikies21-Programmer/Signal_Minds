@@ -3,6 +3,7 @@ import time
 import math
 import sys
 import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from src.lsm.evaluator import LSMEvaluator
 
@@ -109,20 +110,30 @@ def main():
     evaluator = LSMEvaluator()
 
     test_angles = [
-        ("Mano Frontal (0-15°)", 5.2, "A"),
-        ("Inclinación Leve (10°)", 10.4, "A"),
-        ("Inclinación Límite OK (15°)", 15.0, "A"),
-        ("Inclinación Ajuste (20°)", 20.0, "A"),
-        ("Inclinación Crítica (>25°)", 28.5, "A"),
-        ("Seña Y en Rango OK (18°)", 18.0, "Y"),
-        ("Seña Y en Rango Ajuste (26°)", 26.0, "Y"),
-        ("Seña C Estabilidad Dorsal (12°)", 12.0, "C"),
+        ("Neutra Experimental (0.82°)", 0.82, "A"),
+        ("Inclinación Pequeña (2.82°)", 2.82, "A"),
+        ("Inclinación 10.0° (<= 12°)", 10.0, "A"),
+        ("Límite OK (12.0°)", 12.0, "A"),
+        ("Inclinación 15.0° (> 14°)", 15.0, "A"),
+        ("Inclinación Grande (19.90°)", 19.90, "A"),
+        ("Límite Ajuste (20.0°)", 20.0, "A"),
+        ("Inclinación 21.0° (> 20°)", 21.0, "A"),
+        ("Inclinación Crítica / Atrás (23.23°)", 23.23, "A"),
+        ("Seña Y en Rango OK (18.0°)", 18.0, "Y"),
+        ("Seña Y en Rango Ajuste (26.0°)", 26.0, "Y"),
+        ("Seña C Estabilidad Dorsal (12.0°)", 12.0, "C"),
     ]
 
     for desc, tilt, sign in test_angles:
-        res = evaluator.evaluate_orientation(sign, {"tilt_error": tilt})
-        log(f"  [{sign}] {desc:32s} -> tilt={tilt:5.1f}° | Estado: {res['orientation_state']:18s} | "
+        evaluator_fresh = LSMEvaluator()
+        res = evaluator_fresh.evaluate_orientation(sign, {"tilt_error": tilt})
+        log(f"  [{sign}] {desc:36s} -> tilt={tilt:5.2f}° | Estado: {res['orientation_state']:18s} | "
             f"Score: {res['score']:.2f} | Status: {res['status']:7s} | Mensaje: \"{res['reason']}\"")
+
+    # Prueba de sensor ausente
+    res_unavail = evaluator.evaluate_orientation("A", {"is_connected": False})
+    log(f"  [A] {'Sensor Desconectado (Ausente)':36s} -> tilt= None  | Estado: {res_unavail['orientation_state']:18s} | "
+        f"Score: {res_unavail['score']:.2f} | Status: {res_unavail['status']:7s} | Mensaje: \"{res_unavail['reason']}\"")
 
     log("\n[6] CONFIRMACIÓN DE REGLAS CRÍTICAS:")
     log("  [PASS] Hardware ESP32-S3 dedicado a MPU6050 en COM7.")
