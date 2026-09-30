@@ -7,10 +7,15 @@
     "debug": true
   },
   "camera": {
-    "stream_url": "http://192.168.4.1/stream",
-    "resolution": [320, 240],
-    "target_fps": 20,
-    "timeout_sec": 1.0,
+    "stream_url": "http://192.168.4.1:81/stream",
+    "control_url": "http://192.168.4.1/control",
+    "resolution": [640, 480],
+    "brightness": 1,
+    "contrast": 1,
+    "aec2": 1,
+    "gainceiling": 2,
+    "target_fps": 25,
+    "timeout_sec": 3.0,
     "mock_mode": false
   },
   "sensors": {
@@ -23,8 +28,9 @@
   },
   "vision": {
     "model_path": "models/hand_landmarker.task",
-    "min_detection_confidence": 0.6,
-    "min_tracking_confidence": 0.5,
+    "min_detection_confidence": 0.55,
+    "min_presence_confidence": 0.55,
+    "min_tracking_confidence": 0.50,
     "max_num_hands": 1,
     "mock_mode": false
   },

@@ -19,3 +19,18 @@ env/
 *.log
 02_PROJECT/logs/*.log
 !02_PROJECT/logs/.gitkeep
+
+# Hardware firmware build artifacts (keep source code, exclude compiler binaries)
+04_FIRMWARE/**/build/
+*.bin
+*.elf
+*.map
+*.obj
+*.o
+
+# OS & Editor temporary files
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+

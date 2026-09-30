@@ -134,6 +134,7 @@ class SensorFusionEngine:
             },
             "features_63": features_63,
             "raw_landmarks": raw_landmarks,
+            "handedness": vision_data.get("handedness", "Right") if vision_data else "Right",
             "finger_flexion": flex_vector,
             "hand_orientation": imu_data,
             "contact_active": bool(sensor_data.get("contact_sensor", False)) if (sensor_data and sensors_present) else False

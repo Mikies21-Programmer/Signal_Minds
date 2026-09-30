@@ -198,6 +198,53 @@
       color: var(--accent-cyan);
     }
 
+    /* Guía visual central (60% del frame) */
+    .video-target-roi {
+      position: absolute;
+      top: 20%;
+      left: 20%;
+      width: 60%;
+      height: 60%;
+      border: 2px dashed rgba(0, 216, 255, 0.45);
+      border-radius: 12px;
+      pointer-events: none;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    .target-roi-box {
+      background: rgba(10, 14, 23, 0.75);
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-top: 6px;
+      border: 1px solid rgba(0, 216, 255, 0.3);
+    }
+
+    .roi-label {
+      font-size: 0.65rem;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+
+    .video-target-roi.hand-detected {
+      border-color: rgba(0, 255, 136, 0.65);
+      box-shadow: inset 0 0 16px rgba(0, 255, 136, 0.15);
+    }
+
+    .video-target-roi.hand-detected .target-roi-box {
+      border-color: rgba(0, 255, 136, 0.5);
+    }
+
+    .video-target-roi.hand-detected .roi-label {
+      color: var(--accent-green);
+    }
+
     /* Selector de Señas y Teclado */
     .keyboard-section {
       margin-top: 16px;
@@ -269,6 +316,200 @@
     .ctrl-btn:hover {
       color: var(--text-main);
       border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .ctrl-btn.active-mode {
+      background: rgba(0, 216, 255, 0.25);
+      color: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(0, 216, 255, 0.3);
+    }
+
+    /* Auto Clasificación y Candidatos */
+    .detected-sign-card {
+      background: linear-gradient(135deg, rgba(0, 216, 255, 0.12), rgba(0, 255, 136, 0.06));
+      border: 1px solid var(--accent-cyan);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 4px 20px rgba(0, 216, 255, 0.15);
+    }
+
+    .detected-sign-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 8px;
+    }
+
+    .detected-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .mode-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 12px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-pill.auto {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--accent-green);
+      border-color: var(--accent-green);
+    }
+
+    .mode-pill.manual {
+      background: rgba(255, 170, 0, 0.15);
+      color: var(--accent-amber);
+      border-color: var(--accent-amber);
+    }
+
+    .detected-main-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .detected-huge {
+      font-size: 4.4rem;
+      font-weight: 900;
+      line-height: 1;
+      color: var(--accent-green);
+      text-shadow: 0 0 25px rgba(0, 255, 136, 0.6);
+      min-width: 90px;
+    }
+
+    .detected-details {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: right;
+    }
+
+    .detected-metric {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .det-metric-title {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .det-metric-val {
+      font-family: var(--font-mono);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .status-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .status-tag.recognized {
+      background: rgba(0, 255, 136, 0.2);
+      color: var(--accent-green);
+      border: 1px solid var(--accent-green);
+      box-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+    }
+
+    .status-tag.ambiguous {
+      background: rgba(255, 170, 0, 0.2);
+      color: var(--accent-amber);
+      border: 1px solid var(--accent-amber);
+    }
+
+    .status-tag.hand-detected {
+      background: rgba(0, 216, 255, 0.2);
+      color: var(--accent-cyan);
+      border: 1px solid var(--accent-cyan);
+    }
+
+    .status-tag.no-hand {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .candidates-container {
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 8px;
+      padding: 10px 14px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .candidates-title {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .candidates-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .cand-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+    }
+
+    .cand-letter {
+      width: 16px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+    }
+
+    .cand-bar-bg {
+      flex: 1;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .cand-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00d8ff, #00ff88);
+      border-radius: 5px;
+      transition: width 0.15s ease;
+    }
+
+    .cand-val {
+      width: 44px;
+      text-align: right;
+      color: var(--text-main);
+      font-weight: 700;
     }
 
     /* Panel de Evaluación */
@@ -443,8 +684,19 @@
     </div>
     <div class="header-pills">
       <div class="pill">
-        <div id="dot-health" class="pill-dot"></div>
-        <span id="label-health">CONECTANDO...</span>
+        <div id="dot-cam" class="pill-dot healthy"></div>
+        <span id="label-cam">CAM: READY (640x480)</span>
+      </div>
+      <div class="pill">
+        <div id="dot-vision" class="pill-dot healthy"></div>
+        <span id="label-vision">VISION: READY</span>
+      </div>
+      <div class="pill">
+        <span id="label-mode-pill" style="color:var(--accent-cyan); font-weight:700">MODE: AUTO</span>
+      </div>
+      <div class="pill">
+        <div id="dot-health" class="pill-dot stalled"></div>
+        <span id="label-health">STANDALONE (VISIÓN PURA)</span>
       </div>
       <div class="pill">
         <span style="color:var(--text-muted)">LATENCIA:</span>
@@ -461,12 +713,18 @@
           <span>VISIÓN EN TIEMPO REAL (ESP32-CAM)</span>
         </div>
         <div id="camera-status-pill" class="pill" style="padding: 2px 10px; font-size: 0.7rem;">
-          CAM: INICIANDO
+          CAM: STREAMING
         </div>
       </div>
 
       <div class="video-viewport">
         <img id="stream-img" src="/video_feed" alt="Transmisión ESP32-CAM" onerror="this.src=''; setTimeout(() => { this.src='/video_feed?t=' + Date.now(); }, 2000);">
+        <!-- Guía visual central (60% del frame) -->
+        <div id="hand-roi-guide" class="video-target-roi">
+          <div class="target-roi-box">
+            <span class="roi-label">COLOCA TU MANO EN EL ÁREA CENTRAL</span>
+          </div>
+        </div>
         <div class="video-overlay-badge">
           <span>MANO:</span>
           <span id="badge-hand" style="color:var(--accent-amber)">NO DETECTADA</span>
@@ -477,17 +735,25 @@
       </div>
 
       <div class="keyboard-section">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <span style="font-size: 0.72rem; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.5px; font-weight:700;">
+            Modo Principal: Automático
+          </span>
+          <span style="font-size: 0.72rem; color: var(--text-muted);">
+            Teclado = Control Manual / Fallback
+          </span>
+        </div>
         <div class="keyboard-row">
-          <button class="key-btn active" data-sign="A" onclick="sendSign('A')">A<small>[A]</small></button>
+          <button class="key-btn" data-sign="A" onclick="sendSign('A')">A<small>[A]</small></button>
           <button class="key-btn" data-sign="B" onclick="sendSign('B')">B<small>[B]</small></button>
           <button class="key-btn" data-sign="C" onclick="sendSign('C')">C<small>[C]</small></button>
           <button class="key-btn" data-sign="L" onclick="sendSign('L')">L<small>[L]</small></button>
           <button class="key-btn" data-sign="Y" onclick="sendSign('Y')">Y<small>[Y]</small></button>
         </div>
         <div class="control-keys">
+          <button id="btn-auto-mode" class="ctrl-btn active-mode" onclick="setMode('AUTO')">● Modo Automático</button>
           <button class="ctrl-btn" onclick="togglePause()">[ESPACIO] Pausar</button>
-          <button class="ctrl-btn" onclick="recalibrate()">[R] Calibrar Sensores</button>
-          <button class="ctrl-btn" onclick="nextSign()">[TAB] Siguiente Seña</button>
+          <button class="ctrl-btn" onclick="recalibrate()">[R] Calibrar</button>
         </div>
       </div>
     </div>
@@ -496,7 +762,7 @@
     <div class="card">
       <div class="card-header">
         <div class="card-title">
-          <span>EVALUADOR MORFOLÓGICO LSM (NIVEL 1)</span>
+          <span>RECONOCIMIENTO LSM (NIVEL 1)</span>
         </div>
         <div id="pill-pause" style="display:none; color:var(--accent-amber); font-weight:700; font-size:0.8rem;">
           PAUSADO
@@ -504,15 +770,122 @@
       </div>
 
       <div class="eval-display">
-        <!-- Banner Seña Objetivo y Score -->
-        <div class="target-banner">
+        <!-- SECCIÓN GRANDE: SEÑA DETECTADA (CLASIFICACIÓN AUTOMÁTICA) -->
+        <div class="detected-sign-card">
+          <div class="detected-sign-header">
+            <span class="detected-label">SEÑA DETECTADA</span>
+            <div id="mode-badge" class="mode-pill auto" onclick="toggleMode()">MODO: AUTOMÁTICO</div>
+          </div>
+          <div class="detected-main-row">
+            <div id="auto-detected-letter" class="detected-huge">--</div>
+            <div class="detected-details">
+              <div class="detected-metric">
+                <span class="det-metric-title">CONFIANZA</span>
+                <span id="auto-conf-text" class="det-metric-val">--%</span>
+              </div>
+              <div class="detected-metric">
+                <span class="det-metric-title">ESTADO</span>
+                <span id="auto-status-pill" class="status-tag no-hand">SIN MANO</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CANDIDATOS Nivel 1 -->
+          <div class="candidates-container">
+            <div class="candidates-title">CANDIDATOS NIVEL 1</div>
+            <div class="candidates-list">
+              <div class="cand-row">
+                <span class="cand-letter">A</span>
+                <div class="cand-bar-bg"><div id="bar-cand-A" class="cand-bar-fill" style="width:0%"></div></div>
+                <span id="score-cand-A" class="cand-val">0%</span>
+              </div>
+              <div class="cand-row">
+                <span class="cand-letter">B</span>
+                <div class="cand-bar-bg"><div id="bar-cand-B" class="cand-bar-fill" style="width:0%"></div></div>
+                <span id="score-cand-B" class="cand-val">0%</span>
+              </div>
+              <div class="cand-row">
+                <span class="cand-letter">C</span>
+                <div class="cand-bar-bg"><div id="bar-cand-C" class="cand-bar-fill" style="width:0%"></div></div>
+                <span id="score-cand-C" class="cand-val">0%</span>
+              </div>
+              <div class="cand-row">
+                <span class="cand-letter">L</span>
+                <div class="cand-bar-bg"><div id="bar-cand-L" class="cand-bar-fill" style="width:0%"></div></div>
+                <span id="score-cand-L" class="cand-val">0%</span>
+              </div>
+              <div class="cand-row">
+                <span class="cand-letter">Y</span>
+                <div class="cand-bar-bg"><div id="bar-cand-Y" class="cand-bar-fill" style="width:0%"></div></div>
+                <span id="score-cand-Y" class="cand-val">0%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOQUE DIAGNÓSTICO EN TIEMPO REAL (B, C, Y) -->
+        <div id="diag-block" style="background: rgba(0,0,0,0.35); border: 1px solid var(--border-accent); border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+            <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">
+              DIAGNÓSTICO GEOMÉTRICO (CALIBRACIÓN EN VIVO)
+            </span>
+            <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono);">
+              Landmarks 3D
+            </span>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+            <!-- B -->
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-left: 3px solid var(--accent-cyan); border-radius: 6px; padding: 8px 10px; font-size: 0.75rem; font-family: var(--font-mono);">
+              <div style="color: var(--accent-cyan); font-weight: 700; margin-bottom: 4px;">B:</div>
+              <div style="display:flex; justify-content:space-between; color: var(--text-muted); margin-bottom: 2px;">
+                <span>thumb fold:</span>
+                <strong id="diag-b-fold" style="color: var(--text-main);">0%</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
+                <span>adduction:</span>
+                <strong id="diag-b-add" style="color: var(--text-main);">0%</strong>
+              </div>
+            </div>
+            <!-- C -->
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-left: 3px solid var(--accent-green); border-radius: 6px; padding: 8px 10px; font-size: 0.75rem; font-family: var(--font-mono);">
+              <div style="color: var(--accent-green); font-weight: 700; margin-bottom: 4px;">C:</div>
+              <div style="display:flex; justify-content:space-between; color: var(--text-muted); margin-bottom: 2px;">
+                <span>curvature:</span>
+                <strong id="diag-c-curv" style="color: var(--text-main);">0%</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
+                <span>opening:</span>
+                <strong id="diag-c-open" style="color: var(--text-main);">0%</strong>
+              </div>
+            </div>
+            <!-- Y -->
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-left: 3px solid var(--accent-amber); border-radius: 6px; padding: 8px 10px; font-size: 0.75rem; font-family: var(--font-mono);">
+              <div style="color: var(--accent-amber); font-weight: 700; margin-bottom: 4px;">Y:</div>
+              <div style="display:flex; justify-content:space-between; color: var(--text-muted); margin-bottom: 2px;">
+                <span>thumb:</span>
+                <strong id="diag-y-th" style="color: var(--text-main);">0%</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; color: var(--text-muted); margin-bottom: 2px;">
+                <span>pinky:</span>
+                <strong id="diag-y-pk" style="color: var(--text-main);">0%</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
+                <span>center flex:</span>
+                <strong id="diag-y-cflx" style="color: var(--text-main);">0%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Banner Evaluación Detallada y Feedback -->
+        <div class="target-banner" style="padding: 12px 18px;">
           <div>
-            <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">SEÑA OBJETIVO</div>
-            <div id="target-sign-text" class="target-huge">A</div>
+            <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;">EVALUANDO SEÑA</div>
+            <div id="target-sign-text" class="target-huge" style="font-size:2.2rem;">A</div>
           </div>
           <div class="verdict-box">
             <div id="verdict-tag" class="verdict-tag fail">EVALUANDO</div>
-            <div style="font-family:var(--font-mono); font-size:1.1rem; font-weight:700;">
+            <div style="font-family:var(--font-mono); font-size:1rem; font-weight:700;">
               SCORE: <span id="overall-score-text">0.00</span> / 1.00
             </div>
             <div class="score-meter">
@@ -631,8 +1004,89 @@
       };
     }
 
+    let currentMode = 'AUTO';
+
     function updateUI(data) {
       if (!data) return;
+
+      // 1. Modo de operación
+      if (data.mode && data.mode !== currentMode) {
+        updateModeUI(data.mode);
+      }
+
+      // 2. Clasificación Automática de Seña
+      const autoClf = data.auto_classification || {};
+      const status = autoClf.status || 'NO_HAND';
+      const stableSign = autoClf.stable_sign || autoClf.sign;
+      const confVal = Math.round((autoClf.confidence || autoClf.score || 0) * 100);
+
+      const letterElem = document.getElementById('auto-detected-letter');
+      const confElem = document.getElementById('auto-conf-text');
+      const statusPill = document.getElementById('auto-status-pill');
+
+      if (status === 'RECOGNIZED' && stableSign) {
+        letterElem.innerText = stableSign;
+        letterElem.style.color = 'var(--accent-green)';
+        confElem.innerText = `${confVal}%`;
+        confElem.style.color = 'var(--accent-green)';
+        statusPill.className = 'status-tag recognized';
+        statusPill.innerText = 'RECONOCIDA';
+      } else if (status === 'AMBIGUOUS') {
+        letterElem.innerText = autoClf.predicted_sign ? `(${autoClf.predicted_sign}?)` : '--';
+        letterElem.style.color = 'var(--accent-amber)';
+        confElem.innerText = confVal > 0 ? `${confVal}%` : '--%';
+        confElem.style.color = 'var(--accent-amber)';
+        statusPill.className = 'status-tag ambiguous';
+        statusPill.innerText = 'NO CONCLUYENTE';
+      } else if (status === 'HAND_DETECTED') {
+        letterElem.innerText = '--';
+        letterElem.style.color = 'var(--accent-cyan)';
+        confElem.innerText = '--%';
+        confElem.style.color = 'var(--text-muted)';
+        statusPill.className = 'status-tag hand-detected';
+        statusPill.innerText = 'MANO DETECTADA';
+      } else { // NO_HAND
+        letterElem.innerText = '--';
+        letterElem.style.color = 'var(--text-muted)';
+        confElem.innerText = '--%';
+        confElem.style.color = 'var(--text-muted)';
+        statusPill.className = 'status-tag no-hand';
+        statusPill.innerText = 'SIN MANO';
+      }
+
+      // 3. Barras de Candidatos Nivel 1 (A, B, C, L, Y)
+      const candScores = data.candidate_scores || {};
+      ['A', 'B', 'C', 'L', 'Y'].forEach(s => {
+        const sc = candScores[s] !== undefined ? candScores[s] : 0.0;
+        const pct = Math.min(100, Math.max(0, Math.round(sc * 100)));
+        const barElem = document.getElementById(`bar-cand-${s}`);
+        const valElem = document.getElementById(`score-cand-${s}`);
+        if (barElem) barElem.style.width = `${pct}%`;
+        if (valElem) valElem.innerText = `${pct}%`;
+      });
+
+      // 3b. Bloque Diagnóstico de Morfometría en Tiempo Real
+      const diag = data.diagnostics || {};
+      if (diag.b) {
+        const bFold = document.getElementById('diag-b-fold');
+        const bAdd = document.getElementById('diag-b-add');
+        if (bFold) bFold.innerText = `${Math.round(diag.b.thumb_fold || 0)}%`;
+        if (bAdd) bAdd.innerText = `${Math.round(diag.b.adduction || 0)}%`;
+      }
+      if (diag.c) {
+        const cCurv = document.getElementById('diag-c-curv');
+        const cOpen = document.getElementById('diag-c-open');
+        if (cCurv) cCurv.innerText = `${Math.round(diag.c.curvature || 0)}%`;
+        if (cOpen) cOpen.innerText = `${Math.round(diag.c.opening || 0)}%`;
+      }
+      if (diag.y) {
+        const yTh = document.getElementById('diag-y-th');
+        const yPk = document.getElementById('diag-y-pk');
+        const yCflx = document.getElementById('diag-y-cflx');
+        if (yTh) yTh.innerText = `${Math.round(diag.y.thumb || 0)}%`;
+        if (yPk) yPk.innerText = `${Math.round(diag.y.pinky || 0)}%`;
+        if (yCflx) yCflx.innerText = `${Math.round(diag.y.center_flex || 0)}%`;
+      }
 
       // Seña objetivo y controles
       if (data.target_sign && data.target_sign !== currentSign) {
@@ -654,13 +1108,21 @@
       // Detección de mano
       const hasHand = !!data.has_hand;
       const handBadge = document.getElementById('badge-hand');
+      const roiGuide = document.getElementById('hand-roi-guide');
       if (hasHand) {
         const conf = Math.round((data.confidence || 0) * 100);
         handBadge.innerText = `DETECTADA (${conf}%)`;
         handBadge.style.color = 'var(--accent-green)';
+        if (roiGuide) roiGuide.classList.add('hand-detected');
       } else {
         handBadge.innerText = 'NO DETECTADA';
         handBadge.style.color = 'var(--accent-amber)';
+        if (roiGuide) roiGuide.classList.remove('hand-detected');
+      }
+
+      if (data.mode) {
+        const modePill = document.getElementById('label-mode-pill');
+        if (modePill) modePill.innerText = `MODE: ${data.mode}`;
       }
 
       // Pausa
@@ -732,6 +1194,36 @@
       document.getElementById('metric-imu').innerText = `${roll}° / ${pitch}°`;
     }
 
+    function updateModeUI(mode) {
+      currentMode = mode;
+      const modePill = document.getElementById('mode-badge');
+      if (modePill) {
+        modePill.innerText = `MODO: ${mode === 'AUTO' ? 'AUTOMÁTICO' : 'MANUAL'}`;
+        modePill.className = `mode-pill ${mode.toLowerCase()}`;
+      }
+      const btnAuto = document.getElementById('btn-auto-mode');
+      if (btnAuto) {
+        if (mode === 'AUTO') {
+          btnAuto.classList.add('active-mode');
+        } else {
+          btnAuto.classList.remove('active-mode');
+        }
+      }
+    }
+
+    function setMode(mode) {
+      currentMode = mode.toUpperCase();
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ action: 'SET_MODE', mode: currentMode }));
+      }
+      updateModeUI(currentMode);
+    }
+
+    function toggleMode() {
+      const next = currentMode === 'AUTO' ? 'MANUAL' : 'AUTO';
+      setMode(next);
+    }
+
     function updateActiveButton(sign) {
       document.querySelectorAll('.key-btn').forEach(btn => {
         if (btn.getAttribute('data-sign') === sign) {
@@ -745,6 +1237,7 @@
     function sendSign(sign) {
       currentSign = sign;
       updateActiveButton(sign);
+      updateModeUI('MANUAL');
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ action: 'SET_SIGN', sign: sign }));
       }

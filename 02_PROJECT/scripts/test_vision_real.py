@@ -19,8 +19,8 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 CONFIG_PATH = PROJECT_ROOT / "config" / "settings.json"
 EVIDENCE_DIR = PROJECT_ROOT.parent / "04_EVIDENCE" / "hardware"
-EVIDENCE_TEXT_FILE = EVIDENCE_DIR / "vision_test.txt"
-EVIDENCE_IMG_FILE = EVIDENCE_DIR / "real_hand_detection.jpg"
+EVIDENCE_TEXT_FILE = EVIDENCE_DIR / "xiao_mediapipe_test.txt"
+EVIDENCE_IMG_FILE = EVIDENCE_DIR / "xiao_mediapipe_real.jpg"
 
 # Asegurar path de importación de src
 if str(PROJECT_ROOT) not in sys.path:

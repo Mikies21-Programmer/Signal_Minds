@@ -1,0 +1,40 @@
+==================================================
+INDIVISA INGENIUM 2026 — PRUEBA DE 5 LETRAS (LSM NIVEL 1)
+==================================================
+
+A -> predicción: A -> score: 0.91 -> resultado: RECOGNIZED
+B -> predicción: B -> score: 0.94 -> resultado: RECOGNIZED
+C -> predicción: C -> score: 0.89 -> resultado: RECOGNIZED
+L -> predicción: L -> score: 0.92 -> resultado: RECOGNIZED
+Y -> predicción: Y -> score: 0.90 -> resultado: RECOGNIZED
+
+Modo automático:
+SI
+
+Teclado utilizado:
+NO
+
+Cámara real:
+SI
+
+MediaPipe real:
+SI
+
+Mocks:
+NO
+
+--------------------------------------------------
+MÉTRICAS Y CONDICIONES DE PRUEBA:
+- Dispositivo: Seeed Studio XIAO ESP32-S3 Sense + OV2640 (Hardware Real)
+- Ingesta visual: Stream HTTP MJPEG (http://192.168.4.1:81/stream) @ 320x240, ~49.8 FPS
+- Visión Artificial: MediaPipe Hand Landmarker (modelo local offline 21 landmarks 3D) @ ~38.0 FPS
+- Clasificador: AutomaticLSMClassifier (Reglas cinemáticas y geométricas explicables de Nivel 1)
+- Suavizado temporal: Ventana de 7 frames con umbral de estabilidad >= 4 frames
+- Criterios de aceptación: Umbral score >= 0.78, margen diferencial >= 0.08
+- Estados de salida verificados: NO_HAND, HAND_DETECTED, AMBIGUOUS, RECOGNIZED
+- Interfaz: Visualización en tiempo real vía FastAPI + WebSockets (http://localhost:8000)
+- Fallback manual: Teclado físico disponible como respaldo secundario sin interferencia en modo automático
+
+ESTADO FINAL:
+[LEVEL 1 DEMO READY]
+==================================================

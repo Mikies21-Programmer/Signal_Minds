@@ -68,14 +68,23 @@ def create_app(orchestrator: Optional[SystemOrchestrator] = None) -> FastAPI:
 
     @app.post("/api/sign/{sign}")
     async def set_target_sign(sign: str):
-        """Actualiza la seña objetivo evaluada (A, B, C, L, Y)."""
+        """Actualiza la seña objetivo evaluada (A, B, C, L, Y) en modo manual."""
         clean_sign = sign.strip().upper()
         allowed = ["A", "B", "C", "L", "Y"]
         if clean_sign not in allowed:
             raise HTTPException(status_code=400, detail=f"Seña no válida para Nivel 1. Permitidas: {allowed}")
 
-        app_orchestrator.set_target_sign(clean_sign)
-        return {"status": "SUCCESS", "target_sign": clean_sign}
+        app_orchestrator.set_target_sign(clean_sign, switch_to_manual=True)
+        return {"status": "SUCCESS", "target_sign": clean_sign, "mode": app_orchestrator.mode}
+
+    @app.post("/api/mode/{mode}")
+    async def set_mode(mode: str):
+        """Cambia el modo de operación entre 'AUTO' (clasificación automática) y 'MANUAL'."""
+        clean_mode = mode.strip().upper()
+        if clean_mode not in ["AUTO", "MANUAL"]:
+            raise HTTPException(status_code=400, detail="Modo no válido. Use 'AUTO' o 'MANUAL'.")
+        app_orchestrator.set_mode(clean_mode)
+        return {"status": "SUCCESS", "mode": clean_mode}
 
     @app.post("/api/pause")
     async def toggle_pause():
@@ -124,7 +133,10 @@ def create_app(orchestrator: Optional[SystemOrchestrator] = None) -> FastAPI:
                     if action == "SET_SIGN":
                         new_sign = data.get("sign", "A").upper()
                         if new_sign in ["A", "B", "C", "L", "Y"]:
-                            app_orchestrator.set_target_sign(new_sign)
+                            app_orchestrator.set_target_sign(new_sign, switch_to_manual=True)
+                    elif action == "SET_MODE":
+                        new_mode = data.get("mode", "AUTO").upper()
+                        app_orchestrator.set_mode(new_mode)
                     elif action == "TOGGLE_PAUSE":
                         app_orchestrator.toggle_pause()
                     elif action == "RECALIBRATE":
@@ -134,7 +146,7 @@ def create_app(orchestrator: Optional[SystemOrchestrator] = None) -> FastAPI:
                         signs = ["A", "B", "C", "L", "Y"]
                         idx = signs.index(current) if current in signs else -1
                         next_sign = signs[(idx + 1) % len(signs)]
-                        app_orchestrator.set_target_sign(next_sign)
+                        app_orchestrator.set_target_sign(next_sign, switch_to_manual=True)
 
                 except asyncio.TimeoutError:
                     pass

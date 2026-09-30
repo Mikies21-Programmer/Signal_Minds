@@ -47,6 +47,9 @@ class SystemOrchestrator:
         self._loop_thread: Optional[threading.Thread] = None
         self._stop_event = threading.Event()
 
+        # Modo de operación: AUTO (clasificación continua) o MANUAL (selección fija)
+        self.mode = "AUTO"
+
         # Lazy loading de módulos del pipeline
         self._init_subsystems()
 
@@ -57,6 +60,7 @@ class SystemOrchestrator:
         from ..sensors.manager import SensorManager
         from ..fusion.engine import SensorFusionEngine
         from ..lsm.evaluator import LSMEvaluator
+        from ..lsm.classifier import AutomaticLSMClassifier
         from ..feedback.engine import FeedbackEngine
 
         self.camera = CameraConsumer(self.config)
@@ -64,6 +68,7 @@ class SystemOrchestrator:
         self.sensors = SensorManager(self.config)
         self.fusion = SensorFusionEngine(self.config)
         self.lsm = LSMEvaluator(self.config)
+        self.classifier = AutomaticLSMClassifier(evaluator=self.lsm, config=self.config)
         self.feedback = FeedbackEngine(self.config)
 
         self.lsm.set_target_sign(self.target_sign)
@@ -103,14 +108,27 @@ class SystemOrchestrator:
         self.sensors.stop()
         logger.info("Orquestador detenido exitosamente.")
 
-    def set_target_sign(self, sign: str) -> None:
+    def set_mode(self, mode: str) -> None:
+        """Alterna entre modo 'AUTO' (reconocimiento automático continuo) y 'MANUAL' (selección fija)."""
+        clean_mode = mode.strip().upper()
+        if clean_mode in ["AUTO", "MANUAL"]:
+            self.mode = clean_mode
+            with self._lock:
+                if self.latest_payload:
+                    self.latest_payload["mode"] = self.mode
+            logger.info(f"Modo de orquestador cambiado a: {self.mode}")
+
+    def set_target_sign(self, sign: str, switch_to_manual: bool = True) -> None:
         """Actualiza la seña objetivo que se está evaluando."""
         self.target_sign = sign.upper()
+        if switch_to_manual:
+            self.mode = "MANUAL"
         self.lsm.set_target_sign(self.target_sign)
         with self._lock:
             if self.latest_payload:
                 self.latest_payload["target_sign"] = self.target_sign
-        logger.info(f"Seña objetivo actualizada a: {self.target_sign}")
+                self.latest_payload["mode"] = self.mode
+        logger.info(f"Seña objetivo actualizada a: {self.target_sign} (modo={self.mode})")
 
     def toggle_pause(self) -> bool:
         """Alterna el estado de pausa de evaluación."""
@@ -129,7 +147,8 @@ class SystemOrchestrator:
         landmarks_data: Optional[Dict[str, Any]],
         eval_result: Dict[str, Any],
         feedback_msg: Dict[str, Any],
-        fps: float
+        fps: float,
+        classification: Optional[Dict[str, Any]] = None
     ) -> np.ndarray:
         """Dibuja el esqueleto de 21 puntos y el HUD visual en el frame BGR."""
         h, w = frame.shape[:2]
@@ -157,15 +176,21 @@ class SystemOrchestrator:
                 cv2.circle(annotated, pt, 4, node_color, -1)
                 cv2.circle(annotated, pt, 5, (255, 255, 255), 1)
 
-        # 2. Barra de información HUD superior
-        cv2.rectangle(annotated, (0, 0), (w, 36), (15, 20, 25), -1)
-        sign_text = f"SENA: {self.target_sign}"
-        status_color = (0, 255, 100) if eval_result.get("is_valid", False) else (50, 160, 255)
-        score_val = eval_result.get("overall_score", 0.0)
+        cv2.rectangle(annotated, (0, 0), (w, 30), (15, 20, 25), -1)
 
-        cv2.putText(annotated, sign_text, (10, 24), cv2.FONT_HERSHEY_DUPLEX, 0.7, (255, 255, 255), 1)
-        cv2.putText(annotated, f"SCORE: {score_val:.2f}", (140, 24), cv2.FONT_HERSHEY_SIMPLEX, 0.55, status_color, 1)
-        cv2.putText(annotated, f"FPS: {fps:.1f}", (w - 90, 24), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 200, 255), 1)
+        auto_sign = classification.get("stable_sign") if classification else None
+        auto_status = classification.get("status", "NO_HAND") if classification else "NO_HAND"
+        if self.mode == "AUTO":
+            sign_text = f"AUTO: {auto_sign}" if auto_sign else f"[{auto_status}]"
+        else:
+            sign_text = f"MANUAL: {self.target_sign}"
+
+        status_color = (0, 255, 100) if (classification and classification.get("status") == "RECOGNIZED") or eval_result.get("is_valid", False) else (50, 160, 255)
+        score_val = classification.get("score", eval_result.get("overall_score", 0.0)) if classification else eval_result.get("overall_score", 0.0)
+
+        cv2.putText(annotated, sign_text, (6, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.48, (255, 255, 255), 1)
+        cv2.putText(annotated, f"CONF: {int(score_val*100)}%", (170, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.45, status_color, 1)
+        cv2.putText(annotated, f"{fps:.0f}FPS", (w - 55, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 200, 255), 1)
 
         # Si está pausado
         if self.is_paused:
@@ -204,10 +229,19 @@ class SystemOrchestrator:
         # 4. Fusión sensorial (Visión + Sensores físicos)
         fused_state = self.fusion.fuse(landmarks_data, sensor_data)
 
-        # 5. Evaluación lingüística morfológica explicable
+        # 5. Clasificación automática LSM Nivel 1 (A, B, C, L, Y)
+        classification = self.classifier.classify(fused_state)
+
+        # Si estamos en modo AUTO y hay una seña estable reconocida, actualizar seña activa
+        if self.mode == "AUTO":
+            if classification.get("status") == "RECOGNIZED" and classification.get("stable_sign"):
+                self.target_sign = classification["stable_sign"]
+                self.lsm.set_target_sign(self.target_sign)
+
+        # 6. Evaluación morfológica explicable de la seña activa
         eval_result = self.lsm.evaluate(fused_state, target_sign=self.target_sign)
 
-        # 6. Generación de feedback pedagógico específico
+        # 7. Generación de feedback pedagógico específico
         feedback_msg = self.feedback.generate_feedback(eval_result)
 
         t_elapsed = (time.perf_counter() - t_start) * 1000.0
@@ -220,7 +254,8 @@ class SystemOrchestrator:
                 landmarks_data,
                 eval_result,
                 feedback_msg,
-                fps=cam_fps
+                fps=cam_fps,
+                classification=classification
             )
             success, enc = cv2.imencode(".jpg", annotated_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 75])
             if success:
@@ -239,10 +274,41 @@ class SystemOrchestrator:
         vis_mock = landmarks_data.get("is_mock", self.vision.mock_mode) if landmarks_data else self.vision.mock_mode
         sens_mock = sensor_data.get("is_mock", True) if sensor_data else True
 
+        # Telemetría enriquecida para WebSocket y Frontend
+        auto_info = {
+            "sign": classification.get("stable_sign") or classification.get("predicted_sign"),
+            "score": classification.get("score", 0.0),
+            "margin": classification.get("margin", 0.0),
+            "status": classification.get("status", "NO_HAND"),
+            "confidence": classification.get("confidence", 0.0),
+            "predicted_sign": classification.get("predicted_sign"),
+            "stable_sign": classification.get("stable_sign"),
+            "detected": classification.get("detected", False)
+        }
+
+        # Extraer diagnósticos morfológicos
+        diag_data = classification.get("diagnostics", {}) or eval_result.get("diagnostics", {})
+
+        # Registro periódico en logs de características diagnósticas (1 Hz aprox)
+        if self.frame_count % 25 == 0 and landmarks_data and landmarks_data.get("detected", False):
+            b_d = diag_data.get("b", {})
+            c_d = diag_data.get("c", {})
+            y_d = diag_data.get("y", {})
+            logger.info(
+                f"[DIAG LSM] Candidatos={classification.get('candidate_scores')} | "
+                f"B(fold={b_d.get('thumb_fold', 0)}%, add={b_d.get('adduction', 0)}%) | "
+                f"C(curv={c_d.get('curvature', 0)}%, open={c_d.get('opening', 0)}%) | "
+                f"Y(th={y_d.get('thumb', 0)}%, pk={y_d.get('pinky', 0)}%, cflx={y_d.get('center_flex', 0)}%)"
+            )
+
         payload = {
             "frame_id": self.frame_count,
             "timestamp": time.time(),
+            "mode": self.mode,
             "target_sign": self.target_sign,
+            "auto_classification": auto_info,
+            "candidate_scores": classification.get("candidate_scores", {}),
+            "diagnostics": diag_data,
             "is_paused": self.is_paused,
             "pipeline_latency_ms": round(t_elapsed, 2),
             "camera_status": self.camera.get_status().value,

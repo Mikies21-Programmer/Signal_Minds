@@ -1,0 +1,11 @@
+==============================================================================
+INDIVISA INGENIUM 2026 — EVIDENCIA DE DETECCIÓN REAL MEDIAPIPE
+Fecha y Hora:             Tue Sep 29 18:03:21 2026
+Origen de Video:          http://192.168.4.1:81/stream
+Estado:                   EXITOSA
+Fotogramas Procesados:    3178
+Fotogramas con Mano:      92
+Mejor Nivel de Confianza: 99.90%
+Landmarks Anatómicos:     21 puntos normalizados
+Archivo de Captura:       C:\Users\migue\Downloads\SALLE\INDIVISA_INGENIUM_2026\04_EVIDENCE\hardware\xiao_mediapipe_real.jpg
+==============================================================================

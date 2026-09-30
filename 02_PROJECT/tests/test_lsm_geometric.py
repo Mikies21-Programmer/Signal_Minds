@@ -139,6 +139,42 @@ def test_evaluator_rejects_wrong_sign_even_if_hand_present():
     assert res_l["is_valid"] is False
 
 
+def make_landmarks_open_hand():
+    """Genera 21 puntos para palma abierta (pulgar extendido lateralmente, 4 dedos separados)."""
+    pts = [{"id": 0, "x": 0.5, "y": 0.75, "z": 0.0}]
+    pts.append({"id": 1, "x": 0.44, "y": 0.72, "z": 0.0})
+    pts.append({"id": 2, "x": 0.38, "y": 0.68, "z": 0.0})
+    pts.append({"id": 3, "x": 0.33, "y": 0.64, "z": 0.0})
+    pts.append({"id": 4, "x": 0.28, "y": 0.60, "z": 0.0})  # Pulgar muy separado
+    fingers_x = [
+        (5, [0.44, 0.42, 0.40, 0.38]),
+        (9, [0.49, 0.49, 0.49, 0.49]),
+        (13, [0.54, 0.56, 0.58, 0.60]),
+        (17, [0.59, 0.63, 0.67, 0.71])
+    ]
+    for mcp_idx, xs in fingers_x:
+        pts.append({"id": mcp_idx, "x": xs[0], "y": 0.60, "z": 0.0})
+        pts.append({"id": mcp_idx + 1, "x": xs[1], "y": 0.50, "z": 0.0})
+        pts.append({"id": mcp_idx + 2, "x": xs[2], "y": 0.42, "z": 0.0})
+        pts.append({"id": mcp_idx + 3, "x": xs[3], "y": 0.35, "z": 0.0})
+    return pts
+
+
+def make_landmarks_c_shape():
+    """Genera 21 puntos para seña 'C' (dedos curvados en arco continuo)."""
+    pts = [{"id": 0, "x": 0.5, "y": 0.75, "z": 0.0}]
+    pts.append({"id": 1, "x": 0.46, "y": 0.70, "z": 0.0})
+    pts.append({"id": 2, "x": 0.43, "y": 0.66, "z": -0.02})
+    pts.append({"id": 3, "x": 0.43, "y": 0.60, "z": -0.05})
+    pts.append({"id": 4, "x": 0.45, "y": 0.55, "z": -0.06})
+    for mcp_idx, base_x in [(5, 0.48), (9, 0.50), (13, 0.52), (17, 0.54)]:
+        pts.append({"id": mcp_idx, "x": base_x, "y": 0.60, "z": 0.0})
+        pts.append({"id": mcp_idx + 1, "x": base_x, "y": 0.51, "z": -0.03})
+        pts.append({"id": mcp_idx + 2, "x": base_x - 0.02, "y": 0.46, "z": -0.07})
+        pts.append({"id": mcp_idx + 3, "x": base_x - 0.03, "y": 0.49, "z": -0.09})
+    return pts
+
+
 def test_evaluator_l_and_y_signs():
     evaluator = LSMEvaluator()
 
@@ -151,3 +187,46 @@ def test_evaluator_l_and_y_signs():
     state_y = {"vision_present": True, "raw_landmarks": make_landmarks_y_shape()}
     res_y = evaluator.evaluate(state_y, target_sign="Y")
     assert res_y["is_valid"] is True
+
+
+def test_evaluator_rejects_open_hand_for_b():
+    """CRÍTICO: B debe rechazar categóricamente una mano abierta."""
+    evaluator = LSMEvaluator()
+    state_open = {"vision_present": True, "raw_landmarks": make_landmarks_open_hand()}
+    res_b = evaluator.evaluate(state_open, target_sign="B")
+
+    assert res_b["is_valid"] is False
+    assert res_b["overall_score"] < 0.70
+    assert "diagnostics" in res_b
+    assert res_b["diagnostics"]["b"]["thumb_fold"] < 40.0
+
+
+def test_evaluator_c_shape_and_fist_rejection():
+    """C debe rechazar puño y mano abierta."""
+    evaluator = LSMEvaluator()
+    # Puño evaluado para C -> Debe fallar
+    state_fist = {"vision_present": True, "raw_landmarks": make_landmarks_fist_a()}
+    res_c_fist = evaluator.evaluate(state_fist, target_sign="C")
+    assert res_c_fist["is_valid"] is False
+
+    # Mano abierta evaluada para C -> Debe fallar
+    state_open = {"vision_present": True, "raw_landmarks": make_landmarks_open_hand()}
+    res_c_open = evaluator.evaluate(state_open, target_sign="C")
+    assert res_c_open["is_valid"] is False
+
+
+def test_evaluator_y_rejections():
+    """Y debe rechazar mano abierta, L y A."""
+    evaluator = LSMEvaluator()
+    # Mano abierta no debe pasar Y
+    res_open = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_open_hand()}, target_sign="Y")
+    assert res_open["is_valid"] is False
+
+    # L no debe pasar Y
+    res_l = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_l_shape()}, target_sign="Y")
+    assert res_l["is_valid"] is False
+
+    # A (puño) no debe pasar Y
+    res_a = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_fist_a()}, target_sign="Y")
+    assert res_a["is_valid"] is False
+

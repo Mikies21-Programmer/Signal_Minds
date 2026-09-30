@@ -1,0 +1,13 @@
+==================================================
+XIAO ESP32-S3 SENSE — 30-SECOND STREAMING TEST
+==================================================
+Date:               Tue Sep 29 17:43:00 2026
+URL:                http://192.168.4.1:81/stream
+Duration:           30.01 s
+Total Frames:       1490
+Dropped Frames:     0
+Average FPS:        49.65
+Resolution:         320x240
+Reconnects:         0
+Result:             SUCCESS
+==================================================

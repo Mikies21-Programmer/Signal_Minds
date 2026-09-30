@@ -14,6 +14,14 @@ logger = get_logger("feedback")
 class FeedbackEngine:
     """Generador de directivas pedagógicas explicables para el usuario."""
 
+    SIGN_DESCRIPTIONS: Dict[str, str] = {
+        "A": "Configuración de mano compatible con A (puño con pulgar al costado).",
+        "B": "Cuatro dedos extendidos y pulgar en palma.",
+        "C": "Curva los dedos formando un arco.",
+        "L": "Índice y pulgar forman la L.",
+        "Y": "Pulgar y meñique extendidos."
+    }
+
     def __init__(self, config=None):
         self.config = config
         logger.info("FeedbackEngine inicializado con retroalimentación específica.")
@@ -30,11 +38,12 @@ class FeedbackEngine:
 
         # 1. Éxito: Seña ejecutada correctamente
         if is_valid:
+            desc = self.SIGN_DESCRIPTIONS.get(sign, "Postura anatómica validada correctamente.")
             return {
                 "status": "SUCCESS",
                 "color": "#00FF88",
-                "primary_message": f"¡Excelente! Seña '{sign}' ejecutada correctamente.",
-                "secondary_message": "Postura y orientación validadas. Mantén la posición.",
+                "primary_message": f"¡Excelente! Seña '{sign}' reconocida",
+                "secondary_message": desc,
                 "correction_hint": "",
                 "score": score
             }

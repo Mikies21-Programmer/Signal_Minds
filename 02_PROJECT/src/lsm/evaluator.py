@@ -3,10 +3,11 @@ Evaluador morfológico y lingüístico de Lengua de Señas Mexicana (LSM).
 Aplica análisis geométrico explicable para las 5 señas de Nivel 1: A, B, C, L, Y.
 Trazable a 03_DOCS/lsm/LSM_LEVEL_1_SPECIFICATION.md.
 NUNCA afirma 'seña correcta' únicamente por la presencia de una mano.
+Incluye calibración discriminativa de alta precisión para rechazar manos abiertas y posturas ambiguas.
 """
 
 from typing import Dict, Any, Optional, List
-from .geometry import HandGeometryFeatures
+from .geometry import HandGeometryFeatures, clamp
 from ..backend.logger import get_logger
 
 logger = get_logger("lsm")
@@ -35,7 +36,7 @@ class LSMEvaluator:
     def evaluate(self, fused_state: Dict[str, Any], target_sign: Optional[str] = None) -> Dict[str, Any]:
         """
         Evalúa el estado sensorial contra la seña objetivo mediante cinemática explicable.
-        Retorna veredicto global y desglose por los 4 parámetros constitutivos.
+        Retorna veredicto global, desglose por los 4 parámetros constitutivos y telemetría diagnóstica.
         """
         sign = (target_sign or self.target_sign).upper()
 
@@ -56,11 +57,17 @@ class LSMEvaluator:
                     "orientation": {"score": 0.0, "status": "FAIL", "reason": "No se detecta mano."},
                     "movement": {"score": 0.0, "status": "FAIL", "reason": "No se detecta mano."},
                     "location": {"score": 0.0, "status": "FAIL", "reason": "No se detecta mano."}
+                },
+                "diagnostics": {
+                    "b": {"thumb_fold": 0.0, "adduction": 0.0},
+                    "c": {"curvature": 0.0, "opening": 0.0, "thumb_arc": 0.0, "arc_consistency": 0.0},
+                    "y": {"thumb": 0.0, "pinky": 0.0, "center_flex": 0.0, "lateral_sep": 0.0}
                 }
             }
 
         # 2. Análisis geométrico de la mano
-        geom = HandGeometryFeatures(raw_landmarks)
+        handedness = fused_state.get("handedness", "Right")
+        geom = HandGeometryFeatures(raw_landmarks, handedness=handedness)
         ext = geom.get_finger_extension_states()
         cx, cy = geom.get_hand_center()
 
@@ -86,7 +93,7 @@ class LSMEvaluator:
             }
 
         # Ubicación espacial (Toponema): centrado en el encuadre
-        in_bounds = (0.15 <= cx <= 0.85) and (0.15 <= cy <= 0.85)
+        in_bounds = (0.12 <= cx <= 0.88) and (0.12 <= cy <= 0.88)
         loc_score = 0.95 if in_bounds else 0.40
         loc_status = "PASS" if in_bounds else "CORRECT"
         loc_reason = "Mano en zona neutra adecuada" if in_bounds else "Centra tu mano en el encuadre"
@@ -135,8 +142,13 @@ class LSMEvaluator:
                     "param_name": "Toponema (Ubicación espacial)",
                     "reason": loc_reason
                 }
-            }
+            },
+            "diagnostics": geom.get_diagnostics()
         }
+
+    # =========================================================================
+    # EVALUADORES INDIVIDUALES DE QUEIREMA
+    # =========================================================================
 
     def _evaluate_sign_a(self, geom: HandGeometryFeatures, ext: Dict[str, bool], fused: Dict[str, Any]) -> Dict[str, Any]:
         """Seña 'A': 4 dedos cerrados en puño, pulgar extendido/erguido al costado."""
@@ -146,13 +158,20 @@ class LSMEvaluator:
         # Los 4 dedos deben estar flexionados
         for f in ["index", "middle", "ring", "pinky"]:
             if ext[f]:
-                c_score -= 0.22
+                c_score -= 0.25
                 errors.append(f"Flexiona el dedo {f}")
 
-        # Pulgar no debe estar atrapado dentro del puño
-        if not ext["thumb"]:
-            c_score -= 0.15
+        # Pulgar debe estar al costado del índice
+        scale = geom.get_palm_scale()
+        from .geometry import euclidean_distance_3d
+        d_th_mcp5 = euclidean_distance_3d(geom.pts[4], geom.pts[5]) / scale
+        if d_th_mcp5 > 0.65:
+            c_score -= 0.20
             errors.append("Coloca el pulgar erguido al costado del puño")
+
+        # Rechazo explícito: si meñique está extendido (como en Y) o índice extendido (como en L)
+        if ext["pinky"] or ext["index"]:
+            c_score = min(c_score, 0.40)
 
         c_score = max(0.0, c_score)
         reason = errors[0] if errors else "Puño cerrado con pulgar al costado correcto"
@@ -162,31 +181,43 @@ class LSMEvaluator:
         o_reason = "Orientación frontal adecuada"
 
         return {
-            "config_score": c_score,
+            "config_score": round(c_score, 3),
             "config_reason": reason,
             "orient_score": o_score,
             "orient_reason": o_reason
         }
 
     def _evaluate_sign_b(self, geom: HandGeometryFeatures, ext: Dict[str, bool], fused: Dict[str, Any]) -> Dict[str, Any]:
-        """Seña 'B': 4 dedos extendidos y juntos (aducidos), pulgar flexionado sobre la palma."""
+        """
+        Seña 'B': 4 dedos extendidos y juntos (aducidos), pulgar firmemente flexionado sobre la palma.
+        Rechaza categóricamente la mano abierta o pulgar extendido.
+        """
         errors = []
-        c_score = 1.0
+        ext_count = sum(1.0 for f in ["index", "middle", "ring", "pinky"] if ext[f])
+        ext_ratio = ext_count / 4.0
 
         for f in ["index", "middle", "ring", "pinky"]:
             if not ext[f]:
-                c_score -= 0.20
                 errors.append(f"Extiende el dedo {f}")
 
-        # Pulgar debe estar flexionado
-        if ext["thumb"]:
-            c_score -= 0.20
-            errors.append("Flexiona el pulgar cruzándolo sobre la palma")
+        # Características discriminativas estrictas
+        thumb_fold = geom.get_thumb_fold_score()
+        adduction = geom.get_finger_adduction_score()
 
-        # Dedos juntos
-        if not geom.are_fingers_adducted():
-            c_score -= 0.15
-            errors.append("Junta los cuatro dedos extendidos")
+        if thumb_fold < 0.50 or ext["thumb"]:
+            errors.append("Flexiona el pulgar cruzándolo firmemente sobre la palma")
+
+        if adduction < 0.60:
+            errors.append("Junta los cuatro dedos extendidos sin separarlos")
+
+        # Fórmula ponderada para B
+        c_score = 0.40 * ext_ratio + 0.35 * thumb_fold + 0.25 * adduction
+
+        # REGLA ESTRICTA DE RECHAZO: Mano abierta (pulgar no doblado o dedos splay) NO puede pasar
+        if thumb_fold < 0.45 or ext["thumb"]:
+            c_score = min(c_score, 0.42)
+        if ext_ratio < 0.75:
+            c_score = min(c_score, 0.38)
 
         c_score = max(0.0, c_score)
         reason = errors[0] if errors else "Cuatro dedos extendidos y juntos con pulgar en palma correcto"
@@ -195,30 +226,58 @@ class LSMEvaluator:
         o_reason = "Palma al frente con dedos verticales adecuada"
 
         return {
-            "config_score": c_score,
+            "config_score": round(c_score, 3),
             "config_reason": reason,
             "orient_score": o_score,
             "orient_reason": o_reason
         }
 
     def _evaluate_sign_c(self, geom: HandGeometryFeatures, ext: Dict[str, bool], fused: Dict[str, Any]) -> Dict[str, Any]:
-        """Seña 'C': Dedos curvados en arco semicircular."""
-        is_curved = geom.is_c_curved()
-        c_score = 0.92 if is_curved else 0.45
-        reason = "Curvatura en arco de la letra C correcta" if is_curved else "Curva los dedos y el pulgar simulando la letra C"
+        """
+        Seña 'C': Dedos curvados formando un arco semicircular continuo con apertura cóncava.
+        Combina: 40% curvatura + 25% apertura + 20% arco del pulgar + 15% consistencia de arco.
+        Diferencia explícitamente entre MANO ABIERTA, PUÑO y C.
+        """
+        c_curv = geom.get_c_curvature_score()
+        c_open = geom.get_c_opening_score()
+        c_th = geom.get_c_thumb_score()
+        c_arc = geom.get_c_arc_consistency()
 
+        c_score = 0.40 * c_curv + 0.25 * c_open + 0.20 * c_th + 0.15 * c_arc
+
+        # Puertas duras de discriminación
+        ext_count = sum(1.0 for f in ["index", "middle", "ring", "pinky"] if ext[f])
+        thumb_fold = geom.get_thumb_fold_score()
+
+        # Si los dedos están completamente rectos (mano abierta), penalizar
+        if ext_count >= 3 and ext["thumb"]:
+            c_score = min(c_score, 0.35)
+
+        # Si está en puño cerrado con puntas en la palma, penalizar
+        if ext_count == 0 and thumb_fold > 0.60:
+            c_score = min(c_score, 0.30)
+
+        errors = []
+        if c_curv < 0.60:
+            errors.append("Curva suavemente los dedos simulando un arco semicircular")
+        if c_open < 0.55:
+            errors.append("Separa el pulgar del índice manteniendo la abertura de la C")
+        if c_th < 0.55:
+            errors.append("Arquea el pulgar hacia adelante como base de la C")
+
+        reason = errors[0] if errors else "Curvatura en arco de la letra C correcta"
         o_score = 0.88
         o_reason = "Orientación lateral o semi-perfil adecuada"
 
         return {
-            "config_score": c_score,
+            "config_score": round(c_score, 3),
             "config_reason": reason,
             "orient_score": o_score,
             "orient_reason": o_reason
         }
 
     def _evaluate_sign_l(self, geom: HandGeometryFeatures, ext: Dict[str, bool], fused: Dict[str, Any]) -> Dict[str, Any]:
-        """Seña 'L': Pulgar e índice extendidos formando 90°, medio, anular y meñique cerrados."""
+        """Seña 'L': Pulgar e índice extendidos formando ~90°, medio, anular y meñique cerrados."""
         errors = []
         c_score = 1.0
 
@@ -226,20 +285,25 @@ class LSMEvaluator:
             c_score -= 0.30
             errors.append("Extiende el índice verticalmente")
 
-        if not ext["thumb"]:
+        th_ext = geom.get_y_thumb_extension_score()
+        if th_ext < 0.55:
             c_score -= 0.30
             errors.append("Extiende el pulgar horizontalmente")
 
         for f in ["middle", "ring", "pinky"]:
             if ext[f]:
-                c_score -= 0.15
+                c_score -= 0.20
                 errors.append(f"Flexiona el dedo {f}")
 
         # Ángulo pulgar-índice
         ang = geom.get_thumb_index_angle_deg()
-        if not (45.0 <= ang <= 135.0):
-            c_score -= 0.15
+        if not (50.0 <= ang <= 135.0):
+            c_score -= 0.20
             errors.append("Ajusta el ángulo entre pulgar e índice a ~90 grados en 'L'")
+
+        # Rechazo explícito: si meñique está extendido (como en Y)
+        if ext["pinky"]:
+            c_score = min(c_score, 0.40)
 
         c_score = max(0.0, c_score)
         reason = errors[0] if errors else "Forma en 'L' entre pulgar e índice correcta"
@@ -248,29 +312,38 @@ class LSMEvaluator:
         o_reason = "Índice vertical hacia arriba adecuado"
 
         return {
-            "config_score": c_score,
+            "config_score": round(c_score, 3),
             "config_reason": reason,
             "orient_score": o_score,
             "orient_reason": o_reason
         }
 
     def _evaluate_sign_y(self, geom: HandGeometryFeatures, ext: Dict[str, bool], fused: Dict[str, Any]) -> Dict[str, Any]:
-        """Seña 'Y': Pulgar y meñique extendidos, índice, medio y anular cerrados."""
+        """
+        Seña 'Y': Pulgar y meñique extendidos, índice, medio y anular flexionados.
+        Requiere una clara separación lateral pulgar-meñique mayor a los dedos centrales.
+        """
         errors = []
-        c_score = 1.0
+        th_y = geom.get_y_thumb_extension_score()
+        pk_y = geom.get_y_pinky_extension_score()
+        cf_y = geom.get_y_center_flexion_score()
+        lat_y = geom.get_y_lateral_separation_score()
 
-        if not ext["thumb"]:
-            c_score -= 0.30
+        if th_y < 0.60:
             errors.append("Extiende el pulgar lateralmente")
+        if pk_y < 0.60:
+            errors.append("Extiende el meñique firmemente")
+        if cf_y < 0.60:
+            errors.append("Flexiona los tres dedos centrales (índice, medio y anular)")
 
-        if not ext["pinky"]:
-            c_score -= 0.30
-            errors.append("Extiende el meñique")
+        c_score = geom.get_y_composite_score()
 
-        for f in ["index", "middle", "ring"]:
-            if ext[f]:
-                c_score -= 0.15
-                errors.append(f"Flexiona el dedo {f}")
+        # REGLA ESTRICTA DE RECHAZO:
+        # Mano abierta (dedos centrales extendidos) -> RECHAZAR
+        # L (índice extendido, meñique doblado) -> RECHAZAR
+        # A (meñique doblado) -> RECHAZAR
+        if pk_y < 0.50 or th_y < 0.50 or cf_y < 0.50:
+            c_score = min(c_score, 0.40)
 
         c_score = max(0.0, c_score)
         reason = errors[0] if errors else "Pulgar y meñique extendidos en 'Y' correcto"
@@ -279,7 +352,7 @@ class LSMEvaluator:
         o_reason = "Orientación de palma frontal adecuada"
 
         return {
-            "config_score": c_score,
+            "config_score": round(c_score, 3),
             "config_reason": reason,
             "orient_score": o_score,
             "orient_reason": o_reason

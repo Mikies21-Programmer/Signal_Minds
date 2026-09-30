@@ -1,15 +1,16 @@
 """
-Módulo de extracción de características geométricas explicables para LSM.
-Calcula ángulos articulares inter-falángicos, distancias euclidianas normalizadas,
-estado de extensión/flexión de cada dedo y vector normal de orientación de la palma.
+Módulo de extracción de características geométricas morfológicas explicables para LSM.
+Calcula ángulos articulares inter-falángicos, distancias euclidianas normalizadas invariantes a escala,
+estado discriminativo de extensión/flexión, aducción, curvatura de arco y separación lateral.
+Diseñado para la robustez en pruebas humanas reales de A, B, C, L, Y en Nivel 1.
 """
 
 import math
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 
 
 def euclidean_distance_3d(p1: Dict[str, float], p2: Dict[str, float]) -> float:
-    """Calcula la distancia euclidiana 3D entre dos puntos."""
+    """Calcula la distancia euclidiana 3D entre dos landmarks anatómicos."""
     dx = p1["x"] - p2["x"]
     dy = p1["y"] - p2["y"]
     dz = p1.get("z", 0.0) - p2.get("z", 0.0)
@@ -35,12 +36,22 @@ def angle_between_points_deg(p1: Dict[str, float], p2: Dict[str, float], p3: Dic
     return math.degrees(math.acos(cos_val))
 
 
-class HandGeometryFeatures:
-    """Extrae descriptores morfológicos y cinemáticos a partir de los 21 landmarks de MediaPipe."""
+def clamp(val: float, lo: float = 0.0, hi: float = 1.0) -> float:
+    """Acota un valor numérico en el intervalo cerrado [lo, hi]."""
+    return max(lo, min(hi, val))
 
-    def __init__(self, landmarks: List[Dict[str, float]]):
+
+class HandGeometryFeatures:
+    """
+    Extrae descriptores morfológicos y cinemáticos a partir de los 21 landmarks de MediaPipe.
+    Garantiza invariancia a escala y traslación tomando la muñeca (0) como origen y la distancia
+    muñeca-nudillo medio (0->9) como factor métrico de normalización.
+    """
+
+    def __init__(self, landmarks: List[Dict[str, float]], handedness: str = "Right"):
         self.raw = landmarks
         self.is_valid = len(landmarks) >= 21
+        self.handedness = handedness or "Right"
         self.pts: Dict[int, Dict[str, float]] = {}
 
         if self.is_valid:
@@ -49,16 +60,34 @@ class HandGeometryFeatures:
                 self.pts[pid] = p
 
     def get_palm_scale(self) -> float:
-        """Distancia de referencia entre la muñeca (0) y el nudillo medio MCP (9)."""
+        """Distancia de referencia euclidiana 3D entre la muñeca (0) y el MCP medio (9)."""
         if not self.is_valid:
             return 1.0
         scale = euclidean_distance_3d(self.pts[0], self.pts[9])
         return scale if scale > 1e-5 else 1.0
 
+    def get_palm_center(self) -> Dict[str, float]:
+        """Calcula el centroide medio de la palma a partir de la muñeca y los MCPs principales."""
+        if not self.is_valid:
+            return {"x": 0.5, "y": 0.5, "z": 0.0}
+        p0 = self.pts[0]
+        p5 = self.pts[5]
+        p9 = self.pts[9]
+        p17 = self.pts[17]
+        return {
+            "x": (p0["x"] + p5["x"] + p9["x"] + p17["x"]) / 4.0,
+            "y": (p0["y"] + p5["y"] + p9["y"] + p17["y"]) / 4.0,
+            "z": (p0.get("z", 0.0) + p5.get("z", 0.0) + p9.get("z", 0.0) + p17.get("z", 0.0)) / 4.0
+        }
+
+    # =========================================================================
+    # ESTADO GENERAL DE EXTENSIÓN / FLEXIÓN DE DEDOS
+    # =========================================================================
+
     def is_finger_extended(self, finger_name: str) -> bool:
         """
-        Determina si un dedo específico está extendido o flexionado.
-        Usa la distancia relativa de la punta a la muñeca y el ángulo en la articulación PIP.
+        Determina si un dedo específico está anatómicamente extendido.
+        Usa la distancia de la punta a la muñeca comparada con la articulación PIP y el ángulo articular.
         """
         if not self.is_valid:
             return False
@@ -66,7 +95,7 @@ class HandGeometryFeatures:
         scale = self.get_palm_scale()
 
         if finger_name == "thumb":
-            # Pulgar: distancia TIP(4) a MCP(2) y ángulo CMC(1)-MCP(2)-IP(3)
+            # Pulgar: distancia TIP(4) a MCP(2) normalizada y ángulo CMC(1)-MCP(2)-IP(3)
             dist_tip_mcp = euclidean_distance_3d(self.pts[4], self.pts[2]) / scale
             angle_mcp = angle_between_points_deg(self.pts[1], self.pts[2], self.pts[3])
             return dist_tip_mcp > 0.65 and angle_mcp > 130.0
@@ -81,14 +110,13 @@ class HandGeometryFeatures:
         mcp_idx, pip_idx, dip_idx, tip_idx = joint_map[finger_name]
         d_tip_wrist = euclidean_distance_3d(self.pts[tip_idx], self.pts[0])
         d_pip_wrist = euclidean_distance_3d(self.pts[pip_idx], self.pts[0])
-
         angle_pip = angle_between_points_deg(self.pts[mcp_idx], self.pts[pip_idx], self.pts[dip_idx])
 
-        # Extendido: punta más lejos de la muñeca que la articulación intermedia y ángulo > 140°
+        # Extendido: punta más lejana de la muñeca que PIP y ángulo mayor a 135 grados
         return (d_tip_wrist > d_pip_wrist) and (angle_pip > 135.0)
 
     def is_finger_curled(self, finger_name: str) -> bool:
-        """Determina si un dedo está fuertemente flexionado hacia la palma."""
+        """Determina si un dedo está flexionado hacia la palma."""
         return not self.is_finger_extended(finger_name)
 
     def get_finger_extension_states(self) -> Dict[str, bool]:
@@ -101,46 +129,274 @@ class HandGeometryFeatures:
             "pinky": self.is_finger_extended("pinky")
         }
 
+    def get_finger_pip_angle(self, finger_name: str) -> float:
+        """Retorna el ángulo articular en grados en la articulación PIP del dedo."""
+        if not self.is_valid:
+            return 0.0
+        joint_map = {
+            "index": (5, 6, 7),
+            "middle": (9, 10, 11),
+            "ring": (13, 14, 15),
+            "pinky": (17, 18, 19)
+        }
+        if finger_name not in joint_map:
+            return 0.0
+        mcp, pip, dip = joint_map[finger_name]
+        return angle_between_points_deg(self.pts[mcp], self.pts[pip], self.pts[dip])
+
+    # =========================================================================
+    # CARACTERÍSTICAS DISCRIMINATIVAS PARA 'B'
+    # =========================================================================
+
+    def get_thumb_fold_score(self) -> float:
+        """
+        Puntaje específico de flexión del pulgar cruzado sobre la palma para la seña 'B' [0.0, 1.0].
+        Una mano abierta con pulgar extendido produce un score cercano a 0.0.
+        Solo cuando el pulgar se cruza firmemente sobre la palma o base de MCPs produce >= 0.80.
+        """
+        if not self.is_valid:
+            return 0.0
+
+        scale = self.get_palm_scale()
+        palm_center = self.get_palm_center()
+
+        # 1. Distancia de la punta del pulgar (4) al centroide de la palma
+        d_palm = euclidean_distance_3d(self.pts[4], palm_center) / scale
+        s_palm = clamp((0.75 - d_palm) / (0.75 - 0.40))
+
+        # 2. Proximidad a los MCPs centrales (base de los dedos índice/medio/anular)
+        d_mcp_mid = euclidean_distance_3d(self.pts[4], self.pts[9]) / scale
+        d_mcp_rng = euclidean_distance_3d(self.pts[4], self.pts[13]) / scale
+        d_mcps = min(d_mcp_mid, d_mcp_rng)
+        s_mcps = clamp((0.70 - d_mcps) / (0.70 - 0.35))
+
+        # 3. Pulgar recogido / no extendido lateralmente
+        d_curl = euclidean_distance_3d(self.pts[4], self.pts[2]) / scale
+        s_curl = clamp((0.70 - d_curl) / (0.70 - 0.42))
+
+        score = 0.40 * s_palm + 0.35 * s_mcps + 0.25 * s_curl
+        return clamp(score)
+
+    def get_finger_adduction_score(self) -> float:
+        """
+        Evalúa el grado de aducción (dedos juntos) de los 4 dedos extendidos [0.0, 1.0].
+        Dedos separados (palma abierta) producen < 0.30; dedos juntos producen > 0.80.
+        """
+        if not self.is_valid:
+            return 0.0
+
+        scale = self.get_palm_scale()
+        d_8_12 = euclidean_distance_3d(self.pts[8], self.pts[12]) / scale
+        d_12_16 = euclidean_distance_3d(self.pts[12], self.pts[16]) / scale
+        d_16_20 = euclidean_distance_3d(self.pts[16], self.pts[20]) / scale
+        mean_gap = (d_8_12 + d_12_16 + d_16_20) / 3.0
+
+        return clamp((0.48 - mean_gap) / (0.48 - 0.22))
+
+    def are_fingers_adducted(self) -> bool:
+        """Verifica si los 4 dedos están juntos y aducidos (umbral >= 0.65)."""
+        return self.get_finger_adduction_score() >= 0.65
+
+    # =========================================================================
+    # CARACTERÍSTICAS DISCRIMINATIVAS PARA 'C'
+    # =========================================================================
+
+    def get_c_curvature_score(self) -> float:
+        """
+        Evalúa la curvatura de arco de los 4 dedos (índice, medio, anular, meñique) [0.0, 1.0].
+        En 'C', las articulaciones PIP están en un arco suave (~95° a 140°).
+        Dedos completamente rectos (>150°, mano abierta) o cerrados en puño (<75°) son penalizados.
+        """
+        if not self.is_valid:
+            return 0.0
+
+        scores = []
+        for f in ["index", "middle", "ring", "pinky"]:
+            ang = self.get_finger_pip_angle(f)
+            if 90.0 <= ang <= 145.0:
+                s = 1.0 - (abs(ang - 118.0) / 40.0) * 0.4
+            elif ang > 145.0:
+                s = clamp(1.0 - (ang - 145.0) / 25.0)
+            else:
+                s = clamp(1.0 - (90.0 - ang) / 25.0)
+            scores.append(clamp(s))
+
+        return sum(scores) / 4.0
+
+    def get_c_opening_score(self) -> float:
+        """
+        Evalúa la abertura cóncava entre la punta del pulgar (4) y la punta del índice (8) [0.0, 1.0].
+        Rango óptimo para 'C': [0.45, 1.15] normalizado por palm_scale.
+        """
+        if not self.is_valid:
+            return 0.0
+
+        scale = self.get_palm_scale()
+        d_thumb_idx = euclidean_distance_3d(self.pts[4], self.pts[8]) / scale
+        dist_score = clamp(1.0 - abs(d_thumb_idx - 0.72) / 0.45)
+
+        # Distancia de la punta del índice a su MCP (evita puño cerrado en la palma)
+        d_idx_mcp = euclidean_distance_3d(self.pts[8], self.pts[5]) / scale
+        not_fist = clamp((d_idx_mcp - 0.40) / 0.30)
+
+        return 0.70 * dist_score + 0.30 * not_fist
+
+    def get_c_thumb_score(self) -> float:
+        """
+        Evalúa que el pulgar forme el arco inferior de la letra 'C' [0.0, 1.0].
+        El pulgar debe estar separado de la palma y curvado hacia los dedos.
+        """
+        if not self.is_valid:
+            return 0.0
+
+        scale = self.get_palm_scale()
+        palm_center = self.get_palm_center()
+        d_thumb_palm = euclidean_distance_3d(self.pts[4], palm_center) / scale
+
+        # Separación adecuada de la palma (no aplastado)
+        s_sep = clamp((d_thumb_palm - 0.38) / 0.30)
+        ang_thumb = angle_between_points_deg(self.pts[1], self.pts[2], self.pts[3])
+        s_curve = clamp(1.0 - abs(ang_thumb - 130.0) / 45.0)
+
+        return 0.60 * s_sep + 0.40 * s_curve
+
+    def get_c_arc_consistency(self) -> float:
+        """
+        Evalúa la uniformidad del arco semicircular entre los 4 dedos [0.0, 1.0].
+        Baja desviación estándar entre ángulos PIP indica un arco consistente.
+        """
+        if not self.is_valid:
+            return 0.0
+
+        angles = [self.get_finger_pip_angle(f) for f in ["index", "middle", "ring", "pinky"]]
+        mean_ang = sum(angles) / 4.0
+        variance = sum((a - mean_ang)**2 for a in angles) / 4.0
+        std = math.sqrt(variance)
+
+        return clamp((35.0 - std) / (35.0 - 12.0))
+
+    def get_c_composite_score(
+        self,
+        w_curv: float = 0.40,
+        w_open: float = 0.25,
+        w_thumb: float = 0.20,
+        w_arc: float = 0.15
+    ) -> float:
+        """
+        Combina los 4 sub-puntajes de 'C' con pesos ajustables:
+        C_score = 0.40 * curvature + 0.25 * opening + 0.20 * thumb + 0.15 * arc_consistency.
+        """
+        c_curv = self.get_c_curvature_score()
+        c_open = self.get_c_opening_score()
+        c_th = self.get_c_thumb_score()
+        c_arc = self.get_c_arc_consistency()
+
+        return clamp(w_curv * c_curv + w_open * c_open + w_thumb * c_th + w_arc * c_arc)
+
+    def is_c_curved(self) -> bool:
+        """Verifica curvatura cóncava semicircular de la seña C (umbral >= 0.70)."""
+        return self.get_c_composite_score() >= 0.70
+
+    # =========================================================================
+    # CARACTERÍSTICAS DISCRIMINATIVAS PARA 'Y'
+    # =========================================================================
+
+    def get_y_thumb_extension_score(self) -> float:
+        """Puntaje de extensión lateral del pulgar para 'Y' [0.0, 1.0]."""
+        if not self.is_valid:
+            return 0.0
+
+        scale = self.get_palm_scale()
+        d_tip_mcp = euclidean_distance_3d(self.pts[4], self.pts[2]) / scale
+        ang = angle_between_points_deg(self.pts[1], self.pts[2], self.pts[3])
+
+        s_dist = clamp((d_tip_mcp - 0.45) / 0.22)
+        s_ang = clamp((ang - 115.0) / 35.0)
+
+        return 0.60 * s_dist + 0.40 * s_ang
+
+    def get_y_pinky_extension_score(self) -> float:
+        """Puntaje de extensión del meñique para 'Y' [0.0, 1.0]."""
+        if not self.is_valid:
+            return 0.0
+
+        scale = self.get_palm_scale()
+        d_tip_wrist = euclidean_distance_3d(self.pts[20], self.pts[0]) / scale
+        d_pip_wrist = euclidean_distance_3d(self.pts[18], self.pts[0]) / scale
+        ang = angle_between_points_deg(self.pts[17], self.pts[18], self.pts[19])
+
+        is_far = 1.0 if d_tip_wrist > d_pip_wrist else 0.2
+        s_ang = clamp((ang - 110.0) / 40.0)
+
+        return 0.50 * is_far + 0.50 * s_ang
+
+    def get_y_center_flexion_score(self) -> float:
+        """
+        Puntaje de flexión firme de los 3 dedos centrales (índice, medio, anular) [0.0, 1.0].
+        Si alguno de los dedos centrales está extendido, este puntaje se reduce drásticamente.
+        """
+        if not self.is_valid:
+            return 0.0
+
+        scale = self.get_palm_scale()
+        curls = []
+        for mcp, pip, dip, tip in [(5, 6, 7, 8), (9, 10, 11, 12), (13, 14, 15, 16)]:
+            d_tip_wrist = euclidean_distance_3d(self.pts[tip], self.pts[0])
+            d_pip_wrist = euclidean_distance_3d(self.pts[pip], self.pts[0])
+            ang = angle_between_points_deg(self.pts[mcp], self.pts[pip], self.pts[dip])
+
+            is_curled = 1.0 if (d_tip_wrist <= d_pip_wrist + 0.05 * scale) else 0.0
+            ang_curl = clamp((145.0 - ang) / (145.0 - 90.0))
+            curls.append(0.50 * is_curled + 0.50 * ang_curl)
+
+        return sum(curls) / 3.0
+
+    def get_y_lateral_separation_score(self) -> float:
+        """
+        Evalúa que la distancia pulgar-meñique sea significativamente mayor
+        que la separación entre los dedos centrales [0.0, 1.0].
+        """
+        if not self.is_valid:
+            return 0.0
+
+        scale = self.get_palm_scale()
+        d_thumb_pinky = euclidean_distance_3d(self.pts[4], self.pts[20]) / scale
+        d_idx_rng = euclidean_distance_3d(self.pts[8], self.pts[16]) / scale
+        ratio = d_thumb_pinky / (d_idx_rng + 0.15)
+
+        s_sep = clamp((d_thumb_pinky - 0.85) / 0.50)
+        s_rat = clamp((ratio - 1.3) / 1.2)
+
+        return 0.50 * s_sep + 0.50 * s_rat
+
+    def get_y_composite_score(self) -> float:
+        """Puntaje compuesto para 'Y' combinando pulgar, meñique, flexión central y separación."""
+        th = self.get_y_thumb_extension_score()
+        pk = self.get_y_pinky_extension_score()
+        cf = self.get_y_center_flexion_score()
+        lat = self.get_y_lateral_separation_score()
+
+        raw = 0.25 * th + 0.25 * pk + 0.30 * cf + 0.20 * lat
+        # Puertas duras: si el pulgar o meñique no están extendidos, o los centrales no están doblados
+        if pk < 0.55 or th < 0.55 or cf < 0.55:
+            raw = min(raw, 0.40)
+
+        return clamp(raw)
+
+    # =========================================================================
+    # OTROS DESCRIPTORES CINEMÁTICOS Y DIAGNÓSTICO
+    # =========================================================================
+
     def get_thumb_index_angle_deg(self) -> float:
-        """Ángulo formado entre el pulgar (4), la muñeca (0) y el índice (8)."""
+        """Ángulo en grados entre el pulgar (4), la muñeca (0) y el índice (8)."""
         if not self.is_valid:
             return 0.0
         return angle_between_points_deg(self.pts[4], self.pts[0], self.pts[8])
 
-    def are_fingers_adducted(self) -> bool:
-        """Verifica si los 4 dedos (índice a meñique) están juntos y aducidos (como en la seña B)."""
-        if not self.is_valid:
-            return False
-
-        scale = self.get_palm_scale()
-        d_idx_mid = euclidean_distance_3d(self.pts[8], self.pts[12]) / scale
-        d_mid_rng = euclidean_distance_3d(self.pts[12], self.pts[16]) / scale
-        d_rng_pky = euclidean_distance_3d(self.pts[16], self.pts[20]) / scale
-
-        # Distancia entre puntas adyacentes debe ser pequeña (< 0.35 normalizada)
-        return (d_idx_mid < 0.35) and (d_mid_rng < 0.35) and (d_rng_pky < 0.35)
-
-    def is_c_curved(self) -> bool:
-        """Verifica curvatura cóncava semicircular de todos los dedos (seña C)."""
-        if not self.is_valid:
-            return False
-
-        scale = self.get_palm_scale()
-        # En la 'C', el ángulo en PIP de los 4 dedos está entre 90° y 140° (ni recto ni puño cerrado)
-        ang_idx = angle_between_points_deg(self.pts[5], self.pts[6], self.pts[7])
-        ang_mid = angle_between_points_deg(self.pts[9], self.pts[10], self.pts[11])
-
-        # Distancia entre pulgar (4) e índice (8) debe ser apertura intermedia
-        d_thumb_idx = euclidean_distance_3d(self.pts[4], self.pts[8]) / scale
-
-        is_mid_curve = (80.0 <= ang_idx <= 145.0) and (80.0 <= ang_mid <= 145.0)
-        is_opening_valid = 0.40 <= d_thumb_idx <= 1.40
-        return is_mid_curve and is_opening_valid
-
     def get_palm_normal_z(self) -> float:
         """
         Calcula la componente Z del vector normal a la palma.
-        Z negativo indica que la palma apunta frontalmente hacia la cámara.
+        Z negativo indica orientación frontal hacia la cámara.
         """
         if not self.is_valid:
             return 0.0
@@ -149,13 +405,10 @@ class HandGeometryFeatures:
         p5 = self.pts[5]
         p17 = self.pts[17]
 
-        # Vectores p0->p5 y p0->p17
         v1 = (p5["x"] - p0["x"], p5["y"] - p0["y"], p5.get("z", 0.0) - p0.get("z", 0.0))
         v2 = (p17["x"] - p0["x"], p17["y"] - p0["y"], p17.get("z", 0.0) - p0.get("z", 0.0))
 
-        # Producto cruz v1 x v2
-        nz = v1[0] * v2[1] - v1[1] * v2[0]
-        return nz
+        return v1[0] * v2[1] - v1[1] * v2[0]
 
     def get_hand_center(self) -> Tuple[float, float]:
         """Retorna el centroide (x, y) de la mano en coordenadas normalizadas [0, 1]."""
@@ -165,3 +418,27 @@ class HandGeometryFeatures:
         avg_x = sum(p["x"] for p in self.pts.values()) / len(self.pts)
         avg_y = sum(p["y"] for p in self.pts.values()) / len(self.pts)
         return (avg_x, avg_y)
+
+    def get_diagnostics(self) -> Dict[str, Any]:
+        """
+        Genera el diccionario de telemetría diagnóstica en tiempo real
+        para la calibración y monitoreo visual de B, C e Y.
+        """
+        return {
+            "b": {
+                "thumb_fold": round(self.get_thumb_fold_score() * 100.0, 1),
+                "adduction": round(self.get_finger_adduction_score() * 100.0, 1)
+            },
+            "c": {
+                "curvature": round(self.get_c_curvature_score() * 100.0, 1),
+                "opening": round(self.get_c_opening_score() * 100.0, 1),
+                "thumb_arc": round(self.get_c_thumb_score() * 100.0, 1),
+                "arc_consistency": round(self.get_c_arc_consistency() * 100.0, 1)
+            },
+            "y": {
+                "thumb": round(self.get_y_thumb_extension_score() * 100.0, 1),
+                "pinky": round(self.get_y_pinky_extension_score() * 100.0, 1),
+                "center_flex": round(self.get_y_center_flexion_score() * 100.0, 1),
+                "lateral_sep": round(self.get_y_lateral_separation_score() * 100.0, 1)
+            }
+        }

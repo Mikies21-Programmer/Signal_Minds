@@ -1,0 +1,33 @@
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x15 (USB_UART_CHIP_RESET),boot:0x29 (SPI_FAST_FLASH_BOOT)
+Saved PC:0x4037a1da
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x10cc
+load:0x403c8700,len:0xc2c
+load:0x403cb700,len:0x30b0
+entry 0x403c88b8
+
+
+==================================================
+INDIVISA INGENIUM 2026 â XIAO ESP32-S3 SENSE CAM
+==================================================
+[PSRAM] Detectada y activa: 8 MB
+[CAM] Inicializando sensor de camara...
+[CAM] Camera init success!
+[CAM] Sensor detectado PID: 0x0026
+[CAM] Sensor identificado como OV2640
+[CAM] Resolucion inicial fijada a QVGA (320x240)
+[WIFI] Iniciando Punto de Acceso dedicado (SoftAP)...
+[WIFI] SoftAP iniciado exitosamente!
+[WIFI] SSID: SENA_CORRECTA_CAM
+[WIFI] Password: SenaCam2026
+[WIFI] IP: 192.168.4.1
+[HTTP] Iniciando servidores de streaming y control...
+==================================================
+ESTADO LISTO:
+Web UI:    http://192.168.4.1/
+Snapshot:  http://192.168.4.1/capture
+Stream:    http://192.168.4.1:81/stream
+==================================================

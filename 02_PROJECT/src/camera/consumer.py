@@ -124,6 +124,32 @@ class CameraConsumer:
             self._frames_since_calc = 0
             self._last_fps_calc_time = now
 
+    def _apply_camera_optimizations(self) -> None:
+        """Aplica parámetros óptimos de exposición y contraste al sensor físico OV2640."""
+        if not self.config:
+            return
+        cam_conf = self.config.get("camera", {}) if hasattr(self.config, "get") else {}
+        control_url = cam_conf.get("control_url", "http://192.168.4.1/control")
+        if not control_url or not isinstance(self.stream_url, str) or "192.168.4.1" not in self.stream_url:
+            return
+
+        import urllib.request
+        params = {
+            "framesize": 10,
+            "brightness": cam_conf.get("brightness", 1),
+            "contrast": cam_conf.get("contrast", 1),
+            "aec2": cam_conf.get("aec2", 1),
+            "gainceiling": cam_conf.get("gainceiling", 2)
+        }
+        for var, val in params.items():
+            try:
+                url = f"{control_url}?var={var}&val={val}"
+                with urllib.request.urlopen(url, timeout=1.0) as resp:
+                    pass
+            except Exception:
+                pass
+        logger.info(f"Parámetros de sensor OV2640 aplicados vía control: {params}")
+
     def _real_capture_loop(self) -> None:
         """Bucle de captura real desacoplado con OpenCV, buffer=1 y reconexión continua."""
         cap: Optional[cv2.VideoCapture] = None
@@ -160,6 +186,7 @@ class CameraConsumer:
                 logger.info(f"Conexión establecida con éxito con la cámara: {self.stream_url}")
                 with self._lock:
                     self.status = ConnectionStatus.STREAMING
+                self._apply_camera_optimizations()
 
             # Leer fotograma
             try:
@@ -172,22 +199,23 @@ class CameraConsumer:
             now = time.time()
 
             if not ret or frame is None:
-                # Comprobar si excedió timeout
-                with self._lock:
-                    time_since_last = now - self._latest_timestamp if self._latest_timestamp > 0 else self.timeout_sec + 1.0
-                    if time_since_last > self.timeout_sec:
+                now = time.time()
+                time_since_last = now - self._latest_timestamp if self._latest_timestamp > 0 else self.timeout_sec + 1.0
+                if time_since_last > self.timeout_sec:
+                    with self._lock:
                         self.status = ConnectionStatus.STALLED
                         self._dropped_frames += 1
-                        logger.warning(f"Stream STALLED: Sin fotogramas válidos en {time_since_last:.1f}s.")
+                        logger.warning(f"Stream STALLED: Sin fotogramas válidos en {time_since_last:.1f}s. Reconectando...")
 
-                # Liberar para forzar reconexión limpia
-                if cap is not None:
-                    cap.release()
-                    cap = None
+                    if cap is not None:
+                        cap.release()
+                        cap = None
 
-                with self._lock:
-                    self.status = ConnectionStatus.RECONNECTING
-                self._stop_event.wait(timeout=min(self.timeout_sec, 1.5))
+                    with self._lock:
+                        self.status = ConnectionStatus.RECONNECTING
+                    self._stop_event.wait(timeout=min(self.timeout_sec, 1.5))
+                else:
+                    time.sleep(0.005)
                 continue
 
             # Fotograma válido recibido

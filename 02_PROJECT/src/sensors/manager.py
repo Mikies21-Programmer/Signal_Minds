@@ -90,19 +90,17 @@ class RealHardwareSensorBackend(SensorBackend):
                 import serial
                 import serial.tools.list_ports
 
-                ports = list(serial.tools.list_ports.comports())
-                if not ports and not self.port:
-                    logger.warning(
-                        "No se detectaron puertos serie conectados. "
-                        "El hardware mecatrónico permanece en estado DISCONNECTED (UNKNOWN)."
-                    )
+                if self.port in ["NONE", "DISABLED", ""]:
+                    logger.info("Puerto mecatrónico no asignado o desactivado. Sensores en espera.")
                     self.status = SensorStatus.DISCONNECTED
                     return False
 
-                target_port = self.port or (ports[0].device if ports else None)
-                if not target_port:
+                if not self.port:
+                    logger.info("Sensores físicos no configurados explícitamente. Estado DISCONNECTED.")
                     self.status = SensorStatus.DISCONNECTED
                     return False
+
+                target_port = self.port
 
                 logger.info(f"Intentando abrir puerto serie mecatrónico: {target_port}")
                 self._serial_handle = serial.Serial(target_port, baudrate=self.baudrate, timeout=0.1)

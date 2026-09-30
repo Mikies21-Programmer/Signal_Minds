@@ -224,11 +224,14 @@ class VisionPipeline:
         # Calcular vector canónico normalizado de 63 dimensiones
         vector_63 = self.normalize_landmarks(raw_landmarks)
 
-        # Extraer confidence
+        # Extraer confidence y handedness
         confidence = self.min_confidence
+        handedness = "Right"
         if detection_result.handedness and len(detection_result.handedness) > 0:
             if len(detection_result.handedness[0]) > 0:
-                confidence = round(float(detection_result.handedness[0][0].score), 3)
+                h_obj = detection_result.handedness[0][0]
+                confidence = round(float(h_obj.score), 3)
+                handedness = getattr(h_obj, "category_name", "Right") or "Right"
 
         return {
             "detected": True,
@@ -236,6 +239,7 @@ class VisionPipeline:
             "raw_landmarks": raw_landmarks,
             "feature_vector_63": vector_63,
             "confidence": confidence,
+            "handedness": handedness,
             "timestamp": now,
             "fps": self._fps,
             "is_mock": False
