@@ -3,51 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>INDIVISA INGENIUM 2026 — Telemetría LSM en Tiempo Real</title>
+  <title>SEÑA CORRECTA — INDIVISA INGENIUM 2026</title>
   <style>
     :root {
-      --bg-primary: #0a0e17;
-      --bg-card: rgba(18, 26, 43, 0.85);
-      --bg-glass: rgba(255, 255, 255, 0.04);
+      --bg-main: #0b0f19;
+      --bg-panel: rgba(18, 24, 38, 0.85);
+      --bg-card: rgba(28, 38, 58, 0.65);
+      --bg-input: rgba(255, 255, 255, 0.05);
       --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-accent: rgba(0, 216, 255, 0.3);
-      --accent-cyan: #00d8ff;
-      --accent-green: #00ff88;
-      --accent-amber: #ffaa00;
-      --accent-red: #ff3366;
-      --text-main: #f0f4f8;
-      --text-muted: #8a9bb3;
-      --font-mono: 'Consolas', 'Courier New', monospace;
+      --border-focus: rgba(0, 216, 255, 0.4);
+      --cyan: #00d8ff;
+      --green: #00ff88;
+      --amber: #ffaa00;
+      --red: #ff3366;
+      --slate: #94a3b8;
+      --text: #f8fafc;
+      --text-muted: #64748b;
+      --radius: 14px;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
 
     body {
-      background-color: var(--bg-primary);
-      color: var(--text-main);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
     }
 
-    /* Header */
+    /* HEADER */
     header {
-      background: rgba(10, 14, 23, 0.95);
+      background: rgba(11, 15, 25, 0.95);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-subtle);
-      padding: 12px 24px;
+      padding: 14px 28px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 50;
     }
 
     .brand {
@@ -56,1224 +57,633 @@
       gap: 12px;
     }
 
-    .brand-logo {
+    .brand-icon {
       width: 14px;
       height: 14px;
-      background: var(--accent-cyan);
+      background: var(--cyan);
       border-radius: 50%;
-      box-shadow: 0 0 12px var(--accent-cyan);
+      box-shadow: 0 0 14px var(--cyan);
     }
 
     .brand-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: var(--text);
     }
 
-    .brand-subtitle {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-left: 8px;
-    }
-
-    .header-pills {
+    .header-actions {
       display: flex;
-      gap: 12px;
       align-items: center;
+      gap: 16px;
     }
 
-    .pill {
-      background: var(--bg-glass);
-      border: 1px solid var(--border-subtle);
+    .system-status-pill {
+      background: rgba(0, 255, 136, 0.1);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      color: var(--green);
       padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.8rem;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    .pill-dot {
+    .status-dot {
       width: 8px;
       height: 8px;
+      background: var(--green);
       border-radius: 50%;
-      background: var(--accent-amber);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s infinite;
     }
 
-    .pill-dot.healthy { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
-    .pill-dot.error { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
-    .pill-dot.stalled { background: var(--accent-amber); }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.9); }
+    }
 
-    /* Layout principal */
+    .btn-debug {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--slate);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-debug:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+    }
+
+    /* MAIN CONTAINER */
     main {
       flex: 1;
-      padding: 20px;
-      display: grid;
-      grid-template-columns: 1.25fr 1fr;
-      gap: 20px;
-      max-width: 1600px;
+      padding: 24px;
+      max-width: 1400px;
       margin: 0 auto;
       width: 100%;
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 24px;
+      align-items: start;
     }
 
     @media (max-width: 1024px) {
-      main { grid-template-columns: 1fr; }
+      main {
+        grid-template-columns: 1fr;
+      }
     }
 
-    .card {
-      background: var(--bg-card);
+    /* ZONA PRINCIPAL (VIDEO) */
+    .video-section {
+      background: var(--bg-panel);
       border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      padding: 20px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      border-radius: var(--radius);
+      padding: 16px;
       display: flex;
       flex-direction: column;
+      gap: 14px;
     }
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .card-title {
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--accent-cyan);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    /* Contenedor de Video */
     .video-viewport {
       position: relative;
       width: 100%;
-      aspect-ratio: 4 / 3;
+      aspect-ratio: 4/3;
       background: #000;
       border-radius: 10px;
       overflow: hidden;
-      border: 1px solid var(--border-accent);
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .video-viewport img {
+    .video-stream {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .video-overlay-badge {
+    /* GUÍA DE POSICIONAMIENTO DENTRO DEL VIDEO */
+    .placement-guide {
       position: absolute;
-      top: 12px;
-      left: 12px;
-      background: rgba(0, 0, 0, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      display: flex;
-      gap: 8px;
-    }
-
-    .video-overlay-fps {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(0, 0, 0, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      color: var(--accent-cyan);
-    }
-
-    /* Guía visual central (60% del frame) */
-    .video-target-roi {
-      position: absolute;
-      top: 20%;
-      left: 20%;
-      width: 60%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 48%;
       height: 60%;
-      border: 2px dashed rgba(0, 216, 255, 0.45);
-      border-radius: 12px;
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
       pointer-events: none;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      transition: all 0.3s ease;
-      box-sizing: border-box;
-    }
-
-    .target-roi-box {
-      background: rgba(10, 14, 23, 0.75);
-      padding: 3px 10px;
-      border-radius: 6px;
-      margin-top: 6px;
-      border: 1px solid rgba(0, 216, 255, 0.3);
-    }
-
-    .roi-label {
-      font-size: 0.65rem;
-      color: var(--accent-cyan);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-weight: 600;
-      font-family: var(--font-mono);
-    }
-
-    .video-target-roi.hand-detected {
-      border-color: rgba(0, 255, 136, 0.65);
-      box-shadow: inset 0 0 16px rgba(0, 255, 136, 0.15);
-    }
-
-    .video-target-roi.hand-detected .target-roi-box {
-      border-color: rgba(0, 255, 136, 0.5);
-    }
-
-    .video-target-roi.hand-detected .roi-label {
-      color: var(--accent-green);
-    }
-
-    /* Selector de Señas y Teclado */
-    .keyboard-section {
-      margin-top: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .keyboard-row {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
-
-    .key-btn {
-      background: var(--bg-glass);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-main);
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 1.1rem;
-      cursor: pointer;
-      transition: all 0.15s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
-      min-width: 60px;
+      justify-content: flex-end;
+      padding-bottom: 12px;
+      transition: all 0.3s ease;
     }
 
-    .key-btn small {
-      font-size: 0.6rem;
-      color: var(--text-muted);
-      font-weight: normal;
+    .placement-guide.active {
+      border-color: var(--green);
+      border-style: solid;
+      background: rgba(0, 255, 136, 0.04);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
     }
 
-    .key-btn:hover {
-      background: rgba(0, 216, 255, 0.15);
-      border-color: var(--accent-cyan);
-      transform: translateY(-2px);
-    }
-
-    .key-btn.active {
-      background: var(--accent-cyan);
-      color: #000;
-      border-color: var(--accent-cyan);
-      box-shadow: 0 0 16px rgba(0, 216, 255, 0.6);
-    }
-
-    .control-keys {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin-top: 4px;
-    }
-
-    .ctrl-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-muted);
-      padding: 6px 14px;
+    .placement-guide-text {
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      padding: 4px 10px;
       border-radius: 6px;
       font-size: 0.75rem;
-      cursor: pointer;
-      transition: 0.15s;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
     }
 
-    .ctrl-btn:hover {
-      color: var(--text-main);
-      border-color: rgba(255, 255, 255, 0.3);
+    .placement-guide.active .placement-guide-text {
+      color: var(--green);
     }
 
-    .ctrl-btn.active-mode {
-      background: rgba(0, 216, 255, 0.25);
-      color: var(--accent-cyan);
-      border-color: var(--accent-cyan);
-      font-weight: 700;
-      box-shadow: 0 0 10px rgba(0, 216, 255, 0.3);
+    /* BANNER NIVEL 2 */
+    .level2-motion-banner {
+      background: rgba(0, 216, 255, 0.08);
+      border: 1px solid rgba(0, 216, 255, 0.3);
+      border-radius: 8px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--cyan);
     }
 
-    /* Auto Clasificación y Candidatos */
-    .detected-sign-card {
-      background: linear-gradient(135deg, rgba(0, 216, 255, 0.12), rgba(0, 255, 136, 0.06));
-      border: 1px solid var(--accent-cyan);
-      border-radius: 12px;
+    /* PANEL DERECHO */
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* SELECTOR DE NIVEL Y SEÑA */
+    .selector-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
       padding: 16px 20px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      box-shadow: 0 4px 20px rgba(0, 216, 255, 0.15);
+      gap: 14px;
     }
 
-    .detected-sign-header {
+    .level-block {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .level-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .sign-buttons-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-sign {
+      flex: 1;
+      height: 42px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text);
+      font-size: 1.05rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
       align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 8px;
+      justify-content: center;
     }
 
-    .detected-label {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--accent-cyan);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
+    .btn-sign:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--border-focus);
     }
 
-    .mode-pill {
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 12px;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      border: 1px solid transparent;
+    .btn-sign.active {
+      background: var(--cyan);
+      color: #050b14;
+      border-color: var(--cyan);
+      box-shadow: 0 0 14px rgba(0, 216, 255, 0.4);
+    }
+
+    .mode-toggle-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn-auto {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--slate);
+      font-size: 0.75rem;
+      padding: 5px 12px;
+      border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s;
     }
 
-    .mode-pill.auto {
+    .btn-auto.active {
       background: rgba(0, 255, 136, 0.15);
-      color: var(--accent-green);
-      border-color: var(--accent-green);
+      border-color: var(--green);
+      color: var(--green);
+      font-weight: 600;
     }
 
-    .mode-pill.manual {
-      background: rgba(255, 170, 0, 0.15);
-      color: var(--accent-amber);
-      border-color: var(--accent-amber);
-    }
-
-    .detected-main-row {
+    /* SEÑA OBJETIVO SELECCIONADA */
+    .target-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 20px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 20px;
     }
 
-    .detected-huge {
-      font-size: 4.4rem;
-      font-weight: 900;
-      line-height: 1;
-      color: var(--accent-green);
-      text-shadow: 0 0 25px rgba(0, 255, 136, 0.6);
-      min-width: 90px;
-    }
-
-    .detected-details {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      text-align: right;
-    }
-
-    .detected-metric {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .det-metric-title {
-      font-size: 0.68rem;
-      color: var(--text-muted);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    .det-metric-val {
-      font-family: var(--font-mono);
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    .status-tag {
-      display: inline-block;
-      padding: 4px 12px;
+    .target-letter {
+      width: 72px;
+      height: 72px;
+      background: rgba(0, 216, 255, 0.1);
+      border: 2px solid var(--cyan);
       border-radius: 16px;
-      font-weight: 700;
-      font-size: 0.8rem;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    .status-tag.recognized {
-      background: rgba(0, 255, 136, 0.2);
-      color: var(--accent-green);
-      border: 1px solid var(--accent-green);
-      box-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
-    }
-
-    .status-tag.ambiguous {
-      background: rgba(255, 170, 0, 0.2);
-      color: var(--accent-amber);
-      border: 1px solid var(--accent-amber);
-    }
-
-    .status-tag.hand-detected {
-      background: rgba(0, 216, 255, 0.2);
-      color: var(--accent-cyan);
-      border: 1px solid var(--accent-cyan);
-    }
-
-    .status-tag.no-hand {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-muted);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    .candidates-container {
-      background: rgba(0, 0, 0, 0.35);
-      border-radius: 8px;
-      padding: 10px 14px;
-      border: 1px solid var(--border-subtle);
-    }
-
-    .candidates-title {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-
-    .candidates-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .cand-row {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-family: var(--font-mono);
-      font-size: 0.82rem;
-    }
-
-    .cand-letter {
-      width: 16px;
-      font-weight: 800;
-      color: var(--accent-cyan);
-    }
-
-    .cand-bar-bg {
-      flex: 1;
-      height: 10px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 5px;
-      overflow: hidden;
-    }
-
-    .cand-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #00d8ff, #00ff88);
-      border-radius: 5px;
-      transition: width 0.15s ease;
-    }
-
-    .cand-val {
-      width: 44px;
-      text-align: right;
-      color: var(--text-main);
-      font-weight: 700;
-    }
-
-    /* Panel de Evaluación */
-    .eval-display {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .target-banner {
-      background: linear-gradient(135deg, rgba(0, 216, 255, 0.1), rgba(0, 255, 136, 0.05));
-      border: 1px solid var(--border-accent);
-      border-radius: 12px;
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .target-huge {
-      font-size: 3rem;
+      justify-content: center;
+      font-size: 2.4rem;
       font-weight: 900;
-      line-height: 1;
-      color: var(--accent-cyan);
-      text-shadow: 0 0 20px rgba(0, 216, 255, 0.5);
+      color: var(--cyan);
+      box-shadow: 0 0 20px rgba(0, 216, 255, 0.25);
     }
 
-    .verdict-box {
-      text-align: right;
-    }
-
-    .verdict-tag {
-      display: inline-block;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-weight: 700;
-      font-size: 0.85rem;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .verdict-tag.pass {
-      background: rgba(0, 255, 136, 0.15);
-      color: var(--accent-green);
-      border: 1px solid var(--accent-green);
-    }
-
-    .verdict-tag.fail {
-      background: rgba(255, 170, 0, 0.15);
-      color: var(--accent-amber);
-      border: 1px solid var(--accent-amber);
-    }
-
-    .score-meter {
-      width: 100%;
-      height: 10px;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 5px;
-      overflow: hidden;
-      margin-top: 8px;
-      border: 1px solid var(--border-subtle);
-    }
-
-    .score-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--accent-amber), var(--accent-green));
-      transition: width 0.2s ease, background 0.2s ease;
-    }
-
-    /* Feedback Card */
-    .feedback-card {
-      background: rgba(0, 0, 0, 0.4);
-      border-left: 4px solid var(--accent-cyan);
-      border-radius: 8px;
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      transition: border-color 0.2s;
-    }
-
-    .feedback-title {
-      font-weight: 700;
-      font-size: 1rem;
-      color: var(--text-main);
-    }
-
-    .feedback-detail {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
-
-    /* Parámetros Constitutivos */
-    .params-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .param-box {
-      background: var(--bg-glass);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 10px 12px;
+    .target-info {
+      flex: 1;
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
 
-    .param-name {
+    .target-caption {
       font-size: 0.75rem;
+      font-weight: 700;
       color: var(--text-muted);
+      letter-spacing: 1px;
       text-transform: uppercase;
     }
 
-    .param-score-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: var(--font-mono);
+    .target-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .target-desc {
       font-size: 0.85rem;
+      color: var(--slate);
+      line-height: 1.3;
     }
 
-    /* Telemetría Hardware */
-    .hw-status-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+    /* TARJETA GRANDE DE ESTADO */
+    .status-card {
+      border-radius: var(--radius);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       gap: 8px;
-      margin-top: 6px;
+      min-height: 110px;
+      border: 2px solid transparent;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .hw-metric {
-      background: rgba(0, 0, 0, 0.3);
-      padding: 8px;
-      border-radius: 6px;
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      text-align: center;
+    .status-card.correcta {
+      background: rgba(0, 255, 136, 0.12);
+      border-color: var(--green);
+      box-shadow: 0 0 30px rgba(0, 255, 136, 0.25);
     }
 
-    .hw-metric span {
-      display: block;
-      color: var(--text-muted);
-      font-size: 0.65rem;
-      margin-bottom: 2px;
+    .status-card.corrige {
+      background: rgba(255, 170, 0, 0.12);
+      border-color: var(--amber);
+      box-shadow: 0 0 30px rgba(255, 170, 0, 0.25);
     }
 
-    /* Footer */
-    footer {
-      border-top: 1px solid var(--border-subtle);
-      padding: 10px 24px;
-      font-size: 0.75rem;
-      color: var(--text-muted);
+    .status-card.incorrecta {
+      background: rgba(255, 51, 102, 0.12);
+      border-color: var(--red);
+      box-shadow: 0 0 30px rgba(255, 51, 102, 0.25);
+    }
+
+    .status-card.esperando {
+      background: var(--bg-panel);
+      border-color: var(--border-subtle);
+    }
+
+    .status-title {
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .status-card.correcta .status-title { color: var(--green); }
+    .status-card.corrige .status-title { color: var(--amber); }
+    .status-card.incorrecta .status-title { color: var(--red); }
+    .status-card.esperando .status-title { color: var(--slate); }
+
+    /* CUATRO COMPROBACIONES */
+    .checklist-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .check-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .check-row:last-child {
+      border-bottom: none;
+    }
+
+    .check-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text);
+    }
+
+    .check-badge {
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    /* FEEDBACK ÚNICO DIRECTO */
+    .feedback-banner {
+      background: var(--bg-panel);
+      border-left: 4px solid var(--cyan);
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      min-height: 52px;
+      transition: all 0.2s ease;
+    }
+
+    .feedback-icon {
+      font-size: 1.2rem;
+    }
+
+    /* PANEL DEBUG COLAPSABLE (OCULTO POR DEFECTO) */
+    .debug-drawer {
+      display: none;
+      background: #060910;
+      border-top: 1px solid var(--border-subtle);
+      padding: 20px 28px;
+      color: var(--slate);
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+
+    .debug-drawer.open {
+      display: block;
+    }
+
+    .debug-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .debug-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .debug-box h4 {
+      color: var(--cyan);
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
     }
   </style>
 </head>
 <body>
 
+  <!-- HEADER -->
   <header>
     <div class="brand">
-      <div class="brand-logo"></div>
-      <div>
-        <span class="brand-title">INDIVISA INGENIUM 2026</span>
-        <span class="brand-subtitle">Estación Laptop Desacoplada</span>
-      </div>
+      <div class="brand-icon"></div>
+      <div class="brand-title">SEÑA CORRECTA</div>
     </div>
-    <div class="header-pills">
-      <div class="pill">
-        <div id="dot-cam" class="pill-dot healthy"></div>
-        <span id="label-cam">CAM: READY (640x480)</span>
+    <div class="header-actions">
+      <div class="system-status-pill">
+        <span class="status-dot"></span>
+        <span id="label-system-ready">SISTEMA LISTO</span>
       </div>
-      <div class="pill">
-        <div id="dot-vision" class="pill-dot healthy"></div>
-        <span id="label-vision">VISION: READY</span>
-      </div>
-      <div class="pill">
-        <span id="label-mode-pill" style="color:var(--accent-cyan); font-weight:700">MODE: AUTO</span>
-      </div>
-      <div class="pill">
-        <div id="dot-health" class="pill-dot stalled"></div>
-        <span id="label-health">STANDALONE (VISIÓN PURA)</span>
-      </div>
-      <div class="pill">
-        <span style="color:var(--text-muted)">LATENCIA:</span>
-        <span id="label-latency" style="font-family:var(--font-mono); font-weight:700">-- ms</span>
-      </div>
+      <button class="btn-debug" onclick="toggleDebug()">⚙ DEBUG</button>
     </div>
   </header>
 
+  <!-- MAIN -->
   <main>
-    <!-- Columna Izquierda: Video y Teclado -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">
-          <span>VISIÓN EN TIEMPO REAL (ESP32-CAM)</span>
-        </div>
-        <div id="camera-status-pill" class="pill" style="padding: 2px 10px; font-size: 0.7rem;">
-          CAM: STREAMING
-        </div>
-      </div>
-
+    <!-- ZONA PRINCIPAL (VIDEO) -->
+    <div class="video-section">
       <div class="video-viewport">
-        <img id="stream-img" src="/video_feed" alt="Transmisión ESP32-CAM" onerror="this.src=''; setTimeout(() => { this.src='/video_feed?t=' + Date.now(); }, 2000);">
-        <!-- Guía visual central (60% del frame) -->
-        <div id="hand-roi-guide" class="video-target-roi">
-          <div class="target-roi-box">
-            <span class="roi-label">COLOCA TU MANO EN EL ÁREA CENTRAL</span>
-          </div>
-        </div>
-        <div class="video-overlay-badge">
-          <span>MANO:</span>
-          <span id="badge-hand" style="color:var(--accent-amber)">NO DETECTADA</span>
-        </div>
-        <div class="video-overlay-fps">
-          <span id="badge-fps">0.0</span> FPS
+        <img class="video-stream" src="/video_feed" alt="Video de la mano">
+        <div class="placement-guide" id="placement-guide">
+          <div class="placement-guide-text" id="guide-text">Coloca tu mano aquí</div>
         </div>
       </div>
 
-      <div class="keyboard-section">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <span style="font-size: 0.72rem; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.5px; font-weight:700;">
-            Modo Principal: Automático
-          </span>
-          <span style="font-size: 0.72rem; color: var(--text-muted);">
-            Teclado = Control Manual / Fallback
-          </span>
-        </div>
-        <div class="keyboard-row">
-          <button class="key-btn" data-sign="A" onclick="sendSign('A')">A<small>[A]</small></button>
-          <button class="key-btn" data-sign="B" onclick="sendSign('B')">B<small>[B]</small></button>
-          <button class="key-btn" data-sign="C" onclick="sendSign('C')">C<small>[C]</small></button>
-          <button class="key-btn" data-sign="L" onclick="sendSign('L')">L<small>[L]</small></button>
-          <button class="key-btn" data-sign="Y" onclick="sendSign('Y')">Y<small>[Y]</small></button>
-        </div>
-        <div class="control-keys">
-          <button id="btn-auto-mode" class="ctrl-btn active-mode" onclick="setMode('AUTO')">● Modo Automático</button>
-          <button class="ctrl-btn" onclick="togglePause()">[ESPACIO] Pausar</button>
-          <button class="ctrl-btn" onclick="recalibrate()">[R] Calibrar</button>
-        </div>
+      <!-- INSTRUCCIÓN DE MOVIMIENTO PARA NIVEL 2 -->
+      <div class="level2-motion-banner" id="level2-banner" style="display: none;">
+        <span>ℹ️</span>
+        <span>Realiza el movimiento después de formar la posición.</span>
       </div>
     </div>
 
-    <!-- Columna Derecha: Diagnóstico, Evaluación y Sensores -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">
-          <span>RECONOCIMIENTO LSM (NIVEL 1)</span>
+    <!-- PANEL DERECHO -->
+    <div class="control-panel">
+
+      <!-- SELECTOR DE NIVEL Y SEÑA -->
+      <div class="selector-card">
+        <div class="mode-toggle-row">
+          <button class="btn-auto active" id="btn-auto" onclick="toggleAutoMode()">Modo Automático: ACTIVO</button>
         </div>
-        <div id="pill-pause" style="display:none; color:var(--accent-amber); font-weight:700; font-size:0.8rem;">
-          PAUSADO
+
+        <div class="level-block">
+          <div class="level-label">NIVEL 1 — ESTÁTICO</div>
+          <div class="sign-buttons-row">
+            <button class="btn-sign active" data-sign="A" onclick="selectSign('A')">A</button>
+            <button class="btn-sign" data-sign="B" onclick="selectSign('B')">B</button>
+            <button class="btn-sign" data-sign="C" onclick="selectSign('C')">C</button>
+            <button class="btn-sign" data-sign="L" onclick="selectSign('L')">L</button>
+            <button class="btn-sign" data-sign="Y" onclick="selectSign('Y')">Y</button>
+          </div>
+        </div>
+
+        <div class="level-block">
+          <div class="level-label">NIVEL 2 — DINÁMICO</div>
+          <div class="sign-buttons-row">
+            <button class="btn-sign" data-sign="J" onclick="selectSign('J')">J</button>
+            <button class="btn-sign" data-sign="Ñ" onclick="selectSign('Ñ')">Ñ</button>
+            <button class="btn-sign" data-sign="Q" onclick="selectSign('Q')">Q</button>
+            <button class="btn-sign" data-sign="X" onclick="selectSign('X')">X</button>
+            <button class="btn-sign" data-sign="Z" onclick="selectSign('Z')">Z</button>
+          </div>
         </div>
       </div>
 
-      <div class="eval-display">
-        <!-- SECCIÓN GRANDE: SEÑA DETECTADA (CLASIFICACIÓN AUTOMÁTICA) -->
-        <div class="detected-sign-card">
-          <div class="detected-sign-header">
-            <span class="detected-label">SEÑA DETECTADA</span>
-            <div id="mode-badge" class="mode-pill auto" onclick="toggleMode()">MODO: AUTOMÁTICO</div>
-          </div>
-          <div class="detected-main-row">
-            <div id="auto-detected-letter" class="detected-huge">--</div>
-            <div class="detected-details">
-              <div class="detected-metric">
-                <span class="det-metric-title">CONFIANZA</span>
-                <span id="auto-conf-text" class="det-metric-val">--%</span>
-              </div>
-              <div class="detected-metric">
-                <span class="det-metric-title">ESTADO</span>
-                <span id="auto-status-pill" class="status-tag no-hand">SIN MANO</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- CANDIDATOS Nivel 1 -->
-          <div class="candidates-container">
-            <div class="candidates-title">CANDIDATOS NIVEL 1</div>
-            <div class="candidates-list">
-              <div class="cand-row">
-                <span class="cand-letter">A</span>
-                <div class="cand-bar-bg"><div id="bar-cand-A" class="cand-bar-fill" style="width:0%"></div></div>
-                <span id="score-cand-A" class="cand-val">0%</span>
-              </div>
-              <div class="cand-row">
-                <span class="cand-letter">B</span>
-                <div class="cand-bar-bg"><div id="bar-cand-B" class="cand-bar-fill" style="width:0%"></div></div>
-                <span id="score-cand-B" class="cand-val">0%</span>
-              </div>
-              <div class="cand-row">
-                <span class="cand-letter">C</span>
-                <div class="cand-bar-bg"><div id="bar-cand-C" class="cand-bar-fill" style="width:0%"></div></div>
-                <span id="score-cand-C" class="cand-val">0%</span>
-              </div>
-              <div class="cand-row">
-                <span class="cand-letter">L</span>
-                <div class="cand-bar-bg"><div id="bar-cand-L" class="cand-bar-fill" style="width:0%"></div></div>
-                <span id="score-cand-L" class="cand-val">0%</span>
-              </div>
-              <div class="cand-row">
-                <span class="cand-letter">Y</span>
-                <div class="cand-bar-bg"><div id="bar-cand-Y" class="cand-bar-fill" style="width:0%"></div></div>
-                <span id="score-cand-Y" class="cand-val">0%</span>
-              </div>
-            </div>
-          </div>
+      <!-- SEÑA OBJETIVO -->
+      <div class="target-card">
+        <div class="target-letter" id="target-letter-display">A</div>
+        <div class="target-info">
+          <div class="target-caption" id="target-level-caption">SEÑA OBJETIVO (NIVEL 1)</div>
+          <div class="target-name" id="target-name">Letra A</div>
+          <div class="target-desc" id="target-desc">Puño cerrado con pulgar colocado al costado.</div>
         </div>
-
-        <!-- BLOQUE DIAGNÓSTICO EN TIEMPO REAL (B, C, Y) -->
-        <div id="diag-block" style="background: rgba(0,0,0,0.35); border: 1px solid var(--border-accent); border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-            <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">
-              DIAGNÓSTICO GEOMÉTRICO (CALIBRACIÓN EN VIVO)
-            </span>
-            <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono);">
-              Landmarks 3D
-            </span>
-          </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-            <!-- B -->
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-left: 3px solid var(--accent-cyan); border-radius: 6px; padding: 8px 10px; font-size: 0.75rem; font-family: var(--font-mono);">
-              <div style="color: var(--accent-cyan); font-weight: 700; margin-bottom: 4px;">B:</div>
-              <div style="display:flex; justify-content:space-between; color: var(--text-muted); margin-bottom: 2px;">
-                <span>thumb fold:</span>
-                <strong id="diag-b-fold" style="color: var(--text-main);">0%</strong>
-              </div>
-              <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
-                <span>adduction:</span>
-                <strong id="diag-b-add" style="color: var(--text-main);">0%</strong>
-              </div>
-            </div>
-            <!-- C -->
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-left: 3px solid var(--accent-green); border-radius: 6px; padding: 8px 10px; font-size: 0.75rem; font-family: var(--font-mono);">
-              <div style="color: var(--accent-green); font-weight: 700; margin-bottom: 4px;">C:</div>
-              <div style="display:flex; justify-content:space-between; color: var(--text-muted); margin-bottom: 2px;">
-                <span>curvature:</span>
-                <strong id="diag-c-curv" style="color: var(--text-main);">0%</strong>
-              </div>
-              <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
-                <span>opening:</span>
-                <strong id="diag-c-open" style="color: var(--text-main);">0%</strong>
-              </div>
-            </div>
-            <!-- Y -->
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-left: 3px solid var(--accent-amber); border-radius: 6px; padding: 8px 10px; font-size: 0.75rem; font-family: var(--font-mono);">
-              <div style="color: var(--accent-amber); font-weight: 700; margin-bottom: 4px;">Y:</div>
-              <div style="display:flex; justify-content:space-between; color: var(--text-muted); margin-bottom: 2px;">
-                <span>thumb:</span>
-                <strong id="diag-y-th" style="color: var(--text-main);">0%</strong>
-              </div>
-              <div style="display:flex; justify-content:space-between; color: var(--text-muted); margin-bottom: 2px;">
-                <span>pinky:</span>
-                <strong id="diag-y-pk" style="color: var(--text-main);">0%</strong>
-              </div>
-              <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
-                <span>center flex:</span>
-                <strong id="diag-y-cflx" style="color: var(--text-main);">0%</strong>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Banner Evaluación Detallada y Feedback -->
-        <div class="target-banner" style="padding: 12px 18px;">
-          <div>
-            <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;">EVALUANDO SEÑA</div>
-            <div id="target-sign-text" class="target-huge" style="font-size:2.2rem;">A</div>
-          </div>
-          <div class="verdict-box">
-            <div id="verdict-tag" class="verdict-tag fail">EVALUANDO</div>
-            <div style="font-family:var(--font-mono); font-size:1rem; font-weight:700;">
-              SCORE: <span id="overall-score-text">0.00</span> / 1.00
-            </div>
-            <div class="score-meter">
-              <div id="score-bar" class="score-fill"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tarjeta de Feedback Explicable -->
-        <div id="feedback-card" class="feedback-card">
-          <div id="feedback-primary" class="feedback-title">Iniciando sistema...</div>
-          <div id="feedback-secondary" class="feedback-detail">Coloca tu mano frente al ESP32-CAM.</div>
-        </div>
-
-        <!-- 4 Parámetros Constitutivos -->
-        <div class="params-grid">
-          <div class="param-box">
-            <span class="param-name">Queirema (Configuración)</span>
-            <div class="param-score-line">
-              <span id="param-config-status" style="color:var(--text-muted)">--</span>
-              <span id="param-config-score">0.00</span>
-            </div>
-          </div>
-          <div class="param-box">
-            <span class="param-name">Orientación de Palma</span>
-            <div class="param-score-line">
-              <span id="param-orient-status" style="color:var(--text-muted)">--</span>
-              <span id="param-orient-score">0.00</span>
-            </div>
-          </div>
-          <div class="param-box">
-            <span class="param-name">Kinema (Dinámica)</span>
-            <div class="param-score-line">
-              <span id="param-mov-status" style="color:var(--text-muted)">--</span>
-              <span id="param-mov-score">0.00</span>
-            </div>
-          </div>
-          <div class="param-box">
-            <span class="param-name">Toponema (Ubicación)</span>
-            <div class="param-score-line">
-              <span id="param-loc-status" style="color:var(--text-muted)">--</span>
-              <span id="param-loc-score">0.00</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Fusión e Instrumentación Mecatrónica -->
-        <div style="margin-top: 10px;">
-          <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--accent-cyan); margin-bottom: 6px;">
-            FUSIÓN TEMPORAL E INSTRUMENTACIÓN MECATRÓNICA
-          </div>
-          <div class="hw-status-row" style="grid-template-columns: repeat(4, 1fr);">
-            <div class="hw-metric">
-              <span>FUSIÓN VÁLIDA</span>
-              <strong id="metric-fusion">NO</strong>
-            </div>
-            <div class="hw-metric">
-              <span>ORIENTACIÓN IMU</span>
-              <strong id="metric-orient-status">--</strong>
-            </div>
-            <div class="hw-metric">
-              <span>ROLL / PITCH / TILT</span>
-              <strong id="metric-imu">0.0° / 0.0° (Δ 0.0°)</strong>
-            </div>
-            <div class="hw-metric">
-              <span>YAW ABSOLUTO</span>
-              <strong id="metric-yaw" style="color:var(--text-muted)">N/A</strong>
-            </div>
-          </div>
-        </div>
-
       </div>
+
+      <!-- ESTADO (TARJETA GRANDE) -->
+      <div class="status-card esperando" id="main-status-card">
+        <div class="status-title" id="main-status-title">⚪ ESPERANDO</div>
+      </div>
+
+      <!-- CUATRO COMPROBACIONES -->
+      <div class="checklist-card">
+        <div class="check-row">
+          <span class="check-name">DEDOS</span>
+          <span class="check-badge" id="check-dedos">⚪</span>
+        </div>
+        <div class="check-row">
+          <span class="check-name">ORIENTACIÓN</span>
+          <span class="check-badge" id="check-orientacion">⚪</span>
+        </div>
+        <div class="check-row">
+          <span class="check-name">MOVIMIENTO</span>
+          <span class="check-badge" id="check-movimiento">⚪</span>
+        </div>
+        <div class="check-row">
+          <span class="check-name">UBICACIÓN</span>
+          <span class="check-badge" id="check-ubicacion">⚪</span>
+        </div>
+      </div>
+
+      <!-- FEEDBACK ÚNICO DIRECTO -->
+      <div class="feedback-banner" id="feedback-banner">
+        <span class="feedback-icon" id="feedback-icon">💬</span>
+        <span id="feedback-line">Coloca tu mano frente a la cámara para iniciar.</span>
+      </div>
+
     </div>
   </main>
 
-  <footer>
-    <span>INDIVISA INGENIUM 2026 — Arquitectura Raspberry Pi 5 + ESP32-CAM + Laptop Browser</span>
-    <span id="connection-state-label" style="font-family:var(--font-mono)">WS: Desconectado</span>
-  </footer>
+  <!-- PANEL DEBUG OCULTO POR DEFECTO -->
+  <div class="debug-drawer" id="debug-drawer">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <strong>PANEL DE TELEMETRÍA INTERNA & DIAGNÓSTICO</strong>
+      <span id="debug-fps">FPS: -- | Latencia: -- ms</span>
+    </div>
+    <div class="debug-grid">
+      <div class="debug-box">
+        <h4>Candidatos</h4>
+        <div id="debug-candidates">--</div>
+      </div>
+      <div class="debug-box">
+        <h4>Sensores & IMU</h4>
+        <div id="debug-imu">MPU6050: -- | Tilt Error: --</div>
+      </div>
+      <div class="debug-box">
+        <h4>Morfometría Nivel 1</h4>
+        <div id="debug-l1">--</div>
+      </div>
+      <div class="debug-box">
+        <h4>Dinámica Nivel 2</h4>
+        <div id="debug-l2">--</div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    const signs = ['A', 'B', 'C', 'L', 'Y'];
-    let currentSign = 'A';
-    let isPaused = false;
+    const SIGN_METADATA = {
+      'A': { level: 1, name: 'Letra A', desc: 'Puño cerrado con pulgar colocado al costado.' },
+      'B': { level: 1, name: 'Letra B', desc: 'Cuatro dedos extendidos y juntos con pulgar en palma.' },
+      'C': { level: 1, name: 'Letra C', desc: 'Dedos curvados formando un arco continuo en C.' },
+      'L': { level: 1, name: 'Letra L', desc: 'Índice vertical y pulgar extendido en ángulo de 90°.' },
+      'Y': { level: 1, name: 'Letra Y', desc: 'Pulgar y meñique extendidos, tres centrales cerrados.' },
+      'J': { level: 2, name: 'Letra J', desc: 'Meñique extendido trazando una trayectoria en el aire.' },
+      'Ñ': { level: 2, name: 'Letra Ñ', desc: 'Configuración base de N con movimiento ondulante suave.' },
+      'Q': { level: 2, name: 'Letra Q', desc: 'Índice y pulgar hacia abajo con giro de muñeca.' },
+      'X': { level: 2, name: 'Letra X', desc: 'Índice en gancho con movimiento hacia atrás.' },
+      'Z': { level: 2, name: 'Letra Z', desc: 'Índice apuntador trazando una Z completa en el aire.' }
+    };
+
+    let activeSign = 'A';
+    let isAutoMode = true;
     let ws = null;
 
-    function connectWebSocket() {
-      const loc = window.location;
-      const wsProto = loc.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${wsProto}//${loc.host}/ws/telemetry`;
-
-      ws = new WebSocket(wsUrl);
-
-      ws.onopen = () => {
-        document.getElementById('connection-state-label').innerText = 'WS: Conectado (En vivo)';
-        document.getElementById('connection-state-label').style.color = 'var(--accent-green)';
-        document.getElementById('dot-health').className = 'pill-dot healthy';
-        document.getElementById('label-health').innerText = 'EN LÍNEA';
-      };
-
-      ws.onclose = () => {
-        document.getElementById('connection-state-label').innerText = 'WS: Reconectando...';
-        document.getElementById('connection-state-label').style.color = 'var(--accent-amber)';
-        document.getElementById('dot-health').className = 'pill-dot stalled';
-        document.getElementById('label-health').innerText = 'DESCONECTADO';
-        setTimeout(connectWebSocket, 1500);
-      };
-
-      ws.onerror = () => {
-        ws.close();
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          updateUI(data);
-        } catch (e) {
-          console.error('Error al procesar telemetría:', e);
-        }
-      };
+    function selectSign(sign) {
+      activeSign = sign.toUpperCase();
+      isAutoMode = false;
+      updateSelectorUI();
+      updateTargetCard();
+      sendWsAction('SET_SIGN', { sign: activeSign });
     }
 
-    let currentMode = 'AUTO';
-
-    function updateUI(data) {
-      if (!data) return;
-
-      // 1. Modo de operación
-      if (data.mode && data.mode !== currentMode) {
-        updateModeUI(data.mode);
-      }
-
-      // 2. Clasificación Automática de Seña
-      const autoClf = data.auto_classification || {};
-      const status = autoClf.status || 'NO_HAND';
-      const stableSign = autoClf.stable_sign || autoClf.sign;
-      const confVal = Math.round((autoClf.confidence || autoClf.score || 0) * 100);
-
-      const letterElem = document.getElementById('auto-detected-letter');
-      const confElem = document.getElementById('auto-conf-text');
-      const statusPill = document.getElementById('auto-status-pill');
-
-      if (status === 'RECOGNIZED' && stableSign) {
-        letterElem.innerText = stableSign;
-        letterElem.style.color = 'var(--accent-green)';
-        confElem.innerText = `${confVal}%`;
-        confElem.style.color = 'var(--accent-green)';
-        statusPill.className = 'status-tag recognized';
-        statusPill.innerText = 'RECONOCIDA';
-      } else if (status === 'AMBIGUOUS') {
-        letterElem.innerText = autoClf.predicted_sign ? `(${autoClf.predicted_sign}?)` : '--';
-        letterElem.style.color = 'var(--accent-amber)';
-        confElem.innerText = confVal > 0 ? `${confVal}%` : '--%';
-        confElem.style.color = 'var(--accent-amber)';
-        statusPill.className = 'status-tag ambiguous';
-        statusPill.innerText = 'NO CONCLUYENTE';
-      } else if (status === 'HAND_DETECTED') {
-        letterElem.innerText = '--';
-        letterElem.style.color = 'var(--accent-cyan)';
-        confElem.innerText = '--%';
-        confElem.style.color = 'var(--text-muted)';
-        statusPill.className = 'status-tag hand-detected';
-        statusPill.innerText = 'MANO DETECTADA';
-      } else { // NO_HAND
-        letterElem.innerText = '--';
-        letterElem.style.color = 'var(--text-muted)';
-        confElem.innerText = '--%';
-        confElem.style.color = 'var(--text-muted)';
-        statusPill.className = 'status-tag no-hand';
-        statusPill.innerText = 'SIN MANO';
-      }
-
-      // 3. Barras de Candidatos Nivel 1 (A, B, C, L, Y)
-      const candScores = data.candidate_scores || {};
-      ['A', 'B', 'C', 'L', 'Y'].forEach(s => {
-        const sc = candScores[s] !== undefined ? candScores[s] : 0.0;
-        const pct = Math.min(100, Math.max(0, Math.round(sc * 100)));
-        const barElem = document.getElementById(`bar-cand-${s}`);
-        const valElem = document.getElementById(`score-cand-${s}`);
-        if (barElem) barElem.style.width = `${pct}%`;
-        if (valElem) valElem.innerText = `${pct}%`;
-      });
-
-      // 3b. Bloque Diagnóstico de Morfometría en Tiempo Real
-      const diag = data.diagnostics || {};
-      if (diag.b) {
-        const bFold = document.getElementById('diag-b-fold');
-        const bAdd = document.getElementById('diag-b-add');
-        if (bFold) bFold.innerText = `${Math.round(diag.b.thumb_fold || 0)}%`;
-        if (bAdd) bAdd.innerText = `${Math.round(diag.b.adduction || 0)}%`;
-      }
-      if (diag.c) {
-        const cCurv = document.getElementById('diag-c-curv');
-        const cOpen = document.getElementById('diag-c-open');
-        if (cCurv) cCurv.innerText = `${Math.round(diag.c.curvature || 0)}%`;
-        if (cOpen) cOpen.innerText = `${Math.round(diag.c.opening || 0)}%`;
-      }
-      if (diag.y) {
-        const yTh = document.getElementById('diag-y-th');
-        const yPk = document.getElementById('diag-y-pk');
-        const yCflx = document.getElementById('diag-y-cflx');
-        if (yTh) yTh.innerText = `${Math.round(diag.y.thumb || 0)}%`;
-        if (yPk) yPk.innerText = `${Math.round(diag.y.pinky || 0)}%`;
-        if (yCflx) yCflx.innerText = `${Math.round(diag.y.center_flex || 0)}%`;
-      }
-
-      // Seña objetivo y controles
-      if (data.target_sign && data.target_sign !== currentSign) {
-        currentSign = data.target_sign;
-        updateActiveButton(currentSign);
-      }
-      document.getElementById('target-sign-text').innerText = currentSign;
-
-      // Latencia
-      if (data.pipeline_latency_ms !== undefined) {
-        document.getElementById('label-latency').innerText = `${data.pipeline_latency_ms} ms`;
-      }
-
-      // Cámara y FPS
-      document.getElementById('badge-fps').innerText = (data.camera_fps || 0.0).toFixed(1);
-      const camStatus = data.camera_status || 'UNKNOWN';
-      document.getElementById('camera-status-pill').innerText = `CAM: ${camStatus}`;
-
-      // Detección de mano
-      const hasHand = !!data.has_hand;
-      const handBadge = document.getElementById('badge-hand');
-      const roiGuide = document.getElementById('hand-roi-guide');
-      if (hasHand) {
-        const conf = Math.round((data.confidence || 0) * 100);
-        handBadge.innerText = `DETECTADA (${conf}%)`;
-        handBadge.style.color = 'var(--accent-green)';
-        if (roiGuide) roiGuide.classList.add('hand-detected');
-      } else {
-        handBadge.innerText = 'NO DETECTADA';
-        handBadge.style.color = 'var(--accent-amber)';
-        if (roiGuide) roiGuide.classList.remove('hand-detected');
-      }
-
-      if (data.mode) {
-        const modePill = document.getElementById('label-mode-pill');
-        if (modePill) modePill.innerText = `MODE: ${data.mode}`;
-      }
-
-      // Pausa
-      isPaused = !!data.is_paused;
-      document.getElementById('pill-pause').style.display = isPaused ? 'block' : 'none';
-
-      // Evaluación
-      const ev = data.evaluation || {};
-      const score = ev.overall_score || 0.0;
-      const isValid = !!ev.is_valid;
-
-      document.getElementById('overall-score-text').innerText = score.toFixed(2);
-      const bar = document.getElementById('score-bar');
-      bar.style.width = `${Math.min(100, Math.max(0, score * 100))}%`;
-
-      const vtag = document.getElementById('verdict-tag');
-      if (isValid) {
-        vtag.className = 'verdict-tag pass';
-        vtag.innerText = 'CORRECTO';
-      } else {
-        vtag.className = 'verdict-tag fail';
-        vtag.innerText = hasHand ? 'CORREGIR' : 'SIN MANO';
-      }
-
-      // Feedback Card
-      const fb = data.feedback || {};
-      const fbCard = document.getElementById('feedback-card');
-      if (!isCalibrating) {
-        document.getElementById('feedback-primary').innerText = fb.primary_message || 'Esperando ejecución...';
-        document.getElementById('feedback-secondary').innerText = fb.secondary_message || '';
-        fbCard.style.borderLeftColor = fb.color || 'var(--accent-cyan)';
-      }
-
-      // 4 Parámetros
-      const params = ev.parameters || {};
-      if (params.configuration) {
-        document.getElementById('param-config-score').innerText = (params.configuration.score || 0).toFixed(2);
-        document.getElementById('param-config-status').innerText = params.configuration.status || '--';
-        document.getElementById('param-config-status').style.color = params.configuration.status === 'PASS' ? 'var(--accent-green)' : 'var(--accent-amber)';
-      }
-      if (params.orientation) {
-        document.getElementById('param-orient-score').innerText = (params.orientation.score || 0).toFixed(2);
-        document.getElementById('param-orient-status').innerText = params.orientation.status || '--';
-        document.getElementById('param-orient-status').style.color = params.orientation.status === 'PASS' ? 'var(--accent-green)' : 'var(--accent-amber)';
-      }
-      if (params.movement) {
-        document.getElementById('param-mov-score').innerText = (params.movement.score || 0).toFixed(2);
-        document.getElementById('param-mov-status').innerText = params.movement.status || '--';
-        document.getElementById('param-mov-status').style.color = params.movement.status === 'PASS' ? 'var(--accent-green)' : 'var(--accent-amber)';
-      }
-      if (params.location) {
-        document.getElementById('param-loc-score').innerText = (params.location.score || 0).toFixed(2);
-        document.getElementById('param-loc-status').innerText = params.location.status || '--';
-        document.getElementById('param-loc-status').style.color = params.location.status === 'PASS' ? 'var(--accent-green)' : 'var(--accent-amber)';
-      }
-
-      // Fusión y sensores MPU6050
-      const fusion = data.fusion || {};
-      const isFusionValid = !!fusion.valid_fusion;
-      const fMetric = document.getElementById('metric-fusion');
-      if (fMetric) {
-        fMetric.innerText = isFusionValid ? 'ACTIVA (VIS+IMU)' : (data.has_hand ? 'VISIÓN SOLA' : 'NO');
-        fMetric.style.color = isFusionValid ? 'var(--accent-green)' : (data.has_hand ? 'var(--accent-cyan)' : 'var(--accent-amber)');
-      }
-
-      const sensTel = data.sensor_telemetry || {};
-      const orientInfo = ev.parameters && ev.parameters.orientation ? ev.parameters.orientation : {};
-      const orientState = orientInfo.orientation_state || '';
-
-      const oMetric = document.getElementById('metric-orient-status');
-      if (oMetric) {
-        if (!sensTel.is_connected && !data.subsystems_mock?.sensors) {
-          oMetric.innerText = 'ORIENTATION_UNAVAILABLE';
-          oMetric.style.color = 'var(--accent-red)';
-        } else if (orientState === 'ORIENTATION_UNAVAILABLE') {
-          oMetric.innerText = 'ORIENTATION_UNAVAILABLE';
-          oMetric.style.color = 'var(--accent-amber)';
-        } else if (orientState === 'ORIENTATION_OK' || orientState === 'IMU_TILT_OK') {
-          oMetric.innerText = '✅ CORRECTA';
-          oMetric.style.color = 'var(--accent-green)';
-        } else if (orientState === 'ORIENTATION_ADJUST' || orientState === 'IMU_TILT_ADJUST') {
-          oMetric.innerText = '⚠️ AJUSTAR';
-          oMetric.style.color = 'var(--accent-amber)';
-        } else if (orientState === 'ORIENTATION_FAIL' || orientState === 'IMU_TILT_FAIL') {
-          oMetric.innerText = '❌ INCORRECTA';
-          oMetric.style.color = 'var(--accent-red)';
-        } else {
-          oMetric.innerText = '--';
-          oMetric.style.color = 'var(--text-muted)';
-        }
-      }
-
-      const roll = (sensTel.imu_roll_deg || 0).toFixed(1);
-      const pitch = (sensTel.imu_pitch_deg || 0).toFixed(1);
-      let tiltErrStr = 'N/A';
-      if (orientInfo.tilt_error !== null && orientInfo.tilt_error !== undefined) {
-        tiltErrStr = `${Number(orientInfo.tilt_error).toFixed(1)}°`;
-      } else if (sensTel.tilt_error_deg !== null && sensTel.tilt_error_deg !== undefined && sensTel.is_connected) {
-        tiltErrStr = `${Number(sensTel.tilt_error_deg).toFixed(1)}°`;
-      }
-      const imuElem = document.getElementById('metric-imu');
-      if (imuElem) {
-        if (!sensTel.is_connected && !data.subsystems_mock?.sensors) {
-          imuElem.innerText = 'N/A (DESCONECTADO)';
-        } else {
-          imuElem.innerText = `${roll}° / ${pitch}° (Δ ${tiltErrStr})`;
-        }
-      }
-      const yawElem = document.getElementById('metric-yaw');
-      if (yawElem) {
-        yawElem.innerText = 'N/A';
-      }
+    function toggleAutoMode() {
+      isAutoMode = !isAutoMode;
+      const modeStr = isAutoMode ? 'AUTO' : 'MANUAL';
+      sendWsAction('SET_MODE', { mode: modeStr });
+      updateSelectorUI();
     }
 
-    function updateModeUI(mode) {
-      currentMode = mode;
-      const modePill = document.getElementById('mode-badge');
-      if (modePill) {
-        modePill.innerText = `MODO: ${mode === 'AUTO' ? 'AUTOMÁTICO' : 'MANUAL'}`;
-        modePill.className = `mode-pill ${mode.toLowerCase()}`;
-      }
-      const btnAuto = document.getElementById('btn-auto-mode');
+    function updateSelectorUI() {
+      // Botón Auto
+      const btnAuto = document.getElementById('btn-auto');
       if (btnAuto) {
-        if (mode === 'AUTO') {
-          btnAuto.classList.add('active-mode');
-        } else {
-          btnAuto.classList.remove('active-mode');
-        }
+        btnAuto.className = isAutoMode ? 'btn-auto active' : 'btn-auto';
+        btnAuto.innerText = isAutoMode ? 'Modo Automático: ACTIVO' : 'Modo Manual: ACTIVO';
       }
-    }
 
-    function setMode(mode) {
-      currentMode = mode.toUpperCase();
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ action: 'SET_MODE', mode: currentMode }));
-      }
-      updateModeUI(currentMode);
-    }
-
-    function toggleMode() {
-      const next = currentMode === 'AUTO' ? 'MANUAL' : 'AUTO';
-      setMode(next);
-    }
-
-    function updateActiveButton(sign) {
-      document.querySelectorAll('.key-btn').forEach(btn => {
-        if (btn.getAttribute('data-sign') === sign) {
+      // Botones de señas
+      document.querySelectorAll('.btn-sign').forEach(btn => {
+        if (btn.getAttribute('data-sign') === activeSign) {
           btn.classList.add('active');
         } else {
           btn.classList.remove('active');
@@ -1281,69 +691,208 @@
       });
     }
 
-    function sendSign(sign) {
-      currentSign = sign;
-      updateActiveButton(sign);
-      updateModeUI('MANUAL');
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ action: 'SET_SIGN', sign: sign }));
+    function updateTargetCard() {
+      const meta = SIGN_METADATA[activeSign] || { level: 1, name: activeSign, desc: '' };
+      document.getElementById('target-letter-display').innerText = activeSign;
+      document.getElementById('target-level-caption').innerText = `SEÑA OBJETIVO (NIVEL ${meta.level})`;
+      document.getElementById('target-name').innerText = meta.name;
+      document.getElementById('target-desc').innerText = meta.desc;
+
+      const l2Banner = document.getElementById('level2-banner');
+      if (l2Banner) {
+        l2Banner.style.display = (meta.level === 2) ? 'flex' : 'none';
       }
     }
 
-    function togglePause() {
+    function toggleDebug() {
+      const drawer = document.getElementById('debug-drawer');
+      drawer.classList.toggle('open');
+    }
+
+    // WEBSOCKET
+    function connectWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/ws/telemetry`;
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        console.log('WebSocket telemetría conectado.');
+        document.getElementById('label-system-ready').innerText = 'SISTEMA LISTO';
+      };
+
+      ws.onclose = () => {
+        console.warn('WebSocket desconectado, reintentando...');
+        document.getElementById('label-system-ready').innerText = 'RECONECTANDO...';
+        setTimeout(connectWebSocket, 1500);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          renderUI(data);
+        } catch (e) {
+          console.error('Error parseando telemetría:', e);
+        }
+      };
+    }
+
+    function sendWsAction(action, params = {}) {
       if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ action: 'TOGGLE_PAUSE' }));
+        ws.send(JSON.stringify({ action: action, ...params }));
       }
     }
 
-    let isCalibrating = false;
-    function recalibrate() {
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ action: 'RECALIBRATE' }));
-        isCalibrating = true;
-        const fbPrimary = document.getElementById('feedback-primary');
-        const fbSec = document.getElementById('feedback-secondary');
-        const fbCard = document.getElementById('feedback-card');
-        if (fbPrimary) fbPrimary.innerText = 'CALIBRANDO ORIENTACIÓN...';
-        if (fbSec) fbSec.innerText = 'Mantén la mano en posición de referencia (palma al frente, muñeca recta).';
-        if (fbCard) fbCard.style.borderLeftColor = 'var(--accent-cyan)';
-        setTimeout(() => {
-          if (fbPrimary) fbPrimary.innerText = 'CALIBRACIÓN COMPLETA.';
-          if (fbSec) fbSec.innerText = 'Referencia neutra del sensor MPU6050 guardada con éxito.';
-          if (fbCard) fbCard.style.borderLeftColor = 'var(--accent-green)';
-          setTimeout(() => { isCalibrating = false; }, 2000);
-        }, 3200);
+    // RENDER PRINCIPAL
+    function renderUI(data) {
+      if (!data) return;
+
+      // 1. Sincronizar Seña activa y Modo si viene del backend
+      if (data.target_sign && data.target_sign !== activeSign) {
+        activeSign = data.target_sign;
+        updateSelectorUI();
+        updateTargetCard();
+      }
+      if (data.mode) {
+        const backendAuto = (data.mode === 'AUTO');
+        if (backendAuto !== isAutoMode) {
+          isAutoMode = backendAuto;
+          updateSelectorUI();
+        }
+      }
+
+      const hasHand = !!data.has_hand;
+      const roiGuide = document.getElementById('placement-guide');
+      const guideText = document.getElementById('guide-text');
+      if (hasHand) {
+        roiGuide.classList.add('active');
+        guideText.innerText = 'Mano detectada';
+      } else {
+        roiGuide.classList.remove('active');
+        guideText.innerText = 'Coloca tu mano aquí';
+      }
+
+      // 2. Extraer evaluación y parámetros
+      const ev = data.evaluation || {};
+      const params = ev.parameters || {};
+      const isValid = !!ev.is_valid;
+      const overallScore = ev.overall_score || 0.0;
+      const statusCard = document.getElementById('main-status-card');
+      const statusTitle = document.getElementById('main-status-title');
+
+      // 3. Tarjeta Grande de Estado (✅ CORRECTA / ⚠️ CORRIGE / ❌ INCORRECTA / ⚪ ESPERANDO)
+      if (!hasHand) {
+        statusCard.className = 'status-card esperando';
+        statusTitle.innerText = '⚪ ESPERANDO';
+      } else if (isValid) {
+        statusCard.className = 'status-card correcta';
+        statusTitle.innerText = '✅ CORRECTA';
+      } else if (overallScore >= 0.50 || (ev.dynamic_status && ['MOVING', 'PREPARING'].includes(ev.dynamic_status))) {
+        statusCard.className = 'status-card corrige';
+        statusTitle.innerText = '⚠️ CORRIGE';
+      } else {
+        statusCard.className = 'status-card incorrecta';
+        statusTitle.innerText = '❌ INCORRECTA';
+      }
+
+      // 4. Las Cuatro Comprobaciones (DEDOS, ORIENTACIÓN, MOVIMIENTO, UBICACIÓN)
+      renderCheck('check-dedos', params.configuration);
+      renderCheck('check-orientacion', params.orientation);
+      renderCheck('check-movimiento', params.movement);
+      renderCheck('check-ubicacion', params.location);
+
+      // 5. Línea Única de Feedback
+      const fbLine = document.getElementById('feedback-line');
+      const fbIcon = document.getElementById('feedback-icon');
+      const fbBanner = document.getElementById('feedback-banner');
+
+      if (!hasHand) {
+        fbLine.innerText = 'Coloca tu mano dentro de la zona frente a la cámara.';
+        fbIcon.innerText = '👋';
+        fbBanner.style.borderLeftColor = 'var(--slate)';
+      } else if (isValid) {
+        fbLine.innerText = `¡Excelente! Seña ${activeSign} realizada correctamente.`;
+        fbIcon.innerText = '✅';
+        fbBanner.style.borderLeftColor = 'var(--green)';
+      } else {
+        const msg = ev.message || (data.feedback && data.feedback.primary_message) || 'Ajusta la postura de tu mano.';
+        fbLine.innerText = msg;
+        fbIcon.innerText = '👉';
+        fbBanner.style.borderLeftColor = 'var(--amber)';
+      }
+
+      // 6. Telemetría Debug (Oculta por defecto)
+      renderDebug(data);
+    }
+
+    function renderCheck(elemId, paramObj) {
+      const el = document.getElementById(elemId);
+      if (!el) return;
+      if (!paramObj) {
+        el.innerText = '⚪';
+        return;
+      }
+      const st = paramObj.status;
+      if (st === 'PASS') {
+        el.innerText = '✅';
+      } else if (st === 'CORRECT' || st === 'PREPARING') {
+        el.innerText = '⚠️';
+      } else if (st === 'FAIL') {
+        el.innerText = '❌';
+      } else {
+        el.innerText = '⚪';
       }
     }
 
-    function nextSign() {
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ action: 'NEXT_SIGN' }));
+    function renderDebug(data) {
+      const fpsElem = document.getElementById('debug-fps');
+      if (fpsElem) {
+        fpsElem.innerText = `FPS: ${(data.camera_fps || 0).toFixed(1)} | Latencia: ${data.pipeline_latency_ms || 0} ms`;
+      }
+
+      const cands = data.candidate_scores || {};
+      const candElem = document.getElementById('debug-candidates');
+      if (candElem) {
+        candElem.innerText = Object.entries(cands)
+          .map(([k, v]) => `${k}:${Math.round(v * 100)}%`)
+          .join(' | ');
+      }
+
+      const sens = data.sensor_telemetry || {};
+      const imuElem = document.getElementById('debug-imu');
+      if (imuElem) {
+        imuElem.innerText = `Roll: ${sens.imu_roll_deg || 0}° | Pitch: ${sens.imu_pitch_deg || 0}° | Δ Tilt: ${sens.tilt_error_deg || 0}°`;
+      }
+
+      const diag = data.diagnostics || {};
+      const l1Elem = document.getElementById('debug-l1');
+      if (l1Elem) {
+        l1Elem.innerText = `B(fold:${diag.b?.thumb_fold || 0}%, add:${diag.b?.adduction || 0}%) | C(curv:${diag.c?.curvature || 0}%)`;
+      }
+
+      const l2Elem = document.getElementById('debug-l2');
+      if (l2Elem && diag.level_2) {
+        l2Elem.innerText = `J:${diag.level_2.j_base}% | N:${diag.level_2.n_base}% | Q:${diag.level_2.q_base}% | X:${diag.level_2.x_hook}% | Z:${diag.level_2.z_base}%`;
       }
     }
 
-    // Manejo de eventos de teclado físico en Laptop
+    // TECLADO LAPTOP
     window.addEventListener('keydown', (e) => {
-      // Ignorar si el foco está en un input
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
       const key = e.key.toUpperCase();
-      if (signs.includes(key)) {
+      if (SIGN_METADATA[key]) {
         e.preventDefault();
-        sendSign(key);
+        selectSign(key);
       } else if (e.code === 'Space') {
         e.preventDefault();
-        togglePause();
+        sendWsAction('TOGGLE_PAUSE');
       } else if (key === 'R') {
         e.preventDefault();
-        recalibrate();
-      } else if (e.code === 'Tab') {
-        e.preventDefault();
-        nextSign();
+        sendWsAction('RECALIBRATE');
       }
     });
 
-    // Iniciar conexión WebSocket
+    // INICIALIZACIÓN
+    updateSelectorUI();
+    updateTargetCard();
     connectWebSocket();
   </script>
 </body>

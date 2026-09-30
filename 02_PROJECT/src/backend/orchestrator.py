@@ -229,8 +229,9 @@ class SystemOrchestrator:
         # 4. Fusión sensorial (Visión + Sensores físicos)
         fused_state = self.fusion.fuse(landmarks_data, sensor_data)
 
-        # 5. Clasificación automática LSM Nivel 1 (A, B, C, L, Y)
-        classification = self.classifier.classify(fused_state)
+        # 5. Clasificación automática LSM Nivel 1 / Nivel 2
+        active_target = self.target_sign if self.mode == "MANUAL" else None
+        classification = self.classifier.classify(fused_state, target_sign=active_target)
 
         # Si estamos en modo AUTO y hay una seña estable reconocida, actualizar seña activa
         if self.mode == "AUTO":

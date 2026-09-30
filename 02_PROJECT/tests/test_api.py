@@ -42,7 +42,7 @@ def test_api_set_sign_valid_and_invalid():
     assert res_b.status_code == 200
     assert res_b.json()["target_sign"] == "B"
 
-    res_inv = client.post("/api/sign/Z")  # Z no es parte de Nivel 1 en esta fase
+    res_inv = client.post("/api/sign/W")  # W no es parte de las señas implementadas
     assert res_inv.status_code == 400
 
 

@@ -249,3 +249,182 @@ def test_evaluator_y_rejections():
     res_a = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_fist_a()}, target_sign="Y")
     assert res_a["is_valid"] is False
 
+
+def make_landmarks_a_with_index_extended():
+    """Seña A errónea: puño pero con índice extendido (debe rechazarse)."""
+    pts = make_landmarks_fist_a()
+    # Extender índice (5, 6, 7, 8)
+    for p in pts:
+        if p["id"] == 6:
+            p["y"] = 0.48
+            p["z"] = 0.0
+        elif p["id"] == 7:
+            p["y"] = 0.42
+            p["z"] = 0.0
+        elif p["id"] == 8:
+            p["y"] = 0.35
+            p["z"] = 0.0
+    return pts
+
+
+def make_landmarks_a_with_pinky_extended():
+    """Seña A errónea: puño pero con meñique extendido (debe rechazarse)."""
+    pts = make_landmarks_fist_a()
+    # Extender meñique (17, 18, 19, 20)
+    for p in pts:
+        if p["id"] == 18:
+            p["y"] = 0.48
+            p["z"] = 0.0
+        elif p["id"] == 19:
+            p["y"] = 0.42
+            p["z"] = 0.0
+        elif p["id"] == 20:
+            p["y"] = 0.35
+            p["z"] = 0.0
+    return pts
+
+
+def make_landmarks_b_with_thumb_extended():
+    """Seña B errónea: 4 dedos extendidos pero pulgar extendido al costado."""
+    pts = make_landmarks_flat_hand_b()
+    for p in pts:
+        if p["id"] == 1:
+            p["x"] = 0.44
+        elif p["id"] == 2:
+            p["x"] = 0.38
+        elif p["id"] == 3:
+            p["x"] = 0.32
+        elif p["id"] == 4:
+            p["x"] = 0.26
+    return pts
+
+
+def make_landmarks_b_with_splayed_fingers():
+    """Seña B errónea: 4 dedos extendidos pero muy separados (splay)."""
+    pts = make_landmarks_flat_hand_b()
+    for p in pts:
+        if p["id"] == 8:
+            p["x"] = 0.38
+        elif p["id"] == 12:
+            p["x"] = 0.48
+        elif p["id"] == 16:
+            p["x"] = 0.58
+        elif p["id"] == 20:
+            p["x"] = 0.68
+    return pts
+
+
+def make_landmarks_l_with_middle_extended():
+    """Seña L errónea: índice y pulgar extendidos pero dedo medio también extendido."""
+    pts = make_landmarks_l_shape()
+    for p in pts:
+        if p["id"] == 10:
+            p["y"] = 0.50
+        elif p["id"] == 11:
+            p["y"] = 0.42
+        elif p["id"] == 12:
+            p["y"] = 0.35
+    return pts
+
+
+def make_landmarks_y_with_index_extended():
+    """Seña Y errónea: pulgar y meñique extendidos pero índice también extendido."""
+    pts = make_landmarks_y_shape()
+    for p in pts:
+        if p["id"] == 6:
+            p["y"] = 0.50
+        elif p["id"] == 7:
+            p["y"] = 0.42
+        elif p["id"] == 8:
+            p["y"] = 0.35
+    return pts
+
+
+def make_landmarks_y_with_ring_extended():
+    """Seña Y errónea: pulgar y meñique extendidos pero anular también extendido."""
+    pts = make_landmarks_y_shape()
+    for p in pts:
+        if p["id"] == 14:
+            p["y"] = 0.50
+        elif p["id"] == 15:
+            p["y"] = 0.42
+        elif p["id"] == 16:
+            p["y"] = 0.35
+    return pts
+
+
+def test_level_1_strict_anatomical_rejections():
+    """Verifica todas las pruebas negativas y positivas obligatorias de Nivel 1."""
+    evaluator = LSMEvaluator()
+    orient_ok = {
+        "valid_fusion": True,
+        "sensor_connected": True,
+        "sensors_present": True,
+        "hand_orientation": {
+            "imu_present": True,
+            "sensor_type": "MPU6050",
+            "tilt_error": 4.0
+        }
+    }
+
+    # A: correcto
+    res_a_ok = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_fist_a(), **orient_ok}, target_sign="A")
+    assert res_a_ok["is_valid"] is True
+
+    # A: índice extendido -> reject
+    res_a_idx = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_a_with_index_extended(), **orient_ok}, target_sign="A")
+    assert res_a_idx["is_valid"] is False
+    assert "índice" in res_a_idx["message"]
+
+    # A: meñique extendido -> reject
+    res_a_pk = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_a_with_pinky_extended(), **orient_ok}, target_sign="A")
+    assert res_a_pk["is_valid"] is False
+    assert "meñique" in res_a_pk["message"]
+
+    # B: correcto
+    res_b_ok = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_flat_hand_b(), **orient_ok}, target_sign="B")
+    assert res_b_ok["is_valid"] is True
+
+    # B: pulgar extendido -> reject
+    res_b_th = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_b_with_thumb_extended(), **orient_ok}, target_sign="B")
+    assert res_b_th["is_valid"] is False
+    assert "pulgar" in res_b_th["message"]
+
+    # B: dedos separados -> reject
+    res_b_splay = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_b_with_splayed_fingers(), **orient_ok}, target_sign="B")
+    assert res_b_splay["is_valid"] is False
+
+    # C: correcto
+    res_c_ok = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_c_shape(), **orient_ok}, target_sign="C")
+    assert res_c_ok["is_valid"] is True
+
+    # C: mano abierta -> reject
+    res_c_open = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_open_hand(), **orient_ok}, target_sign="C")
+    assert res_c_open["is_valid"] is False
+
+    # C: puño cerrado -> reject
+    res_c_fist = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_fist_a(), **orient_ok}, target_sign="C")
+    assert res_c_fist["is_valid"] is False
+
+    # L: correcto
+    res_l_ok = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_l_shape(), **orient_ok}, target_sign="L")
+    assert res_l_ok["is_valid"] is True
+
+    # L: medio extendido -> reject
+    res_l_mid = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_l_with_middle_extended(), **orient_ok}, target_sign="L")
+    assert res_l_mid["is_valid"] is False
+    assert "medio" in res_l_mid["message"]
+
+    # Y: correcto
+    res_y_ok = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_y_shape(), **orient_ok}, target_sign="Y")
+    assert res_y_ok["is_valid"] is True
+
+    # Y: índice extendido -> reject
+    res_y_idx = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_y_with_index_extended(), **orient_ok}, target_sign="Y")
+    assert res_y_idx["is_valid"] is False
+    assert "índice" in res_y_idx["message"]
+
+    # Y: anular extendido -> reject
+    res_y_ring = evaluator.evaluate({"vision_present": True, "raw_landmarks": make_landmarks_y_with_ring_extended(), **orient_ok}, target_sign="Y")
+    assert res_y_ring["is_valid"] is False
+    assert "anular" in res_y_ring["message"]

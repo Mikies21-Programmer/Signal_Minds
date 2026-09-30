@@ -6,21 +6,24 @@ NUNCA afirma 'seña correcta' únicamente por la presencia de una mano.
 Incluye calibración discriminativa de alta precisión para rechazar manos abiertas y posturas ambiguas.
 """
 
+import time
 from typing import Dict, Any, Optional, List
-from .geometry import HandGeometryFeatures, clamp
+from .geometry import HandGeometryFeatures, euclidean_distance_3d, clamp
+from .dynamic import DynamicGestureTracker
 from ..backend.logger import get_logger
 
 logger = get_logger("lsm")
 
 
 class LSMEvaluator:
-    """Evaluador de corrección fonológica y anatómica de LSM para Nivel 1."""
+    """Evaluador de corrección fonológica y anatómica de LSM para Nivel 1 y Nivel 2."""
 
     def __init__(self, config=None):
         self.config = config
         self.active_level = 1
         self.target_sign = "A"
         self.threshold = 0.78
+        self.dynamic_tracker = DynamicGestureTracker()
 
         if config:
             lsm_conf = config.get("lsm", {}) if hasattr(config, "get") else {}
@@ -42,10 +45,18 @@ class LSMEvaluator:
             self.y_adjust_deg = 30.0
             self.hysteresis_deg = 2.0
 
-        logger.info(f"LSMEvaluator inicializado con reglas geométricas Nivel 1. Seña inicial: '{self.target_sign}'.")
+        if self.target_sign in DynamicGestureTracker.LEVEL_2_SIGNS:
+            self.active_level = 2
+
+        logger.info(f"LSMEvaluator inicializado con reglas Nivel 1 y Nivel 2 dinámico. Seña inicial: '{self.target_sign}' (Nivel {self.active_level}).")
 
     def set_target_sign(self, sign: str) -> None:
         self.target_sign = sign.upper()
+        if self.target_sign in DynamicGestureTracker.LEVEL_2_SIGNS:
+            self.active_level = 2
+            self.dynamic_tracker.reset()
+        else:
+            self.active_level = 1
 
     def evaluate_orientation(self, sign: str, fused: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -236,13 +247,89 @@ class LSMEvaluator:
                 }
             }
 
-        # 2. Análisis geométrico de la mano
+        # 2. Registrar muestra en el DynamicGestureTracker con telemetría real
+        sensor_data = fused_state.get("sensor_telemetry") or fused_state.get("hand_orientation")
+        ts = fused_state.get("timestamp_vision") or fused_state.get("timestamp") or time.time()
+        self.dynamic_tracker.add_sample(raw_landmarks, sensor_telemetry=sensor_data, timestamp=ts)
+
+        # 3. Análisis geométrico de la mano
         handedness = fused_state.get("handedness", "Right")
         geom = HandGeometryFeatures(raw_landmarks, handedness=handedness)
         ext = geom.get_finger_extension_states()
         cx, cy = geom.get_hand_center()
 
-        # Evaluación por seña
+        # Ubicación espacial (Toponema): centrado en el encuadre
+        in_bounds = (0.12 <= cx <= 0.88) and (0.12 <= cy <= 0.88)
+        loc_score = 0.95 if in_bounds else 0.40
+        loc_status = "PASS" if in_bounds else "CORRECT"
+        loc_reason = "Mano en zona neutra adecuada" if in_bounds else "Centra tu mano en el encuadre"
+
+        # EVALUACIÓN DE SEÑAS DINÁMICAS (NIVEL 2: J, Ñ, Q, X, Z)
+        if sign in DynamicGestureTracker.LEVEL_2_SIGNS:
+            self.active_level = 2
+            dyn_eval = self.dynamic_tracker.evaluate_sign(sign, geom)
+            orient_eval = self.evaluate_orientation(sign, fused_state)
+            orient_status = orient_eval.get("status", "UNAVAILABLE")
+
+            dyn_status = dyn_eval.get("status", "EVALUATING")
+            is_dyn_valid = dyn_eval.get("is_valid", False)
+
+            if orient_status == "UNAVAILABLE":
+                is_valid = False
+                message = "Orientación no disponible"
+                overall = dyn_eval.get("score", 0.0) * 0.75
+            else:
+                is_valid = is_dyn_valid and (orient_eval["score"] >= 0.65)
+                overall = dyn_eval.get("score", 0.0) * 0.75 + orient_eval["score"] * 0.25
+                if is_valid:
+                    message = "Seña correcta"
+                elif orient_eval["score"] < 0.65:
+                    message = orient_eval["reason"]
+                else:
+                    message = dyn_eval.get("message", "Completa el movimiento dinámico.")
+
+            return {
+                "sign": sign,
+                "level": 2,
+                "is_valid": is_valid,
+                "overall_score": round(overall, 3),
+                "threshold": self.threshold,
+                "message": message,
+                "dynamic_status": dyn_status,
+                "parameters": {
+                    "configuration": {
+                        "score": round(dyn_eval.get("score", 0.0), 3),
+                        "status": dyn_eval.get("param_status", {}).get("config", "PASS"),
+                        "param_name": "Queirema (Configuración de dedos)",
+                        "reason": dyn_eval.get("message", "Configuración de mano")
+                    },
+                    "orientation": {
+                        "score": round(orient_eval["score"], 3),
+                        "status": orient_status,
+                        "orientation_state": orient_eval["orientation_state"],
+                        "tilt_error": orient_eval["tilt_error"],
+                        "param_name": "Orientación de palma (IMU MPU6050)",
+                        "reason": orient_eval["reason"]
+                    },
+                    "movement": {
+                        "score": round(dyn_eval.get("metrics", {}).get("path_length", 0.0), 3),
+                        "status": dyn_eval.get("param_status", {}).get("mov", "CORRECT"),
+                        "param_name": "Kinema (Dinámica)",
+                        "reason": dyn_eval.get("message", "Movimiento dinámico")
+                    },
+                    "location": {
+                        "score": round(loc_score, 3),
+                        "status": loc_status,
+                        "param_name": "Toponema (Ubicación espacial)",
+                        "reason": loc_reason
+                    }
+                },
+                "diagnostics": geom.get_diagnostics(),
+                "trajectory_metrics": dyn_eval.get("metrics", {})
+            }
+
+        # EVALUACIÓN DE SEÑAS ESTÁTICAS (NIVEL 1: A, B, C, L, Y)
+        self.active_level = 1
         if sign == "A":
             eval_dict = self._evaluate_sign_a(geom, ext, fused_state)
         elif sign == "B":
@@ -257,21 +344,13 @@ class LSMEvaluator:
             orient_eval = self.evaluate_orientation(sign, fused_state)
             eval_dict = {
                 "config_score": 0.0,
-                "config_reason": f"Seña '{sign}' no implementada en Nivel 1",
+                "config_reason": f"Seña '{sign}' no implementada",
                 "orient_score": orient_eval["score"],
                 "orient_reason": orient_eval["reason"],
                 "orient_status": orient_eval["status"],
                 "orientation_state": orient_eval["orientation_state"],
-                "tilt_error": orient_eval["tilt_error"],
-                "mov_score": 0.0,
-                "loc_score": 0.0
+                "tilt_error": orient_eval["tilt_error"]
             }
-
-        # Ubicación espacial (Toponema): centrado en el encuadre
-        in_bounds = (0.12 <= cx <= 0.88) and (0.12 <= cy <= 0.88)
-        loc_score = 0.95 if in_bounds else 0.40
-        loc_status = "PASS" if in_bounds else "CORRECT"
-        loc_reason = "Mano en zona neutra adecuada" if in_bounds else "Centra tu mano en el encuadre"
 
         # Dinámica (Kinema): para señas estáticas de Nivel 1 el kinema es 1.0 si es estable
         mov_score = 1.0
@@ -301,7 +380,7 @@ class LSMEvaluator:
 
         return {
             "sign": sign,
-            "level": self.active_level,
+            "level": 1,
             "is_valid": is_valid,
             "overall_score": round(overall, 3),
             "threshold": self.threshold,
@@ -345,12 +424,13 @@ class LSMEvaluator:
         """Seña 'A': 4 dedos cerrados en puño, pulgar extendido/erguido al costado."""
         errors = []
         c_score = 1.0
+        finger_names_es = {"index": "índice", "middle": "medio", "ring": "anular", "pinky": "meñique"}
 
         # Los 4 dedos deben estar flexionados
         for f in ["index", "middle", "ring", "pinky"]:
             if ext[f]:
                 c_score -= 0.25
-                errors.append(f"Flexiona el dedo {f}")
+                errors.append(f"Flexiona el dedo {finger_names_es[f]}.")
 
         # Pulgar debe estar al costado del índice
         scale = geom.get_palm_scale()
@@ -358,11 +438,11 @@ class LSMEvaluator:
         d_th_mcp5 = euclidean_distance_3d(geom.pts[4], geom.pts[5]) / scale
         if d_th_mcp5 > 0.65:
             c_score -= 0.20
-            errors.append("Coloca el pulgar erguido al costado del puño")
+            errors.append("Coloca el pulgar al costado de la mano.")
 
         # Rechazo explícito: si meñique está extendido (como en Y) o índice extendido (como en L)
         if ext["pinky"] or ext["index"]:
-            c_score = min(c_score, 0.40)
+            c_score = min(c_score, 0.35)
 
         c_score = max(0.0, c_score)
         reason = errors[0] if errors else "Puño cerrado con pulgar al costado correcto"
@@ -385,31 +465,34 @@ class LSMEvaluator:
         Rechaza categóricamente la mano abierta o pulgar extendido.
         """
         errors = []
+        finger_names_es = {"index": "índice", "middle": "medio", "ring": "anular", "pinky": "meñique"}
         ext_count = sum(1.0 for f in ["index", "middle", "ring", "pinky"] if ext[f])
         ext_ratio = ext_count / 4.0
 
         for f in ["index", "middle", "ring", "pinky"]:
             if not ext[f]:
-                errors.append(f"Extiende el dedo {f}")
+                errors.append(f"Extiende el dedo {finger_names_es[f]}.")
 
         # Características discriminativas estrictas
         thumb_fold = geom.get_thumb_fold_score()
         adduction = geom.get_finger_adduction_score()
 
         if thumb_fold < 0.50 or ext["thumb"]:
-            errors.append("Flexiona el pulgar cruzándolo firmemente sobre la palma")
+            errors.append("Flexiona el pulgar sobre la palma.")
 
-        if adduction < 0.60:
-            errors.append("Junta los cuatro dedos extendidos sin separarlos")
+        if adduction < 0.55:
+            errors.append("Junta los cuatro dedos.")
 
         # Fórmula ponderada para B
         c_score = 0.40 * ext_ratio + 0.35 * thumb_fold + 0.25 * adduction
 
         # REGLA ESTRICTA DE RECHAZO: Mano abierta (pulgar no doblado o dedos splay) NO puede pasar
         if thumb_fold < 0.45 or ext["thumb"]:
-            c_score = min(c_score, 0.42)
+            c_score = min(c_score, 0.35)
+        if adduction < 0.50:
+            c_score = min(c_score, 0.35)
         if ext_ratio < 0.75:
-            c_score = min(c_score, 0.38)
+            c_score = min(c_score, 0.35)
 
         c_score = max(0.0, c_score)
         reason = errors[0] if errors else "Cuatro dedos extendidos y juntos con pulgar en palma correcto"
@@ -439,24 +522,28 @@ class LSMEvaluator:
         c_score = 0.40 * c_curv + 0.25 * c_open + 0.20 * c_th + 0.15 * c_arc
 
         # Puertas duras de discriminación
-        ext_count = sum(1.0 for f in ["index", "middle", "ring", "pinky"] if ext[f])
         thumb_fold = geom.get_thumb_fold_score()
+        scale = geom.get_palm_scale()
+        d_idx_mcp = euclidean_distance_3d(geom.pts[8], geom.pts[5]) / scale
+        mean_pip = sum(geom.get_finger_pip_angle(f) for f in ["index", "middle", "ring", "pinky"]) / 4.0
+        errors = []
 
         # Si los dedos están completamente rectos (mano abierta), penalizar
-        if ext_count >= 3 and ext["thumb"]:
-            c_score = min(c_score, 0.35)
+        if mean_pip > 165.0 or c_curv < 0.40:
+            c_score = min(c_score, 0.30)
+            errors.append("Curva los cuatro dedos en arco.")
 
         # Si está en puño cerrado con puntas en la palma, penalizar
-        if ext_count == 0 and thumb_fold > 0.60:
+        if thumb_fold > 0.55 or d_idx_mcp < 0.30:
             c_score = min(c_score, 0.30)
+            errors.append("Abre la mano y forma un arco con los dedos.")
 
-        errors = []
-        if c_curv < 0.60:
-            errors.append("Curva suavemente los dedos simulando un arco semicircular")
-        if c_open < 0.55:
-            errors.append("Separa el pulgar del índice manteniendo la abertura de la C")
-        if c_th < 0.55:
-            errors.append("Arquea el pulgar hacia adelante como base de la C")
+        if c_curv < 0.58:
+            errors.append("Curva suavemente los dedos simulando un arco.")
+        if c_open < 0.50:
+            errors.append("Separa el pulgar del índice manteniendo la abertura de la C.")
+        if c_th < 0.50:
+            errors.append("Arquea el pulgar formando la C.")
 
         reason = errors[0] if errors else "Curvatura en arco de la letra C correcta"
 
@@ -475,30 +562,27 @@ class LSMEvaluator:
         """Seña 'L': Pulgar e índice extendidos formando ~90°, medio, anular y meñique cerrados."""
         errors = []
         c_score = 1.0
+        finger_names_es = {"middle": "medio", "ring": "anular", "pinky": "meñique"}
 
         if not ext["index"]:
             c_score -= 0.30
-            errors.append("Extiende el índice verticalmente")
+            errors.append("Extiende el dedo índice.")
 
         th_ext = geom.get_y_thumb_extension_score()
         if th_ext < 0.55:
             c_score -= 0.30
-            errors.append("Extiende el pulgar horizontalmente")
+            errors.append("Extiende el pulgar.")
 
         for f in ["middle", "ring", "pinky"]:
             if ext[f]:
-                c_score -= 0.20
-                errors.append(f"Flexiona el dedo {f}")
+                c_score = min(c_score, 0.35)
+                errors.append(f"Flexiona el dedo {finger_names_es[f]}.")
 
         # Ángulo pulgar-índice
         ang = geom.get_thumb_index_angle_deg()
         if not (50.0 <= ang <= 135.0):
-            c_score -= 0.20
-            errors.append("Ajusta el ángulo entre pulgar e índice a ~90 grados en 'L'")
-
-        # Rechazo explícito: si meñique está extendido (como en Y)
-        if ext["pinky"]:
             c_score = min(c_score, 0.40)
+            errors.append("Forma un ángulo de 90 grados entre pulgar e índice.")
 
         c_score = max(0.0, c_score)
         reason = errors[0] if errors else "Forma en 'L' entre pulgar e índice correcta"
@@ -520,17 +604,24 @@ class LSMEvaluator:
         Requiere una clara separación lateral pulgar-meñique mayor a los dedos centrales.
         """
         errors = []
+        finger_names_es = {"index": "índice", "middle": "medio", "ring": "anular"}
         th_y = geom.get_y_thumb_extension_score()
         pk_y = geom.get_y_pinky_extension_score()
         cf_y = geom.get_y_center_flexion_score()
         lat_y = geom.get_y_lateral_separation_score()
 
-        if th_y < 0.60:
-            errors.append("Extiende el pulgar lateralmente")
-        if pk_y < 0.60:
-            errors.append("Extiende el meñique firmemente")
-        if cf_y < 0.60:
-            errors.append("Flexiona los tres dedos centrales (índice, medio y anular)")
+        if th_y < 0.55:
+            errors.append("Extiende el pulgar.")
+        if pk_y < 0.55:
+            errors.append("Extiende el dedo meñique.")
+
+        for f in ["index", "middle", "ring"]:
+            if ext[f]:
+                c_score = min(c_score, 0.35) if 'c_score' in locals() else 0.35
+                errors.append(f"Flexiona el dedo {finger_names_es[f]}.")
+
+        if lat_y < 0.50:
+            errors.append("Separa bien el pulgar y el meñique.")
 
         c_score = geom.get_y_composite_score()
 
@@ -538,8 +629,11 @@ class LSMEvaluator:
         # Mano abierta (dedos centrales extendidos) -> RECHAZAR
         # L (índice extendido, meñique doblado) -> RECHAZAR
         # A (meñique doblado) -> RECHAZAR
+        if ext["index"] or ext["middle"] or ext["ring"]:
+            c_score = min(c_score, 0.35)
+
         if pk_y < 0.50 or th_y < 0.50 or cf_y < 0.50:
-            c_score = min(c_score, 0.40)
+            c_score = min(c_score, 0.35)
 
         c_score = max(0.0, c_score)
         reason = errors[0] if errors else "Pulgar y meñique extendidos en 'Y' correcto"

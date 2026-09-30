@@ -15,7 +15,7 @@ from tests.test_lsm_geometric import make_landmarks_fist_a, make_landmarks_flat_
 
 def test_classifier_initialization():
     clf = AutomaticLSMClassifier(threshold=0.78, margin=0.08, window_size=7)
-    assert clf.SIGNS == ["A", "B", "C", "L", "Y"]
+    assert clf.SIGNS == ["A", "B", "C", "L", "Y", "J", "Ñ", "Q", "X", "Z"]
     assert clf.threshold == 0.78
     assert clf.margin == 0.08
     assert clf.window_size == 7
@@ -32,7 +32,7 @@ def test_classifier_no_hand():
     assert res["stable_sign"] is None
     assert res["status"] == "NO_HAND"
     assert res["score"] == 0.0
-    for s in ["A", "B", "C", "L", "Y"]:
+    for s in ["A", "B", "C", "L", "Y", "J", "Ñ", "Q", "X", "Z"]:
         assert res["candidate_scores"][s] == 0.0
 
 

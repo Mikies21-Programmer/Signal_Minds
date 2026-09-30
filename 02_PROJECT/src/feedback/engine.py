@@ -19,7 +19,12 @@ class FeedbackEngine:
         "B": "Cuatro dedos extendidos y pulgar en palma.",
         "C": "Curva los dedos formando un arco.",
         "L": "Índice y pulgar forman la L.",
-        "Y": "Pulgar y meñique extendidos."
+        "Y": "Pulgar y meñique extendidos.",
+        "J": "Meñique extendido trazando una curva.",
+        "Ñ": "Mano en N con movimiento ondulante.",
+        "Q": "Índice y pulgar hacia abajo con giro de muñeca.",
+        "X": "Índice en gancho con movimiento hacia atrás.",
+        "Z": "Índice extendido trazando una Z en el aire."
     }
 
     def __init__(self, config=None):
@@ -117,7 +122,17 @@ class FeedbackEngine:
             }
 
         # 6. Prioridad 4 de corrección: Dinámica / Kinema
-        if mov_info.get("status") == "CORRECT":
+        if mov_info.get("status") in ["CORRECT", "FAIL", "PREPARING"]:
+            if sign in ["J", "Ñ", "Q", "X", "Z"]:
+                reason = mov_info.get("reason") or evaluation.get("message", "Realiza el movimiento de la seña.")
+                return {
+                    "status": "NEEDS_CORRECTION",
+                    "color": "#FFAA00",
+                    "primary_message": reason,
+                    "secondary_message": reason,
+                    "correction_hint": reason,
+                    "score": score
+                }
             return {
                 "status": "NEEDS_CORRECTION",
                 "color": "#FFAA00",
@@ -128,11 +143,12 @@ class FeedbackEngine:
             }
 
         # Fallback descriptivo si ninguno de los anteriores se activó
+        msg = evaluation.get("message") or f"Ajusta la postura de tu mano para la seña '{sign}'."
         return {
             "status": "NEEDS_CORRECTION",
             "color": "#FFAA00",
-            "primary_message": f"Ajusta la postura de tu mano para la seña '{sign}'.",
+            "primary_message": msg,
             "secondary_message": "Verifica la separación de los dedos y la orientación hacia la cámara.",
-            "correction_hint": "Revisa la postura en la pantalla de referencia.",
+            "correction_hint": msg,
             "score": score
         }

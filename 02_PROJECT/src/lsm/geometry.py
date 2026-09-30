@@ -440,5 +440,147 @@ class HandGeometryFeatures:
                 "pinky": round(self.get_y_pinky_extension_score() * 100.0, 1),
                 "center_flex": round(self.get_y_center_flexion_score() * 100.0, 1),
                 "lateral_sep": round(self.get_y_lateral_separation_score() * 100.0, 1)
+            },
+            "level_2": {
+                "j_base": round(self.get_j_configuration_score() * 100.0, 1),
+                "n_base": round(self.get_n_configuration_score() * 100.0, 1),
+                "q_base": round(self.get_q_configuration_score() * 100.0, 1),
+                "x_hook": round(self.get_x_hook_score() * 100.0, 1),
+                "z_base": round(self.get_z_configuration_score() * 100.0, 1)
             }
         }
+
+    # =========================================================================
+    # CARACTERÍSTICAS MORFOLÓGICAS DE BASE PARA NIVEL 2 (J, Ñ, Q, X, Z)
+    # =========================================================================
+
+    def is_index_hooked(self) -> Tuple[bool, float]:
+        """
+        Determina si el dedo índice está en postura de 'gancho' para la seña 'X'.
+        Un índice recto (>140°) o un índice totalmente cerrado en puño (<60°) se rechaza.
+        Postura de gancho óptima: PIP flexionado entre 70° y 125°, punta despegada de la palma.
+        """
+        if not self.is_valid:
+            return (False, 0.0)
+
+        ang_pip = self.get_finger_pip_angle("index")
+        scale = self.get_palm_scale()
+
+        # Distancia de la punta del índice a su MCP (nudillo)
+        d_tip_mcp = euclidean_distance_3d(self.pts[8], self.pts[5]) / scale
+
+        # En gancho: PIP flexionado pero no pegado a la palma como puño cerrado
+        if 65.0 <= ang_pip <= 130.0:
+            ang_score = 1.0 - (abs(ang_pip - 95.0) / 35.0) * 0.4
+        elif ang_pip > 130.0:
+            # Demasiado recto
+            ang_score = clamp(1.0 - (ang_pip - 130.0) / 20.0)
+        else:
+            # Demasiado doblado
+            ang_score = clamp(1.0 - (65.0 - ang_pip) / 25.0)
+
+        # Distancia tip a MCP moderada (en puño d < 0.25; en gancho d ~ 0.35..0.65; extendido d > 0.80)
+        dist_score = clamp(1.0 - abs(d_tip_mcp - 0.50) / 0.30)
+
+        # Los otros dedos (medio, anular, meñique) deben estar flexionados
+        curled_other = sum(1.0 for f in ["middle", "ring", "pinky"] if self.is_finger_curled(f)) / 3.0
+
+        score = clamp(0.45 * ang_score + 0.25 * dist_score + 0.30 * curled_other)
+        is_hooked = (55.0 <= ang_pip <= 135.0) and (score >= 0.60) and (curled_other >= 0.66)
+        return (is_hooked, round(score, 3))
+
+    def get_x_hook_score(self) -> float:
+        """Retorna el score de gancho del índice para X."""
+        _, score = self.is_index_hooked()
+        return score
+
+    def get_n_configuration_score(self) -> float:
+        """
+        Evalúa la postura de base 'N' (utilizada para la dinámica de 'Ñ').
+        Índice y medio extendidos/inclinados juntos hacia adelante, anular y meñique cerrados.
+        """
+        if not self.is_valid:
+            return 0.0
+
+        scale = self.get_palm_scale()
+
+        # Índice y medio deben tener una extensión similar
+        ext_idx = 1.0 if self.is_finger_extended("index") else 0.5
+        ext_mid = 1.0 if self.is_finger_extended("middle") else 0.5
+
+        # Índice y medio juntos (aducción)
+        d_idx_mid = euclidean_distance_3d(self.pts[8], self.pts[12]) / scale
+        s_adduction = clamp((0.40 - d_idx_mid) / (0.40 - 0.15))
+
+        # Anular y meñique firmemente flexionados
+        curled_ring = 1.0 if self.is_finger_curled("ring") else 0.0
+        curled_pinky = 1.0 if self.is_finger_curled("pinky") else 0.0
+        s_curled = 0.5 * curled_ring + 0.5 * curled_pinky
+
+        score = 0.30 * ((ext_idx + ext_mid) / 2.0) + 0.35 * s_adduction + 0.35 * s_curled
+        return clamp(score)
+
+    def get_q_configuration_score(self) -> float:
+        """
+        Evalúa la postura de base para 'Q':
+        Índice y pulgar dirigidos hacia abajo, dorso de mano visible, dedos medio, anular y meñique flexionados.
+        """
+        if not self.is_valid:
+            return 0.0
+
+        scale = self.get_palm_scale()
+
+        # Índice orientado hacia abajo: tip_y > mcp_y
+        idx_down = 1.0 if self.pts[8]["y"] > self.pts[5]["y"] else 0.4
+
+        # Pulgar orientado hacia abajo / extendido cerca del índice
+        d_th_idx = euclidean_distance_3d(self.pts[4], self.pts[8]) / scale
+        s_opening = clamp(1.0 - abs(d_th_idx - 0.55) / 0.35)
+
+        # Dedos medio, anular y meñique flexionados
+        curled_others = sum(1.0 for f in ["middle", "ring", "pinky"] if self.is_finger_curled(f)) / 3.0
+
+        score = 0.35 * idx_down + 0.30 * s_opening + 0.35 * curled_others
+        return clamp(score)
+
+    def get_j_configuration_score(self) -> float:
+        """
+        Evalúa la postura de base para 'J':
+        Meñique claramente extendido, índice, medio y anular cerrados en puño.
+        """
+        if not self.is_valid:
+            return 0.0
+
+        ext = self.get_finger_extension_states()
+        pk_score = 1.0 if ext["pinky"] else 0.0
+
+        # Los otros tres dedos deben estar flexionados
+        other_curled = sum(1.0 for f in ["index", "middle", "ring"] if not ext[f]) / 3.0
+
+        # Rechazo explícito si índice o medio están extendidos
+        if ext["index"] or ext["middle"]:
+            return min(0.35, 0.5 * pk_score + 0.5 * other_curled)
+
+        score = 0.55 * pk_score + 0.45 * other_curled
+        return clamp(score)
+
+    def get_z_configuration_score(self) -> float:
+        """
+        Evalúa la postura de base para 'Z':
+        Dedo índice extendido (apuntador), medio, anular y meñique cerrados en puño.
+        """
+        if not self.is_valid:
+            return 0.0
+
+        ext = self.get_finger_extension_states()
+        idx_score = 1.0 if ext["index"] else 0.0
+
+        # Medio, anular y meñique deben estar flexionados
+        other_curled = sum(1.0 for f in ["middle", "ring", "pinky"] if not ext[f]) / 3.0
+
+        # Rechazo explícito si meñique o medio están extendidos
+        if ext["pinky"] or ext["middle"]:
+            return min(0.35, 0.5 * idx_score + 0.5 * other_curled)
+
+        score = 0.55 * idx_score + 0.45 * other_curled
+        return clamp(score)
