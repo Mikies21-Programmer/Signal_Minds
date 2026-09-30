@@ -1,11 +1,11 @@
 ==============================================================================
 INDIVISA INGENIUM 2026 — EVIDENCIA DE TRANSMISIÓN REAL ESP32-CAM
-Fecha y Hora:           Tue Sep 29 21:25:29 2026
-URL Evaluada:           http://localhost:8000/video_feed
+Fecha y Hora:           Tue Sep 29 22:21:25 2026
+URL Evaluada:           http://192.168.4.1:81/stream
 Estado Final:           EXITOSA
-Tiempo Total Conectado: 10.02 s (0.17 min)
+Tiempo Total Conectado: 30.05 s (0.50 min)
 Resolución de Video:    640x480
-Fotogramas Recibidos:   244
+Fotogramas Recibidos:   687
 Fotogramas Perdidos:    0
-FPS Promedio:           24.35
+FPS Promedio:           22.86
 ==============================================================================

@@ -84,8 +84,8 @@ void setup() {
       s->set_vflip(s, 1);
       s->set_hmirror(s, 0);
     }
-    s->set_framesize(s, FRAMESIZE_QVGA);
-    Serial.println("[CAM] Resolucion inicial fijada a QVGA (320x240)");
+    s->set_framesize(s, FRAMESIZE_VGA);
+    Serial.println("[CAM] Resolucion inicial fijada a VGA (640x480)");
   }
 
   // Dedicated SoftAP Mode

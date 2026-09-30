@@ -42,7 +42,9 @@ def run_live_test(target_frames: int = 30, prompt_sign: str = "A", stream_url: s
     except Exception:
         pass
 
-    config.set("camera", "stream_url", stream_url)
+    if "camera" not in config._data:
+        config._data["camera"] = {}
+    config._data["camera"]["stream_url"] = stream_url
 
     print("=" * 60)
     print("INDIVISA INGENIUM 2026 — PRUEBA REAL DE CLASIFICACIÓN LSM")
