@@ -332,6 +332,18 @@ def test_full_evaluation_imu_unavailable_parameters():
     assert orient_param["tilt_error"] is None
     assert orient_param["score"] == 0.0
 
+    # Política estricta Fase 3: no aceptar seña ni decir "Seña correcta" si orientación está UNAVAILABLE
+    assert res["is_valid"] is False
+    assert res["message"] == "Orientación no disponible"
+    assert res["message"] != "Seña correcta"
+
+    # Verificar mensaje de feedback explicativo hacia el usuario
+    from src.feedback.engine import FeedbackEngine
+    fb = FeedbackEngine().generate_feedback(res)
+    assert fb["status"] == "NEEDS_CORRECTION"
+    assert "Orientación no disponible" in fb["primary_message"]
+    assert "MPU6050" in fb["secondary_message"]
+
 
 # ==============================================================================
 # 10. yaw_valid es estrictamente False (sin magnetómetro en MPU6050)

@@ -36,10 +36,25 @@ def test_classifier_no_hand():
         assert res["candidate_scores"][s] == 0.0
 
 
+def make_multimodal_state(landmarks, tilt_error=2.0):
+    return {
+        "vision_present": True,
+        "raw_landmarks": landmarks,
+        "valid_fusion": True,
+        "sensor_connected": True,
+        "sensors_present": True,
+        "hand_orientation": {
+            "imu_present": True,
+            "sensor_type": "MPU6050",
+            "tilt_error": tilt_error
+        }
+    }
+
+
 def test_classifier_sign_a_recognition():
     clf = AutomaticLSMClassifier(threshold=0.75, margin=0.05)
     pts_a = make_landmarks_fist_a()
-    state = {"vision_present": True, "raw_landmarks": pts_a}
+    state = make_multimodal_state(pts_a, tilt_error=2.0)
 
     # Primer frame: instant_pred es A, pero stable_sign aún no hasta acumular historia
     res1 = clf.classify(state)
@@ -62,8 +77,8 @@ def test_temporal_smoothing_anti_flicker():
     pts_a = make_landmarks_fist_a()
     pts_b = make_landmarks_flat_hand_b()
 
-    state_a = {"vision_present": True, "raw_landmarks": pts_a}
-    state_b = {"vision_present": True, "raw_landmarks": pts_b}
+    state_a = make_multimodal_state(pts_a, tilt_error=2.0)
+    state_b = make_multimodal_state(pts_b, tilt_error=2.0)
 
     # Establecer postura A durante 5 frames
     for _ in range(5):
@@ -88,7 +103,7 @@ def test_temporal_smoothing_anti_flicker():
 def test_ambiguous_rejection():
     clf = AutomaticLSMClassifier(threshold=0.99, margin=0.50)  # Umbrales inalcanzables deliberadamente
     pts_a = make_landmarks_fist_a()
-    state = {"vision_present": True, "raw_landmarks": pts_a}
+    state = make_multimodal_state(pts_a, tilt_error=2.0)
 
     for _ in range(5):
         res = clf.classify(state)

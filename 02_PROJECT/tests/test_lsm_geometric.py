@@ -121,10 +121,18 @@ def test_evaluator_rejects_wrong_sign_even_if_hand_present():
     evaluator = LSMEvaluator()
     fused_state = {
         "vision_present": True,
-        "raw_landmarks": make_landmarks_fist_a()
+        "raw_landmarks": make_landmarks_fist_a(),
+        "valid_fusion": True,
+        "sensor_connected": True,
+        "sensors_present": True,
+        "hand_orientation": {
+            "imu_present": True,
+            "sensor_type": "MPU6050",
+            "tilt_error": 5.0
+        }
     }
 
-    # Evaluar 'A' con puño -> Debe ser correcto
+    # Evaluar 'A' con puño y orientación válida -> Debe ser correcto
     res_a = evaluator.evaluate(fused_state, target_sign="A")
     assert res_a["is_valid"] is True
     assert res_a["overall_score"] >= 0.75
@@ -178,13 +186,24 @@ def make_landmarks_c_shape():
 def test_evaluator_l_and_y_signs():
     evaluator = LSMEvaluator()
 
-    # Test seña L
-    state_l = {"vision_present": True, "raw_landmarks": make_landmarks_l_shape()}
+    orient_ok = {
+        "valid_fusion": True,
+        "sensor_connected": True,
+        "sensors_present": True,
+        "hand_orientation": {
+            "imu_present": True,
+            "sensor_type": "MPU6050",
+            "tilt_error": 5.0
+        }
+    }
+
+    # Test seña L con orientación válida
+    state_l = {"vision_present": True, "raw_landmarks": make_landmarks_l_shape(), **orient_ok}
     res_l = evaluator.evaluate(state_l, target_sign="L")
     assert res_l["is_valid"] is True
 
-    # Test seña Y
-    state_y = {"vision_present": True, "raw_landmarks": make_landmarks_y_shape()}
+    # Test seña Y con orientación válida
+    state_y = {"vision_present": True, "raw_landmarks": make_landmarks_y_shape(), **orient_ok}
     res_y = evaluator.evaluate(state_y, target_sign="Y")
     assert res_y["is_valid"] is True
 

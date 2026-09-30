@@ -1199,11 +1199,11 @@
       const oMetric = document.getElementById('metric-orient-status');
       if (oMetric) {
         if (!sensTel.is_connected && !data.subsystems_mock?.sensors) {
-          oMetric.innerText = 'DESCONECTADO';
-          oMetric.style.color = 'var(--text-muted)';
+          oMetric.innerText = 'ORIENTATION_UNAVAILABLE';
+          oMetric.style.color = 'var(--accent-red)';
         } else if (orientState === 'ORIENTATION_UNAVAILABLE') {
-          oMetric.innerText = '⚠️ NO DISPONIBLE';
-          oMetric.style.color = 'var(--text-muted)';
+          oMetric.innerText = 'ORIENTATION_UNAVAILABLE';
+          oMetric.style.color = 'var(--accent-amber)';
         } else if (orientState === 'ORIENTATION_OK' || orientState === 'IMU_TILT_OK') {
           oMetric.innerText = '✅ CORRECTA';
           oMetric.style.color = 'var(--accent-green)';

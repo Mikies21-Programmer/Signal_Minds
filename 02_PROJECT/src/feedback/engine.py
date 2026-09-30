@@ -93,9 +93,9 @@ class FeedbackEngine:
             return {
                 "status": "NEEDS_CORRECTION",
                 "color": "#94A3B8",
-                "primary_message": "Orientación no disponible.",
+                "primary_message": "Orientación no disponible (ORIENTATION_UNAVAILABLE).",
                 "secondary_message": "Verifica la conexión del sensor MPU6050 en el dorso de la mano.",
-                "correction_hint": "Conecta el sensor de orientación para validar la seña.",
+                "correction_hint": "Conecta y verifica el sensor MPU6050 para validar la seña.",
                 "score": score
             }
 

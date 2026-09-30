@@ -64,7 +64,7 @@ class LSMEvaluator:
             sensor_connected = fused.get("sensor_connected", False)
             sensors_present = fused.get("sensors_present", False)
             staleness = fused.get("staleness", {})
-            sensor_stale = staleness.get("sensor_stale", True) if isinstance(staleness, dict) else True
+            sensor_stale = staleness.get("sensor_stale", False) if isinstance(staleness, dict) else False
             imu_present = orient_data.get("imu_present", False) if isinstance(orient_data, dict) else False
 
             if (not valid_fusion
@@ -283,14 +283,21 @@ class LSMEvaluator:
         orient_status = eval_dict.get("orient_status", "UNAVAILABLE")
 
         if orient_status == "UNAVAILABLE":
-            # Si el sensor de orientación no está disponible, evaluar con las modalidades activas
-            # Ponderación morfológica sobre pesos disponibles: Configuración (50/75), Kinema (15/75), Toponema (10/75)
-            overall = ((c_score * 0.50) + (mov_score * 0.15) + (loc_score * 0.10)) / 0.75
-            is_valid = (overall >= self.threshold) and (c_score >= 0.70)
+            # Política estricta Fase 3: si orientación es UNAVAILABLE, sensor desconectado, stale o fusión inválida:
+            # is_valid = False, message = "Orientación no disponible". Nunca aceptar únicamente por visión.
+            overall = (c_score * 0.50) + (0.0 * 0.25) + (mov_score * 0.15) + (loc_score * 0.10)
+            is_valid = False
+            message = "Orientación no disponible"
         else:
             # Ponderación completa multimodal: 50% configuración, 25% orientación, 15% kinema, 10% toponema
             overall = (c_score * 0.50) + (o_score * 0.25) + (mov_score * 0.15) + (loc_score * 0.10)
             is_valid = (overall >= self.threshold) and (c_score >= 0.70) and (o_score >= 0.65)
+            if is_valid:
+                message = "Seña correcta"
+            elif o_score < 0.65:
+                message = eval_dict["orient_reason"]
+            else:
+                message = eval_dict["config_reason"]
 
         return {
             "sign": sign,
@@ -298,7 +305,7 @@ class LSMEvaluator:
             "is_valid": is_valid,
             "overall_score": round(overall, 3),
             "threshold": self.threshold,
-            "message": "Seña correcta" if is_valid else eval_dict["config_reason"],
+            "message": message,
             "parameters": {
                 "configuration": {
                     "score": round(c_score, 3),
