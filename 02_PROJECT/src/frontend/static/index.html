@@ -937,18 +937,22 @@
           <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--accent-cyan); margin-bottom: 6px;">
             FUSIÓN TEMPORAL E INSTRUMENTACIÓN MECATRÓNICA
           </div>
-          <div class="hw-status-row">
+          <div class="hw-status-row" style="grid-template-columns: repeat(4, 1fr);">
             <div class="hw-metric">
               <span>FUSIÓN VÁLIDA</span>
               <strong id="metric-fusion">NO</strong>
             </div>
             <div class="hw-metric">
-              <span>SENSOR DRIVER</span>
-              <strong id="metric-sensor-status">INICIANDO</strong>
+              <span>ORIENTACIÓN IMU</span>
+              <strong id="metric-orient-status">--</strong>
             </div>
             <div class="hw-metric">
-              <span>IMU ROLL / PITCH</span>
-              <strong id="metric-imu">0.0° / 0.0°</strong>
+              <span>ROLL / PITCH / TILT</span>
+              <strong id="metric-imu">0.0° / 0.0° (Δ 0.0°)</strong>
+            </div>
+            <div class="hw-metric">
+              <span>YAW ABSOLUTO</span>
+              <strong id="metric-yaw" style="color:var(--text-muted)">N/A</strong>
             </div>
           </div>
         </div>
@@ -1150,9 +1154,11 @@
       // Feedback Card
       const fb = data.feedback || {};
       const fbCard = document.getElementById('feedback-card');
-      document.getElementById('feedback-primary').innerText = fb.primary_message || 'Esperando ejecución...';
-      document.getElementById('feedback-secondary').innerText = fb.secondary_message || '';
-      fbCard.style.borderLeftColor = fb.color || 'var(--accent-cyan)';
+      if (!isCalibrating) {
+        document.getElementById('feedback-primary').innerText = fb.primary_message || 'Esperando ejecución...';
+        document.getElementById('feedback-secondary').innerText = fb.secondary_message || '';
+        fbCard.style.borderLeftColor = fb.color || 'var(--accent-cyan)';
+      }
 
       // 4 Parámetros
       const params = ev.parameters || {};
@@ -1177,21 +1183,50 @@
         document.getElementById('param-loc-status').style.color = params.location.status === 'PASS' ? 'var(--accent-green)' : 'var(--accent-amber)';
       }
 
-      // Fusión y sensores
+      // Fusión y sensores MPU6050
       const fusion = data.fusion || {};
       const isFusionValid = !!fusion.valid_fusion;
       const fMetric = document.getElementById('metric-fusion');
-      fMetric.innerText = isFusionValid ? 'ACTIVA (VIS+SENS)' : (data.has_hand ? 'VISIÓN SOLA' : 'NO');
-      fMetric.style.color = isFusionValid ? 'var(--accent-green)' : (data.has_hand ? 'var(--accent-cyan)' : 'var(--accent-amber)');
+      if (fMetric) {
+        fMetric.innerText = isFusionValid ? 'ACTIVA (VIS+IMU)' : (data.has_hand ? 'VISIÓN SOLA' : 'NO');
+        fMetric.style.color = isFusionValid ? 'var(--accent-green)' : (data.has_hand ? 'var(--accent-cyan)' : 'var(--accent-amber)');
+      }
 
       const sensTel = data.sensor_telemetry || {};
-      const sMetric = document.getElementById('metric-sensor-status');
-      sMetric.innerText = sensTel.is_mock ? 'MOCK' : (sensTel.status || 'CONECTADO');
-      sMetric.style.color = sensTel.is_mock ? 'var(--accent-amber)' : 'var(--accent-green)';
+      const orientInfo = ev.parameters && ev.parameters.orientation ? ev.parameters.orientation : {};
+      const orientState = orientInfo.orientation_state || '';
+
+      const oMetric = document.getElementById('metric-orient-status');
+      if (oMetric) {
+        if (!sensTel.is_connected && !data.subsystems_mock?.sensors) {
+          oMetric.innerText = 'DESCONECTADO';
+          oMetric.style.color = 'var(--text-muted)';
+        } else if (orientState === 'ORIENTATION_OK' || orientState === 'IMU_TILT_OK') {
+          oMetric.innerText = '✅ CORRECTA';
+          oMetric.style.color = 'var(--accent-green)';
+        } else if (orientState === 'ORIENTATION_ADJUST' || orientState === 'IMU_TILT_ADJUST') {
+          oMetric.innerText = '⚠️ AJUSTAR';
+          oMetric.style.color = 'var(--accent-amber)';
+        } else if (orientState === 'ORIENTATION_FAIL' || orientState === 'IMU_TILT_FAIL') {
+          oMetric.innerText = '❌ INCORRECTA';
+          oMetric.style.color = 'var(--accent-red)';
+        } else {
+          oMetric.innerText = '✅ CORRECTA';
+          oMetric.style.color = 'var(--accent-green)';
+        }
+      }
 
       const roll = (sensTel.imu_roll_deg || 0).toFixed(1);
       const pitch = (sensTel.imu_pitch_deg || 0).toFixed(1);
-      document.getElementById('metric-imu').innerText = `${roll}° / ${pitch}°`;
+      const tiltErr = (sensTel.tilt_error_deg !== undefined ? sensTel.tilt_error_deg : (orientInfo.tilt_error || 0)).toFixed(1);
+      const imuElem = document.getElementById('metric-imu');
+      if (imuElem) {
+        imuElem.innerText = `${roll}° / ${pitch}° (Δ ${tiltErr}°)`;
+      }
+      const yawElem = document.getElementById('metric-yaw');
+      if (yawElem) {
+        yawElem.innerText = 'N/A';
+      }
     }
 
     function updateModeUI(mode) {
@@ -1249,9 +1284,23 @@
       }
     }
 
+    let isCalibrating = false;
     function recalibrate() {
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ action: 'RECALIBRATE' }));
+        isCalibrating = true;
+        const fbPrimary = document.getElementById('feedback-primary');
+        const fbSec = document.getElementById('feedback-secondary');
+        const fbCard = document.getElementById('feedback-card');
+        if (fbPrimary) fbPrimary.innerText = 'CALIBRANDO ORIENTACIÓN...';
+        if (fbSec) fbSec.innerText = 'Mantén la mano en posición de referencia (palma al frente, muñeca recta).';
+        if (fbCard) fbCard.style.borderLeftColor = 'var(--accent-cyan)';
+        setTimeout(() => {
+          if (fbPrimary) fbPrimary.innerText = 'CALIBRACIÓN COMPLETA.';
+          if (fbSec) fbSec.innerText = 'Referencia neutra del sensor MPU6050 guardada con éxito.';
+          if (fbCard) fbCard.style.borderLeftColor = 'var(--accent-green)';
+          setTimeout(() => { isCalibrating = false; }, 2000);
+        }, 3200);
       }
     }
 

@@ -87,13 +87,20 @@ class FeedbackEngine:
                 "score": score
             }
 
-        # 5. Prioridad 3 de corrección: Orientación de palma
-        if orient_info.get("status") == "CORRECT" or orient_info.get("score", 0.0) < 0.75:
-            reason = orient_info.get("reason", "Gira la muñeca orientando la palma hacia la cámara.")
+        # 5. Prioridad 3 de corrección: Orientación de palma (IMU MPU6050)
+        orient_state = orient_info.get("orientation_state", "")
+        if orient_info.get("status") in ["CORRECT", "FAIL"] or orient_info.get("score", 0.0) < 0.75 or orient_state in ["ORIENTATION_FAIL", "ORIENTATION_ADJUST", "IMU_TILT_FAIL", "IMU_TILT_ADJUST"]:
+            reason = orient_info.get("reason", "Ajusta la orientación de la mano.")
+            primary = "Inclinación de la mano incorrecta." if "FAIL" in orient_state else "Ajusta la orientación de la mano."
+            if orient_state == "IMU_TILT_FAIL":
+                primary = "Inclinación de mano excesiva para C."
+            elif orient_state == "IMU_TILT_ADJUST":
+                primary = "Ajusta ligeramente la inclinación para C."
+
             return {
                 "status": "NEEDS_CORRECTION",
-                "color": "#FF8800",
-                "primary_message": "Orientación de la palma incorrecta.",
+                "color": "#EF4444" if "FAIL" in orient_state else "#FF8800",
+                "primary_message": primary,
                 "secondary_message": reason,
                 "correction_hint": reason,
                 "score": score

@@ -19,10 +19,22 @@
     "mock_mode": false
   },
   "sensors": {
+    "sensor_type": "MPU6050",
+    "protocol": "IMU_SERIAL",
+    "port": "COM7",
+    "baudrate": 115200,
+    "sda_gpio": 4,
+    "scl_gpio": 5,
+    "i2c_address": "AUTO",
     "sampling_rate_hz": 50,
-    "bus_type": "UNKNOWN",
-    "port": null,
-    "device_address": "UNKNOWN",
+    "yaw_valid": false,
+    "orientation": {
+      "frontal_ok_deg": 15,
+      "frontal_adjust_deg": 25,
+      "y_ok_deg": 20,
+      "y_adjust_deg": 30,
+      "hysteresis_deg": 3
+    },
     "timeout_ms": 20,
     "mock_mode": false
   },

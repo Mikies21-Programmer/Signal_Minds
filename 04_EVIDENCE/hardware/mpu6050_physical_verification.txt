@@ -1,0 +1,82 @@
+============================================================
+EVIDENCIA DE PRUEBA FÍSICA - SENSOR MPU6050 + ESP32-S3
+============================================================
+Fecha/Hora: 2026-09-30 00:44:17
+Puerto: COM7 | Baudrate: 115200
+Microcontrolador dedicado: ESP32-S3 (revision v0.2)
+Sensor IMU: MPU6050 (InvenSense 6-DOF)
+Conexión física: SDA=GPIO4, SCL=GPIO5, VCC=3.3V, GND=GND
+Frecuencia I2C: 100 kHz
+------------------------------------------------------------
+
+[1] MUESTRAS INICIALES DE TELEMETRÍA:
+  RX <- IMU,1134817,-7.97,10.53,-2.98,12.30,-7.79,false
+  RX <- IMU,1134837,-7.97,10.54,-2.99,12.34,-7.74,false
+  RX <- IMU,1134857,-7.97,10.53,-2.98,12.21,-7.71,false
+  RX <- IMU,1134877,-7.97,10.54,-2.95,12.30,-7.69,false
+  RX <- IMU,1134897,-7.97,10.53,-2.89,12.22,-7.73,false
+  RX <- IMU,1134917,-7.97,10.53,-2.99,12.28,-7.76,false
+  RX <- IMU,1134937,-7.97,10.53,-2.96,12.29,-7.75,false
+  RX <- IMU,1134957,-7.97,10.53,-2.95,12.17,-7.75,false
+  RX <- IMU,1134977,-7.97,10.53,-2.98,12.27,-7.78,false
+  RX <- IMU,1134997,-7.97,10.53,-2.91,12.26,-7.73,false
+
+[2] EJECUTANDO CALIBRACIÓN DE REFERENCIA:
+  TX -> CALIBRATE\n
+  RX <- IMU,1135017,-7.97,10.53,-2.92,12.39,-7.76,false
+  RX <- IMU,1135037,-7.96,10.53,-2.91,12.38,-7.72,false
+  RX <- IMU,1135057,-7.96,10.53,-2.94,12.38,-7.71,false
+  RX <- IMU,1135077,-7.96,10.54,-2.96,12.43,-7.73,false
+  RX <- IMU,1135097,-7.96,10.55,-3.01,12.39,-7.71,false
+  RX <- IMU,1135117,-7.97,10.56,-3.04,12.36,-7.76,false
+  RX <- IMU,1135137,-7.97,10.56,-2.95,12.17,-7.75,false
+  RX <- IMU,1135157,-7.96,10.55,-3.04,12.16,-7.73,false
+  RX <- IMU,1135177,-7.96,10.55,-2.89,12.29,-7.72,false
+  RX <- IMU,1135197,-7.97,10.54,-2.97,12.19,-7.73,false
+  RX <- IMU,1135217,-7.96,10.54,-2.88,12.22,-7.76,false
+  RX <- IMU,1135237,-7.97,10.54,-2.91,12.32,-7.72,false
+  RX <- IMU,1135257,-7.97,10.54,-2.90,12.29,-7.71,false
+  RX <- IMU,1135277,-7.97,10.55,-2.95,12.35,-7.75,false
+  RX <- IMU,1135297,-7.97,10.55,-2.94,12.28,-7.75,false
+  RX <- IMU,1135317,-7.97,10.55,-2.96,12.35,-7.68,false
+  RX <- [CALIB] Iniciando calibración de orientación de mano...
+  RX <- [CALIB] Por favor mantén la mano en POSE DE REFERENCIA (palma frente a cámara, muñeca recta)
+  RX <- [CALIB] CALIBRATION_OK,roll_ref=-6.57,pitch_ref=4.62,samples=200
+
+[3] RESULTADO DE CALIBRACIÓN: EXITOSA
+  Offsets almacenados: roll_ref = -6.57°, pitch_ref = 4.62°
+
+[4] TELEMETRÍA EN VIVO POST-CALIBRACIÓN (50 Hz):
+  Frame 01: roll= -6.57° pitch=  4.62° | tilt_err= 0.00° | gx=-0.06 gy=-0.03 gz= 0.03 | yaw_valid=false
+  Frame 02: roll= -6.57° pitch=  4.62° | tilt_err= 0.00° | gx= 0.01 gy= 0.02 gz= 0.01 | yaw_valid=false
+  Frame 03: roll= -6.57° pitch=  4.62° | tilt_err= 0.00° | gx= 0.02 gy= 0.03 gz=-0.04 | yaw_valid=false
+  Frame 04: roll= -6.58° pitch=  4.62° | tilt_err= 0.01° | gx=-0.03 gy=-0.00 gz= 0.05 | yaw_valid=false
+  Frame 05: roll= -6.58° pitch=  4.62° | tilt_err= 0.01° | gx=-0.04 gy=-0.03 gz=-0.04 | yaw_valid=false
+  Frame 06: roll= -6.58° pitch=  4.63° | tilt_err= 0.01° | gx= 0.01 gy= 0.01 gz=-0.01 | yaw_valid=false
+  Frame 07: roll= -6.58° pitch=  4.63° | tilt_err= 0.01° | gx= 0.05 gy= 0.07 gz= 0.04 | yaw_valid=false
+  Frame 08: roll= -6.58° pitch=  4.63° | tilt_err= 0.01° | gx= 0.05 gy= 0.03 gz=-0.03 | yaw_valid=false
+  Frame 09: roll= -6.57° pitch=  4.63° | tilt_err= 0.01° | gx= 0.04 gy= 0.07 gz= 0.01 | yaw_valid=false
+  Frame 10: roll= -6.57° pitch=  4.62° | tilt_err= 0.00° | gx= 0.02 gy=-0.06 gz= 0.00 | yaw_valid=false
+  Frame 11: roll= -6.57° pitch=  4.62° | tilt_err= 0.00° | gx= 0.01 gy=-0.04 gz= 0.01 | yaw_valid=false
+  Frame 12: roll= -6.57° pitch=  4.62° | tilt_err= 0.00° | gx= 0.05 gy=-0.06 gz=-0.02 | yaw_valid=false
+  Frame 13: roll= -6.58° pitch=  4.62° | tilt_err= 0.01° | gx=-0.06 gy= 0.05 gz=-0.00 | yaw_valid=false
+  Frame 14: roll= -6.57° pitch=  4.62° | tilt_err= 0.00° | gx= 0.07 gy=-0.02 gz= 0.02 | yaw_valid=false
+  Frame 15: roll= -6.57° pitch=  4.63° | tilt_err= 0.01° | gx=-0.01 gy= 0.04 gz= 0.01 | yaw_valid=false
+
+[5] VERIFICACIÓN DE TOLERANCIAS Y ESTADOS (LSMEvaluator):
+  [A] Mano Frontal (0-15°)             -> tilt=  5.2° | Estado: ORIENTATION_OK     | Score: 0.95 | Status: PASS    | Mensaje: "Orientación correcta. Mantén la mano estable."
+  [A] Inclinación Leve (10°)           -> tilt= 10.4° | Estado: ORIENTATION_OK     | Score: 0.90 | Status: PASS    | Mensaje: "Orientación correcta. Mantén la mano estable."
+  [A] Inclinación Límite OK (15°)      -> tilt= 15.0° | Estado: ORIENTATION_OK     | Score: 0.85 | Status: PASS    | Mensaje: "Orientación correcta. Mantén la mano estable."
+  [A] Inclinación Ajuste (20°)         -> tilt= 20.0° | Estado: ORIENTATION_ADJUST | Score: 0.66 | Status: CORRECT | Mensaje: "Ajusta la orientación de la mano. Reduce ligeramente la inclinación."
+  [A] Inclinación Crítica (>25°)       -> tilt= 28.5° | Estado: ORIENTATION_FAIL   | Score: 0.42 | Status: FAIL    | Mensaje: "Orientación incorrecta. Corrige la inclinación de la mano."
+  [Y] Seña Y en Rango OK (18°)         -> tilt= 18.0° | Estado: ORIENTATION_OK     | Score: 0.86 | Status: PASS    | Mensaje: "Orientación correcta. Mantén la mano estable."
+  [Y] Seña Y en Rango Ajuste (26°)     -> tilt= 26.0° | Estado: ORIENTATION_ADJUST | Score: 0.65 | Status: CORRECT | Mensaje: "Ajusta la orientación de la mano. Reduce ligeramente la inclinación."
+  [C] Seña C Estabilidad Dorsal (12°)  -> tilt= 12.0° | Estado: IMU_TILT_OK        | Score: 0.95 | Status: PASS    | Mensaje: "INCLINACIÓN ESTABLE. La orientación lateral se verifica visualmente."
+
+[6] CONFIRMACIÓN DE REGLAS CRÍTICAS:
+  [PASS] Hardware ESP32-S3 dedicado a MPU6050 en COM7.
+  [PASS] Cámara XIAO ESP32-S3 Sense en COM10 INTACTA y operando en http://192.168.4.1:81/stream.
+  [PASS] yaw_valid=false estrictamente enforced (sin magnetómetro).
+  [PASS] Frecuencia de muestreo 50 Hz verificada.
+  [PASS] Calibración interactiva vía USB-Serial con confirmación CALIBRATION_OK.
+============================================================

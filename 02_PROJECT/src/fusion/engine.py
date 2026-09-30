@@ -114,8 +114,20 @@ class SensorFusionEngine:
         imu_data = {
             "roll": float(sensor_data.get("imu_roll_deg", 0.0)),
             "pitch": float(sensor_data.get("imu_pitch_deg", 0.0)),
-            "yaw": float(sensor_data.get("imu_yaw_deg", 0.0))
-        } if (sensor_data and sensors_present) else {"roll": 0.0, "pitch": 0.0, "yaw": 0.0}
+            "yaw": float(sensor_data.get("imu_yaw_deg", 0.0)),
+            "yaw_valid": bool(sensor_data.get("yaw_valid", False)),
+            "roll_ref": float(sensor_data.get("roll_ref", 0.0)),
+            "pitch_ref": float(sensor_data.get("pitch_ref", 0.0)),
+            "delta_roll": float(sensor_data.get("delta_roll_deg", 0.0)),
+            "delta_pitch": float(sensor_data.get("delta_pitch_deg", 0.0)),
+            "tilt_error": float(sensor_data.get("tilt_error_deg", 0.0)),
+            "sensor_type": sensor_data.get("sensor_type", "UNKNOWN"),
+            "imu_present": bool(sensor_data.get("imu_present", False))
+        } if (sensor_data and sensors_present) else {
+            "roll": 0.0, "pitch": 0.0, "yaw": 0.0, "yaw_valid": False,
+            "roll_ref": 0.0, "pitch_ref": 0.0, "delta_roll": 0.0, "delta_pitch": 0.0,
+            "tilt_error": 0.0, "sensor_type": "NONE", "imu_present": False
+        }
 
         return {
             "valid_fusion": valid_fusion,
